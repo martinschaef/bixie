@@ -3,6 +3,7 @@
  */
 package bixie;
 
+import org.apache.log4j.LogManager;
 import org.gravy.ProgramAnalysis;
 
 import boogie.ProgramFactory;
@@ -25,7 +26,12 @@ public class Bixie {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String javaFileDir = "./test";
+		if (args.length!=1) {
+			System.err.println("Pass path to java files or jar-filename as input.");
+			return;
+		}
+		LogManager.resetConfiguration();
+		String javaFileDir = args[0];
 		Bixie m = new Bixie();
 		m.run(javaFileDir);		
 	}

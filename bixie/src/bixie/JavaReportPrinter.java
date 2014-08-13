@@ -42,8 +42,9 @@ public class JavaReportPrinter implements ReportPrinter {
 		if (!(r instanceof InfeasibleReport) ) {
 			throw new RuntimeException("Bixie can only work with infeasible code reports!");
 		}
-		InfeasibleReport ir = (InfeasibleReport)r;		
-		System.err.println(buildJavaErrorString(ir));
+		InfeasibleReport ir = (InfeasibleReport)r;
+		String s = buildJavaErrorString(ir);
+		if (s!=null && s.length()>0) System.err.println(s);
 	}
 
 	
@@ -51,6 +52,9 @@ public class JavaReportPrinter implements ReportPrinter {
 	private String buildJavaErrorString(InfeasibleReport ir) {
 		StringBuilder sb = new StringBuilder();
 		LinkedList<HashSet<Statement>> infeasibleSubProgs = ir.getInfeasibleSubPrograms();
+//		if (infeasibleSubProgs.size()>0) {
+//			System.err.println("Found " + infeasibleSubProgs.size() + " candidates. Not all of them might be useful");
+//		}
 		
 //		Set<JavaSourceLocation> goodLocations = readJavaLocationTags(feasibleBlocks);
 		
@@ -74,8 +78,9 @@ public class JavaReportPrinter implements ReportPrinter {
 					startLine = -1;
 					endLine = -1;
 					filename="";					
-					break;					
+					break;
 				} else if (this.containsNamedAttribute(s, GlobalsCache.cloneAttribute)) {
+					System.err.println("clone.");
 					continue;
 				}
 				
@@ -99,6 +104,8 @@ public class JavaReportPrinter implements ReportPrinter {
 								if (endLine==-1 || jcl.EndLine>endLine) {
 									endLine = jcl.EndLine;
 								}	
+							} else {
+								System.err.println("Error: mal-formated location tag.");
 							}
 						}
 					}		
@@ -150,8 +157,8 @@ public class JavaReportPrinter implements ReportPrinter {
 	}
 	
 	protected JavaSourceLocation readSourceLocationFromAttrib(Attribute attr) {
-		if (attr instanceof NamedAttribute) {
-			NamedAttribute na = (NamedAttribute)attr;							
+		if (attr instanceof NamedAttribute) {			
+			NamedAttribute na = (NamedAttribute)attr;
 			if (na.getName().equals(ProgramFactory.LocationTag)
 					&& na.getValues().length>=3) {
 				JavaSourceLocation jcl = null;
