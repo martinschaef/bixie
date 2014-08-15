@@ -75,10 +75,11 @@ public class JavaReportPrinter implements ReportPrinter {
 
 				if (this.containsNoVerifyAttribute(s)) {
 					//Ignore this report
-					startLine = -1;
-					endLine = -1;
-					filename="";					
-					break;
+//					startLine = -1;
+//					endLine = -1;
+//					filename="";					
+//					break;
+					continue;
 				} else if (this.containsNamedAttribute(s, GlobalsCache.cloneAttribute)) {
 					System.err.println("clone.");
 					continue;
@@ -98,6 +99,9 @@ public class JavaReportPrinter implements ReportPrinter {
 						
 								
 								filename = jcl.FileName;
+								if (filename == null || filename.length()==0) {
+									throw new RuntimeException("Could not find debug information! Bixie cannot report anything with this.");
+								}
 								if (startLine==-1 || jcl.StartLine<startLine) {
 								startLine = jcl.StartLine;
 								}
