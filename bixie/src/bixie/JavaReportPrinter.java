@@ -80,7 +80,7 @@ public class JavaReportPrinter implements ReportPrinter {
 //					filename="";					
 //					break;
 					continue;
-				} else if (this.containsNamedAttribute(s, GlobalsCache.cloneAttribute)) {
+				} else if (this.containsNamedAttribute(s, ProgramFactory.Cloned)) {
 					System.err.println("clone.");
 					continue;
 				}
@@ -120,7 +120,7 @@ public class JavaReportPrinter implements ReportPrinter {
 			
 			//if (ignoreSubProg) continue;
 			
-			if (filename=="" || startLine==-1 || endLine==-1) {
+			if (filename=="" || startLine==-1 ) {
 				//if there is no code location, then we have nothing to report.
 				continue;
 			}
@@ -169,11 +169,19 @@ public class JavaReportPrinter implements ReportPrinter {
 				try {
 					jcl = new JavaSourceLocation();
 					jcl.FileName = ((StringLiteral)na.getValues()[0]).getValue();
-					jcl.StartLine = Integer.parseInt(((IntegerLiteral)na.getValues()[1]).getValue());
-					jcl.StartCol = Integer.parseInt(((IntegerLiteral)na.getValues()[2]).getValue());
-					if (na.getValues().length>=5) {						
-						jcl.EndLine = Integer.parseInt(((IntegerLiteral)na.getValues()[3]).getValue());
-						jcl.EndCol = Integer.parseInt(((IntegerLiteral)na.getValues()[4]).getValue());										
+					if (na.getValues()[1] instanceof IntegerLiteral) { //else its -1
+						jcl.StartLine = Integer.parseInt(((IntegerLiteral)na.getValues()[1]).getValue());
+					}
+					if (na.getValues()[2] instanceof IntegerLiteral) { //else its -1
+						jcl.StartCol = Integer.parseInt(((IntegerLiteral)na.getValues()[2]).getValue());
+					}
+					if (na.getValues().length>=5) {
+						if (na.getValues()[3] instanceof IntegerLiteral) { //else its -1
+							jcl.EndLine = Integer.parseInt(((IntegerLiteral)na.getValues()[3]).getValue());
+						}
+						if (na.getValues()[4] instanceof IntegerLiteral) { //else its -1
+							jcl.EndCol = Integer.parseInt(((IntegerLiteral)na.getValues()[4]).getValue());
+						}
 					}
 					return jcl;
 				} catch (NullPointerException e) {

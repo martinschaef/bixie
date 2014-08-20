@@ -36,7 +36,17 @@ public class Bixie {
 	}
 
 	public void run(String input) {
-		run(input, "");
+		if (input!=null && input.endsWith(".bpl")) {
+			try {
+				ProgramFactory pf = new ProgramFactory(input);
+				runChecker(pf);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			run(input, "");
+		}
 	}
 	
 	public void run(String input, String classpath) {
