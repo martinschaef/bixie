@@ -3,11 +3,15 @@
  */
 package bixie;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.ListIterator;
+import java.util.Map.Entry;
 import java.util.Set;
 
-import org.gravy.GlobalsCache;
 import org.gravy.report.InfeasibleReport;
 import org.gravy.report.Report;
 import org.gravy.reportprinter.ReportPrinter;
@@ -27,6 +31,9 @@ import boogie.controlflow.statement.CfgStatement;
  */
 public class JavaReportPrinter implements ReportPrinter {
 
+	HashMap<String, LinkedHashSet<Integer>> sortedReports = new HashMap<String, LinkedHashSet<Integer>>();
+	
+	
 	/**
 	 * 
 	 */
@@ -43,14 +50,32 @@ public class JavaReportPrinter implements ReportPrinter {
 			throw new RuntimeException("Bixie can only work with infeasible code reports!");
 		}
 		InfeasibleReport ir = (InfeasibleReport)r;
-		String s = buildJavaErrorString(ir);
-		if (s!=null && s.length()>0) System.err.println(s);
+		buildJavaErrorString(ir);
+		//if (s!=null && s.length()>0) System.err.println(s);
 	}
 
-	
-	
-	private String buildJavaErrorString(InfeasibleReport ir) {
+	public String printAllReports() {
 		StringBuilder sb = new StringBuilder();
+		for (Entry<String, LinkedHashSet<Integer>> e :sortedReports.entrySet() ) {
+			if (e.getValue().size()>0) {
+				sb.append("In file: ");
+				sb.append(e.getKey());
+				sb.append("\n");
+				LinkedList<Integer> reverse = new LinkedList<Integer>();
+				for (Integer i : e.getValue()) {
+					reverse.addFirst(i);
+				}				
+				Collections.sort(reverse);
+				for (Integer i : reverse) {
+					sb.append("\tline "+i+"\n");
+				}
+			}
+		}
+		return sb.toString();
+	}
+	
+	private void buildJavaErrorString(InfeasibleReport ir) {
+		
 		LinkedList<HashSet<Statement>> infeasibleSubProgs = ir.getInfeasibleSubPrograms();
 //		if (infeasibleSubProgs.size()>0) {
 //			System.err.println("Found " + infeasibleSubProgs.size() + " candidates. Not all of them might be useful");
@@ -58,7 +83,7 @@ public class JavaReportPrinter implements ReportPrinter {
 		
 //		Set<JavaSourceLocation> goodLocations = readJavaLocationTags(feasibleBlocks);
 		
-		boolean firstReport = true;
+		
 //		int i=0;
 		for (HashSet<Statement> subprog : infeasibleSubProgs) {
 			
@@ -124,16 +149,16 @@ public class JavaReportPrinter implements ReportPrinter {
 				//if there is no code location, then we have nothing to report.
 				continue;
 			}
-			if (firstReport) {
-				firstReport = false;
-				sb.append("\nInfeasible Code:\n");
+
+			//todo
+			if (!sortedReports.containsKey(filename)) {
+				sortedReports.put(filename, new LinkedHashSet<Integer>());
 			}
-			sb.append("in file: "+filename);
-			sb.append("\tfrom "+startLine + " to " + endLine+ "\n");
+			sortedReports.get(filename).add(startLine);
 		}
-		if (!firstReport) sb.append("\n");
 		
-		return sb.toString();
+		
+		
 	}
 	
 	protected class JavaSourceLocation {

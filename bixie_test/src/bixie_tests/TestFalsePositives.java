@@ -17,7 +17,7 @@ public class TestFalsePositives  {
 	
 	@Test
 	public void test() {
-		String dir = System.getProperty("user.dir")+"/regression/falsepositives";
+		String dir = System.getProperty("user.dir")+"/regression/boogie/java_input.bpl";
 		System.out.println("Test: " + dir);
 		Bixie bx = new Bixie();
 		bx.run(dir);

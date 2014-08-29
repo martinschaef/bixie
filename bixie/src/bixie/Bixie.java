@@ -3,6 +3,8 @@
  */
 package bixie;
 
+import java.io.PrintWriter;
+
 import org.gravy.ProgramAnalysis;
 
 import boogie.ProgramFactory;
@@ -30,86 +32,50 @@ public class Bixie {
 			return;
 		}
 		
-		String javaFileDir = args[0];
-		Bixie m = new Bixie();
-		m.run(javaFileDir, null);		
+//		String javaFileDir = args[0];
+//		Bixie m = new Bixie();
+//		m.run(javaFileDir, null);		
 	}
 
 	public void run(String input) {
 		if (input!=null && input.endsWith(".bpl")) {
-			try {
+			try (PrintWriter out = new PrintWriter(input+".report.txt");){
 				ProgramFactory pf = new ProgramFactory(input);
-				runChecker(pf);
+				String str = runChecker(pf);
+				out.println(str);
+				System.out.println(str);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} else {
-			run(input, "");
+			//run(input, "");
 		}
 	}
 	
-	public void run(String input, String classpath) {
-		System.out.println("Translating");
-		
-		redirectLoggers();
-			
-		org.joogie.Dispatcher.setClassPath(input + classpath);
-		ProgramFactory pf = org.joogie.Dispatcher.run(input);		
-		runChecker(pf);
-	}
+//	public void run(String input, String classpath) {
+//		System.out.println("Translating");
+//		
+//		redirectLoggers();
+//			
+//		org.joogie.Dispatcher.setClassPath(input + classpath);
+//		ProgramFactory pf = org.joogie.Dispatcher.run(input);		
+//		runChecker(pf);
+//	}
 
-	public void runChecker(ProgramFactory pf) {
-		pf.toFile("./tmp.bpl");
+	public String runChecker(ProgramFactory pf) {
 		System.out.println("Checking");
 		org.gravy.Options.v().setChecker(1);
 		//Options.v().useLocationAttribute(true);
 		org.gravy.Options.v().setLoopMode(1);
+		JavaReportPrinter jp = new JavaReportPrinter();
 		try {
-			ProgramAnalysis.runFullProgramAnalysis(pf, new JavaReportPrinter());
+			ProgramAnalysis.runFullProgramAnalysis(pf, jp);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("Done");
+		return jp.printAllReports();		
 	}
-	
-	private void redirectLoggers() {
-		//SysOutOverSLF4J.sendSystemOutAndErrToSLF4J();
-//		ch.qos.logback.classic.Logger log;
-//		log = (ch.qos.logback.classic.Logger)LoggerFactory.getLogger("soot.PackManager");
-//		log.setLevel(Level.ERROR);
-//		log = (ch.qos.logback.classic.Logger)LoggerFactory.getLogger("soot.SootResolver");
-//		log.setLevel(Level.ERROR);
-	}
-	
-	/*
-#log4j.rootLogger=INFO, stdout, stderr
-log4j.rootLogger=INFO, stdout, stderr, file
-
-# configure stdout
-log4j.appender.stdout = org.apache.log4j.ConsoleAppender
-log4j.appender.stdout.Threshold = INFO
-log4j.appender.stdout.Target = System.out
-log4j.appender.stdout.layout = org.apache.log4j.SimpleLayout
-log4j.appender.stdout.filter.filter1 = org.apache.log4j.varia.LevelRangeFilter
-log4j.appender.stdout.filter.filter1.levelMin = DEBUG
-log4j.appender.stdout.filter.filter1.levelMax = INFO
-
-# configure stderr
-log4j.appender.stderr = org.apache.log4j.ConsoleAppender
-log4j.appender.stderr.Threshold = ERROR
-log4j.appender.stderr.Target = System.err
-log4j.appender.stderr.layout = org.apache.log4j.SimpleLayout
-
-# configure file
-log4j.appender.file = org.apache.log4j.RollingFileAppender
-log4j.appender.file.Append = false
-log4j.appender.file.file = ./gravy.log
-log4j.appender.file.file.threshold = INFO
-log4j.appender.file.layout = org.apache.log4j.SimpleLayout
-
-	 */
-	
 	
 }
