@@ -20,7 +20,7 @@ public class TestFalsePositives  {
 		String dir = System.getProperty("user.dir")+"/regression/boogie/java_input.bpl";
 		System.out.println("Test: " + dir);
 		Bixie bx = new Bixie();
-		bx.run(dir);
+		bx.run(dir, "report.txt");
 		org.junit.Assert.assertTrue(true);
 		
 	}

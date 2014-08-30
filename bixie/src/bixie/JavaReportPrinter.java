@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.ListIterator;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -61,12 +60,9 @@ public class JavaReportPrinter implements ReportPrinter {
 				sb.append("In file: ");
 				sb.append(e.getKey());
 				sb.append("\n");
-				LinkedList<Integer> reverse = new LinkedList<Integer>();
-				for (Integer i : e.getValue()) {
-					reverse.addFirst(i);
-				}				
-				Collections.sort(reverse);
-				for (Integer i : reverse) {
+				LinkedList<Integer> sorted = new LinkedList<Integer>(e.getValue());				
+				Collections.sort(sorted);
+				for (Integer i : sorted) {
 					sb.append("\tline "+i+"\n");
 				}
 			}
@@ -95,7 +91,7 @@ public class JavaReportPrinter implements ReportPrinter {
 			int endLine = -1;
 			String filename="";
 			//boolean ignoreSubProg = false;
-			
+
 			for (Statement s : subprog) {
 
 				if (this.containsNoVerifyAttribute(s)) {
@@ -117,22 +113,19 @@ public class JavaReportPrinter implements ReportPrinter {
 							
 							JavaSourceLocation jcl = readSourceLocationFromAttrib(attr);
 							if (jcl!=null) {
-//									if (goodLocations.contains(jcl)) {
-//										System.err.println("Halloooooo!");
-//										continue;
-//									}
-						
 								
 								filename = jcl.FileName;
 								if (filename == null || filename.length()==0) {
 									throw new RuntimeException("Could not find debug information! Bixie cannot report anything with this.");
 								}
-								if (startLine==-1 || jcl.StartLine<startLine) {
-								startLine = jcl.StartLine;
+								if (jcl.StartLine>=0) { //ignore statements that have -1 as line number
+									if (startLine==-1 || jcl.StartLine<startLine) {
+									startLine = jcl.StartLine;
+									}
+									if (endLine==-1 || jcl.EndLine>endLine) {
+										endLine = jcl.EndLine;
+									}
 								}
-								if (endLine==-1 || jcl.EndLine>endLine) {
-									endLine = jcl.EndLine;
-								}	
 							} else {
 								System.err.println("Error: mal-formated location tag.");
 							}
@@ -218,21 +211,6 @@ public class JavaReportPrinter implements ReportPrinter {
 		return null;
 	}
 	
-	protected Set<JavaSourceLocation> readJavaLocationTags(Set<BasicBlock> blocks) {		
-		HashSet<JavaSourceLocation> sourceLocations = new HashSet<JavaSourceLocation>();
-		for (BasicBlock b : blocks) {				
-			
-			for (CfgStatement s : b.getStatements()) {
-				if (s.getAttributes()!=null) {
-					for (Attribute attr : s.getAttributes()) {
-						JavaSourceLocation jcl = readSourceLocationFromAttrib(attr);
-						if (jcl!=null) sourceLocations.add(jcl);
-					}		
-				}
-			}			
-		}		
-		return sourceLocations;
-	}
 	
 	protected boolean containsNoVerifyAttribute(Statement s) {
 		return containsNamedAttribute(s, ProgramFactory.NoVerifyTag);

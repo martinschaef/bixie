@@ -20,7 +20,7 @@ public class TestSnippets  {
 		String dir = System.getProperty("user.dir")+"/regression/snippets";
 		System.out.println("Test: " + dir);
 		Bixie bx = new Bixie();
-		bx.run(dir);
+		bx.run(dir, "/report.txt");
 		org.junit.Assert.assertTrue(true);
 		
 	}

@@ -57,7 +57,7 @@ public class TestJars  {
 	public void test() {
 		System.out.println("Test: "+this.shortname);
 		Bixie bx = new Bixie();
-		bx.run(this.input);
+		bx.run(this.input, "/report.txt");
 		org.junit.Assert.assertTrue(true);
 		
 	}

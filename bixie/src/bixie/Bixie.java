@@ -37,9 +37,9 @@ public class Bixie {
 //		m.run(javaFileDir, null);		
 	}
 
-	public void run(String input) {
+	public void run(String input, String output) {
 		if (input!=null && input.endsWith(".bpl")) {
-			try (PrintWriter out = new PrintWriter(input+".report.txt");){
+			try (PrintWriter out = new PrintWriter(output);){
 				ProgramFactory pf = new ProgramFactory(input);
 				String str = runChecker(pf);
 				out.println(str);
