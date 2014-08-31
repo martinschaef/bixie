@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.gravy.report.InfeasibleReport;
 import org.gravy.report.Report;
@@ -21,8 +20,6 @@ import boogie.ast.NamedAttribute;
 import boogie.ast.expression.literal.IntegerLiteral;
 import boogie.ast.expression.literal.StringLiteral;
 import boogie.ast.statement.Statement;
-import boogie.controlflow.BasicBlock;
-import boogie.controlflow.statement.CfgStatement;
 
 /**
  * @author schaef
