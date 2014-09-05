@@ -78,7 +78,7 @@ public class JavaReportPrinter implements ReportPrinter {
 		
 		
 //		int i=0;
-		for (HashSet<Statement> subprog : infeasibleSubProgs) {
+		for (HashSet<Statement> subprog : infeasibleSubProgs) {			
 			
 //			System.err.println("Subprog "+(i++));
 //			for (BasicBlock b : subprog) System.err.println("\t"+b.getLabel());
@@ -103,9 +103,8 @@ public class JavaReportPrinter implements ReportPrinter {
 					continue;
 				}
 				
-
 				if (s.getAttributes()!=null) {
-					for (Attribute attr : s.getAttributes()) {
+					for (Attribute attr : s.getAttributes()) {						
 						if (attr instanceof NamedAttribute) {
 							
 							JavaSourceLocation jcl = readSourceLocationFromAttrib(attr);
@@ -122,7 +121,7 @@ public class JavaReportPrinter implements ReportPrinter {
 									if (endLine==-1 || jcl.EndLine>endLine) {
 										endLine = jcl.EndLine;
 									}
-								}
+								}								
 							} else {
 								System.err.println("Error: mal-formated location tag.");
 							}
@@ -139,7 +138,7 @@ public class JavaReportPrinter implements ReportPrinter {
 				//if there is no code location, then we have nothing to report.
 				continue;
 			}
-
+			
 			//todo
 			if (!sortedReports.containsKey(filename)) {
 				sortedReports.put(filename, new LinkedHashSet<Integer>());
