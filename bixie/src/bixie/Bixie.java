@@ -6,6 +6,8 @@ package bixie;
 import java.io.PrintWriter;
 
 import org.gravy.ProgramAnalysis;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 
 import boogie.ProgramFactory;
 
@@ -27,55 +29,82 @@ public class Bixie {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		if (args.length!=1) {
-			System.err.println("Pass path to java files or jar-filename as input.");
-			return;
-		}
+		bixie.Options options = bixie.Options.v();
+		CmdLineParser parser = new CmdLineParser(options);
 		
-//		String javaFileDir = args[0];
-//		Bixie m = new Bixie();
-//		m.run(javaFileDir, null);		
+		if (args.length==0) {
+			parser.printUsage(System.err);
+			return;
+		}		
+		
+		try {
+			parser.parseArgument(args);		
+
+			Bixie bixie = new Bixie();
+			if (options.getBoogieFile()!=null && options.getJarFile()!=null) {
+				System.err.println("Can only take either Java or Boogie input. Not both");
+				return;
+			} else if (options.getBoogieFile()!=null) {
+				bixie.run(options.getBoogieFile(), options.getOutputFile());
+			} else {
+				bixie.translateAndRun(options.getJarFile(), options.getClasspath(), options.getOutputFile());
+			}
+			
+		} catch (CmdLineException e) {
+			System.err.println(e.getMessage());
+			parser.printUsage(System.err);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void run(String input, String output) {
 		if (input!=null && input.endsWith(".bpl")) {
-			try (PrintWriter out = new PrintWriter(output);){
+			try {
 				ProgramFactory pf = new ProgramFactory(input);
-				String str = runChecker(pf);
-				out.println(str);
-				System.out.println(str);
+				runChecker(pf, output);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} else {
-			//run(input, "");
+			System.err.println("Not a valid Boogie file: "+input);
 		}
 	}
 	
-//	public void run(String input, String classpath) {
-//		System.out.println("Translating");
-//		
-//		redirectLoggers();
-//			
-//		org.joogie.Dispatcher.setClassPath(input + classpath);
-//		ProgramFactory pf = org.joogie.Dispatcher.run(input);		
-//		runChecker(pf);
-//	}
-
-	public String runChecker(ProgramFactory pf) {
-		System.out.println("Checking");
-		org.gravy.Options.v().setChecker(1);
-		//Options.v().useLocationAttribute(true);
-		org.gravy.Options.v().setLoopMode(1);
-		JavaReportPrinter jp = new JavaReportPrinter();
+	public void translateAndRun(String input, String classpath, String output) {
 		try {
-			ProgramAnalysis.runFullProgramAnalysis(pf, jp);
+			System.out.println("Translating");
+			org.joogie.Dispatcher.setClassPath(classpath);
+			ProgramFactory pf = org.joogie.Dispatcher.run(input);		
+			runChecker(pf, output);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		return jp.printAllReports();		
+		}			
+	}
+
+	public void runChecker(ProgramFactory pf, String output) {
+		System.out.println("Checking");
+		try (PrintWriter out = new PrintWriter(output);){
+		
+			org.gravy.Options.v().setChecker(1);
+			//Options.v().useLocationAttribute(true);
+			org.gravy.Options.v().setLoopMode(1);
+			JavaReportPrinter jp = new JavaReportPrinter();
+			try {
+				ProgramAnalysis.runFullProgramAnalysis(pf, jp);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			String str = jp.printAllReports();
+			out.println(str);
+			System.out.println(str);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 	}
 	
 }
