@@ -3,6 +3,7 @@
  */
 package bixie;
 
+import java.io.File;
 import java.io.PrintWriter;
 
 import org.gravy.ProgramAnalysis;
@@ -47,9 +48,12 @@ public class Bixie {
 			} else if (options.getBoogieFile()!=null) {
 				bixie.run(options.getBoogieFile(), options.getOutputFile());
 			} else {
-				bixie.translateAndRun(options.getJarFile(), options.getClasspath(), options.getOutputFile());
+				String cp = options.getClasspath();
+				if (cp!=null && !cp.contains(options.getJarFile())) {
+					cp += File.pathSeparatorChar + options.getJarFile();
+				}
+				bixie.translateAndRun(options.getJarFile(), cp, options.getOutputFile());
 			}
-			
 		} catch (CmdLineException e) {
 			System.err.println(e.getMessage());
 			parser.printUsage(System.err);

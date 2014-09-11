@@ -44,7 +44,7 @@ public class Options {
 	 * Boogie file
 	 */
 	@Option(name = "-o", usage = "Output file")
-	private String outputFile = "bixue_output.txt";
+	private String outputFile = "bixie_output.txt";
 	
 	
 	/**
