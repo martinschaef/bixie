@@ -27,7 +27,15 @@ import boogie.ast.statement.Statement;
  */
 public class JavaReportPrinter implements ReportPrinter {
 
-	HashMap<String, LinkedHashSet<Integer>> sortedReports = new HashMap<String, LinkedHashSet<Integer>>();
+	protected HashMap<String, LinkedHashSet<Integer>> sortedReports = new HashMap<String, LinkedHashSet<Integer>>();
+	
+	public Integer[] getInfeasibleLines(String filename) {
+		LinkedHashSet<Integer> ret = null;
+		if (this.sortedReports.containsKey(filename)) {
+			ret = this.sortedReports.get(filename);
+		}
+		return ret.toArray(new Integer[ret.size()]);
+	}
 	
 	
 	/**
