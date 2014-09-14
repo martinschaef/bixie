@@ -34,9 +34,9 @@ public class JavaReportPrinter implements ReportPrinter {
 		LinkedHashSet<Integer> ret = null;
 		if (this.sortedReports.containsKey(filename)) {
 			ret = this.sortedReports.get(filename);
-		}
-		for (Integer i : ret) {
-			fileReport.put(i, "Bixe found a contradiction.");
+			for (Integer i : ret) {
+				fileReport.put(i, "Bixe found a contradiction.");
+			}
 		}
 		return fileReport;
 	}
@@ -133,7 +133,7 @@ public class JavaReportPrinter implements ReportPrinter {
 						}
 					}								
 				} else {
-					System.err.println("Error: mal-formated location tag.");
+					System.out.println("Mal-formated location tag. "+s.getAttributes());
 				}
 					
 				
