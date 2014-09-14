@@ -29,12 +29,16 @@ public class JavaReportPrinter implements ReportPrinter {
 
 	protected HashMap<String, LinkedHashSet<Integer>> sortedReports = new HashMap<String, LinkedHashSet<Integer>>();
 	
-	public Integer[] getInfeasibleLines(String filename) {
+	public HashMap<Integer, String> getInfeasibleLines(String filename) {
+		HashMap<Integer, String> fileReport = new HashMap<Integer, String>(); 
 		LinkedHashSet<Integer> ret = null;
 		if (this.sortedReports.containsKey(filename)) {
 			ret = this.sortedReports.get(filename);
 		}
-		return ret.toArray(new Integer[ret.size()]);
+		for (Integer i : ret) {
+			fileReport.put(i, "Bixe found a contradiction.");
+		}
+		return fileReport;
 	}
 	
 	
@@ -111,30 +115,25 @@ public class JavaReportPrinter implements ReportPrinter {
 					continue;
 				}
 				
-				if (s.getAttributes()!=null) {
-					for (Attribute attr : s.getAttributes()) {						
-						if (attr instanceof NamedAttribute) {
-							
-							JavaSourceLocation jcl = readSourceLocationFromAttrib(attr);
-							if (jcl!=null) {
-								
-								filename = jcl.FileName;
-								if (filename == null || filename.length()==0) {
-									throw new RuntimeException("Could not find debug information! Bixie cannot report anything with this.");
-								}
-								if (jcl.StartLine>=0) { //ignore statements that have -1 as line number
-									if (startLine==-1 || jcl.StartLine<startLine) {
-									startLine = jcl.StartLine;
-									}
-									if (endLine==-1 || jcl.EndLine>endLine) {
-										endLine = jcl.EndLine;
-									}
-								}								
-							} else {
-								System.err.println("Error: mal-formated location tag.");
-							}
+				JavaSourceLocation jcl = readSourceLocationFromAttributes(s.getAttributes());
+				if (jcl!=null) {
+					if (jcl.comment!=null) {
+						System.err.println("comment: "+jcl.comment);
+					}
+					filename = jcl.FileName;
+					if (filename == null || filename.length()==0) {
+						throw new RuntimeException("Could not find debug information! Bixie cannot report anything with this.");
+					}
+					if (jcl.StartLine>=0) { //ignore statements that have -1 as line number
+						if (startLine==-1 || jcl.StartLine<startLine) {
+						startLine = jcl.StartLine;
 						}
-					}		
+						if (endLine==-1 || jcl.EndLine>endLine) {
+							endLine = jcl.EndLine;
+						}
+					}								
+				} else {
+					System.err.println("Error: mal-formated location tag.");
 				}
 					
 				
@@ -164,6 +163,7 @@ public class JavaReportPrinter implements ReportPrinter {
 		public int EndLine = -1;
 		public int StartCol = -1;
 		public int EndCol = -1;
+		public String comment ="";
 		
 		@Override
 		public boolean equals(Object other) {
@@ -180,6 +180,50 @@ public class JavaReportPrinter implements ReportPrinter {
 		public int hashCode(){
 			return this.FileName.hashCode()*StartLine*EndLine*StartCol*EndCol;
 		}
+	}
+	
+	protected JavaSourceLocation readSourceLocationFromAttributes(Attribute[] attributes) {
+		JavaSourceLocation jcl = null;
+		String comment = null;
+		for (Attribute attr : attributes) {
+			if (attr instanceof NamedAttribute) {			
+				NamedAttribute na = (NamedAttribute)attr;
+				if (na.getName().equals(ProgramFactory.LocationTag)
+						&& na.getValues().length>=3) {					
+					try {
+						jcl = new JavaSourceLocation();
+						jcl.FileName = ((StringLiteral)na.getValues()[0]).getValue();
+						if (na.getValues()[1] instanceof IntegerLiteral) { //else its -1
+							jcl.StartLine = Integer.parseInt(((IntegerLiteral)na.getValues()[1]).getValue());
+						}
+						if (na.getValues()[2] instanceof IntegerLiteral) { //else its -1
+							jcl.StartCol = Integer.parseInt(((IntegerLiteral)na.getValues()[2]).getValue());
+						}
+						if (na.getValues().length>=5) {
+							if (na.getValues()[3] instanceof IntegerLiteral) { //else its -1
+								jcl.EndLine = Integer.parseInt(((IntegerLiteral)na.getValues()[3]).getValue());
+							}
+							if (na.getValues()[4] instanceof IntegerLiteral) { //else its -1
+								jcl.EndCol = Integer.parseInt(((IntegerLiteral)na.getValues()[4]).getValue());
+							}
+						}
+					} catch (NullPointerException e) {
+						e.printStackTrace();
+						jcl = null;
+					}
+				} else if (na.getName().equals(ProgramFactory.Comment)) {
+					if (na.getValues().length>0 && na.getValues()[0] instanceof StringLiteral) {
+						comment = ((StringLiteral)na.getValues()[0]).getValue();
+					} else {
+						comment = null;
+					}
+				}
+			}
+		}
+		if (jcl!=null && comment!=null) {
+			jcl.comment = comment;
+		}
+		return jcl;
 	}
 	
 	protected JavaSourceLocation readSourceLocationFromAttrib(Attribute attr) {
@@ -209,6 +253,8 @@ public class JavaReportPrinter implements ReportPrinter {
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
+				
+			} else if (na.getName().equals(ProgramFactory.Comment)) {
 				
 			}
 		}
