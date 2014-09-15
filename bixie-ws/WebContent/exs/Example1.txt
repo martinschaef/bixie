@@ -1,0 +1,17 @@
+class Example1 {
+
+	public void trivial1(Object o) {
+		o.hashCode();
+		if (o==null) {
+			//contradiction
+		}
+	}
+
+	public void trivial2(Object o) {
+		if (o==null) {
+			//contradiction
+		}
+		o.hashCode();
+	}
+
+}

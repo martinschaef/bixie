@@ -1,0 +1,17 @@
+class Example2 {
+
+	public void infeasible07(char[] temp) {
+		int repos = -1;
+		int end = -1;
+		int j = end;
+		do {
+			j++;
+			if (temp[j]=='a') {
+				repos = j - end - 1;
+			}
+		} while (repos == -1 && j < temp.length);
+		if (repos == -1) {
+			repos=0; //unreachable
+		}
+	}
+}
