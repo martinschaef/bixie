@@ -1,5 +1,5 @@
 /*
- * Joogie translates Java bytecode to the Boogie intermediate verification language
+ * 
  * Copyright (C) 2011 Martin Schaef and Stephan Arlt
  * 
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bixie.ws.util.Examples;
-import org.bixie.ws.util.ParserException;
+import org.bixie.ws.util.BixieParserException;
 import org.bixie.ws.util.Runner;
 
 /**
@@ -56,7 +56,7 @@ public class IndexServlet extends HttpServlet {
 			String code = req.getParameter("code");
 			HashMap<Integer, String> lines = Runner.run(req.getServletContext(), code);
 			req.setAttribute("report", lines);
-		} catch (ParserException e) {
+		} catch (BixieParserException e) {
 			req.setAttribute("parsererror", e.getErrorMessages());
 		} catch (RuntimeException e) {
 			e.printStackTrace();

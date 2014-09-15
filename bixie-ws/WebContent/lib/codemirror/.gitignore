@@ -4,3 +4,4 @@ test.html
 .tern-*
 *~
 *.swp
+/.DS_Store

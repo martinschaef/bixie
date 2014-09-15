@@ -9,13 +9,13 @@ import java.util.HashMap;
  * @author schaef
  *
  */
-public class ParserException extends Exception {
+public class BixieParserException extends Exception {
 
 	private static final long serialVersionUID = 666961965503740297L;
 
 	private HashMap<Integer, String> errorMessages;
 	
-	public ParserException(HashMap<Integer, String> errors) {
+	public BixieParserException(HashMap<Integer, String> errors) {
 		this.errorMessages = errors;
 	}
 	

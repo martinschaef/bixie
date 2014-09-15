@@ -1,5 +1,5 @@
 /*
- * Joogie translates Java bytecode to the Boogie intermediate verification language
+ *
  * Copyright (C) 2011 Martin Schaef and Stephan Arlt
  * 
  * This program is free software; you can redistribute it and/or
