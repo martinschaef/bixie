@@ -42,6 +42,12 @@ div.center iframe{
     margin-left: auto;
     margin-right: auto;
 }
+
+.noframetable {
+	border: none; 
+	border-collapse: collapse; 
+	width:100%
+}
 </style>
 </head>
 <body>
@@ -64,25 +70,53 @@ div.center iframe{
 
 		<p>
 			Bixie is a static checker that detects contradictions in Java code. We speak of a contradiction
-			when a statement is only executed on paths where the path conditions conflict with other assignments 
-			or runtime assertions. Contradictions indicate either unreachable code or code that is only executed 
-			on paths that violate some desired property (e.g., absence of runtime exceptions).
-		</p><p>	
+			when a statement only occurs on paths that contain conflicting assumptions. Contradictions 
+			indicate either unreachable code or code that is only executed on paths that violate some desired property 
+			(e.g., absence of runtime exceptions). Two very simple examples of contradictions are:
+		</p>
+<table style="border: none; width:100%" >
+<tr>
+<td>
+<!-- HTML generated using hilite.me --><div style="overflow:none;width:250px;border:gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
+<pre style="margin: 0; line-height: 125%">obj.x = 1;
+<span style="color: #0000ff">if</span> (obj == <span style="color: #0000ff">null</span>) {
+  <span style="color: #008000">//contradiction</span>
+}
+</pre></div>
+</td>
+<td>
+<!-- HTML generated using hilite.me --><div style="overflow:none;width:250px;border:gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
+<pre style="margin: 0; line-height: 125%"><span style="color: #0000ff">if</span> (obj == <span style="color: #0000ff">null</span>) {
+  <span style="color: #008000">//contradiction</span>
+}
+obj.x = 1;
+</pre></div>
+</td>
+</tr>
+</table>
+		<p>
 			While contradictions are not automatically bugs, they have a bad smell as they represent code that 
 			cannot be executed safely. The Java compiler, for example, treats certain instances of contradictions 
 			as errors, like the use of uninitialized variables or inevitable null-pointer dereferences. 
-
-			
 		</p>
 
+	<p>
+	Bixie uses deductive verification to find those contradictions that the Java compiler
+	missed. Bixie is the successor of our  <a href="http://www.joogie.org" target="_blank">Joogie</a> tool. 
+	While Joogie was already doing a good job in detecting contradictions in Java bytecode, it produced 
+	a substantial amount of false alarms because not all contradictions in the bytecode are
+	also contradictions in Java code. In Bixie, we use a novel technique to translate bytecode into logic
+	that allows our checker to suppress almost all false alarms. At the same time, we improved
+	handling of loops and library functions to further increase the detection rate.
+	For more details on the new features of Bixie, check our 
+	<a href="https://github.com/martinschaef/jar2bpl/wiki" target="_blank">wiki</a> or watch
+	the <a href="index#thevideo" target="_blank">video</a> below.
+	</p>
 
 	<div id="thevideo" class="center">
 	<iframe width="600" height="315" src="//www.youtube.com/embed/dQw4w9WgXcQ?rel=0" frameborder="0" align="middle"></iframe>
-
-	<h3>Try it!</h3>
-	<p>	
-		Enter some Java code below.
-	</p>
+	<br>
+	<hr>
 
 	</div>
 		<script>
@@ -102,6 +136,11 @@ div.center iframe{
 		</script>
 
 		<div id="codeblock">
+			<h3>Try it!</h3>
+			Enter some Java code or browse through our examples. Depending on your Internet connection,
+			Bixie may take a few seconds to deliver results. Bixie results will be displayed as yellow
+			warnings on the side of the code, compiler errors are red crosses. Bixie is only executed if your
+			code has no compiler errors.
 			<div id="prompt">
 				<img id="promptimg" alt="Write some Java code here!"
 					src="img/prompt.png" />
@@ -158,11 +197,6 @@ div.center iframe{
 		
 		</section>
 	</div>
-
-	
-	
-
-
 
 	<div id="footer_wrap" class="outer">
 		<p class="copyright">
