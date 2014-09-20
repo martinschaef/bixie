@@ -73,6 +73,9 @@ div.center iframe{
 		<script type="text/javascript">
 		var editor = {};
 		var example_idx =0;
+		<c:if test="${null != requestScope.exampleIdx}">
+			example_idx = ${requestScope.exampleIdx};
+		</c:if>
 		
 		var examples = new Array();
 				
@@ -82,11 +85,18 @@ div.center iframe{
 			</c:forEach>
 		</c:if>
 		
+		function resetGutters() {
+			editor.clearGutter("CodeMirror-lint-markers");
+		}
+		
 		function loadnext(reload) {
+			editor.clearHistory();
+			resetGutters();
 			example_idx=example_idx+1;
 			if (example_idx>=examples.length) {
 				example_idx =0;
 			}
+			document.getElementById('examplecounter').value = example_idx;
 			editor.setValue(examples[example_idx]);
 		 }
 
@@ -95,7 +105,6 @@ div.center iframe{
 		function submit_form(e){
 			e.preventDefault();
 			document.getElementById('submitbutton').innerHTML = '<b>test</b>'; 
-		    window.location.hash = '#form';
 		    window.location.reload(true);
 		}
 		
@@ -112,13 +121,15 @@ div.center iframe{
 						<c:set var="code" value="${param.code}" />
 					</c:when>
 					<c:otherwise>
-						
+												
 					</c:otherwise>
 				</c:choose>
 				<textarea id="code" name="code"><c:out value="${code}" /></textarea>
 				
+				<input type='hidden' id='examplecounter' name='examplecounter' value='0' />
+				
 				<p>
-					<a href="bixie" class="button" id="submitbutton"
+					<a href="javascript:void(0)" class="button" id="submitbutton"
 						onclick="document.getElementById('form').submit(submit_form)">Ask <b>Bixie</b>!
 					</a> &nbsp; <a href="javascript:void(0)" onclick="loadnext();" class="button">Load Example</a>
 				</p>
@@ -163,7 +174,9 @@ div.center iframe{
 			gutters: ["CodeMirror-linenumbers", "CodeMirror-lint-markers"]
 		});
 		
-		editor.setValue(examples[0]);
+		<c:if test="${'POST' != pageContext.request.method}">
+		editor.setValue(examples[example_idx]);
+		</c:if>
 		
 		function makeParserError(line, msg) {
 			// var info = cm.lineInfo(line);	

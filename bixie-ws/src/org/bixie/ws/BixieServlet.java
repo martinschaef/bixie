@@ -36,13 +36,17 @@ import org.bixie.ws.util.Runner;
 @SuppressWarnings("serial")
 public class BixieServlet extends HttpServlet {
 
+	String code = null;
+	String example_idx = "0";
+	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		try {
 			// load all examples
 			req.setAttribute("examples", Examples.v().getExamples(req.getServletContext()));
+			req.setAttribute("exampleIdx", example_idx);
 			forward(req, resp);
-
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -52,7 +56,10 @@ public class BixieServlet extends HttpServlet {
 			throws IOException {
 		try {
 			// run Bixie
-			String code = req.getParameter("code");
+			req.setAttribute("examples", Examples.v().getExamples(req.getServletContext()));
+			code = req.getParameter("code");
+			this.example_idx = req.getParameter("examplecounter");
+			req.setAttribute("exampleIdx", example_idx);
 			HashMap<Integer, String> lines = Runner.run(req.getServletContext(), code);
 			req.setAttribute("report", lines);
 		} catch (BixieParserException e) {
