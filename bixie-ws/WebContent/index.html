@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="US-ASCII" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head profile="http://www.w3.org/2005/10/profile">
+<link rel="icon" 
+      type="image/ico" 
+      href="img/favicon.ico">
+
+<meta charset='utf-8'>
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+	<meta name="description"
+		content="Bixie : Find contradictions in Java code">
+		<title>Bixie : Find contradictions in Java code</title>
+		<link rel="stylesheet" type="text/css" media="screen" href="css/stylesheet.css"/>
+
+</head>
+<body>
+
+	<!-- HEADER -->
+	<div id="header_wrap" class="outer">
+		<header class="inner"> <a id="forkme_banner"
+				href="https://github.com/martinschaef/bixie">View on GitHub</a>
+	
+			<h1 id="project_title">Find contradictions in Java code</h1>
+	
+			<section id="downloads"> <a class="zip_download_link"
+				href="https://github.com/martinschaef/bixie/releases/download/v1.0/bixie.jar.zip">Download
+				the .zip file</a> 
+			</section> 
+		</header>
+	</div>
+
+	<!-- MAIN CONTENT -->
+	<div id="main_content_wrap" class="outer">
+		<section id="main_content" class="inner">
+
+		<p>
+			Bixie is a static checker that detects contradictions in Java code. We speak of a contradiction
+			when a statement only occurs on paths that contain conflicting assumptions. Contradictions 
+			indicate either unreachable code or code that is only executed on paths that violate some desired property 
+			(e.g., absence of runtime exceptions). Two very simple examples of contradictions are:
+		</p>
+<table style="border: none; width:100%" >
+<tr>
+<td>
+<!-- HTML generated using hilite.me --><div style="overflow:none;width:250px;border:gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
+<pre style="margin: 0; line-height: 125%">obj.x = 1;
+<span style="color: #0000ff">if</span> (obj == <span style="color: #0000ff">null</span>) {
+  <span style="color: #008000">//contradiction</span>
+}
+</pre></div>
+</td>
+<td>
+<!-- HTML generated using hilite.me --><div style="overflow:none;width:250px;border:gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
+<pre style="margin: 0; line-height: 125%"><span style="color: #0000ff">if</span> (obj == <span style="color: #0000ff">null</span>) {
+  <span style="color: #008000">//contradiction</span>
+}
+obj.x = 1;
+</pre></div>
+</td>
+</tr>
+</table>
+		<p>
+			While contradictions are not automatically bugs, they have a bad smell as they represent code that 
+			cannot be executed safely. The Java compiler, for example, treats certain instances of contradictions 
+			as errors, like the use of uninitialized variables or inevitable null-pointer dereferences. 
+		</p>
+
+	<p>
+	Bixie uses deductive verification to find those contradictions that the Java compiler
+	missed. Bixie is the successor of our  <a href="http://www.joogie.org" target="_blank">Joogie</a> tool. 
+	While Joogie was already doing a good job in detecting contradictions in Java bytecode, it produced 
+	a substantial amount of false alarms because not all contradictions in the bytecode are
+	also contradictions in Java code. In Bixie, we use a novel technique to translate bytecode into logic
+	that allows our checker to suppress almost all false alarms. At the same time, we improved
+	handling of loops and library functions to further increase the detection rate.
+	For more details on the new features of Bixie, check our 
+	<a href="https://github.com/martinschaef/jar2bpl/wiki" target="_blank">wiki</a> or watch
+	the <a href="index#thevideo" target="_blank">video</a> below.
+	</p>
+
+	<div id="thevideo" class="center">
+	<iframe width="600" height="315" src="//www.youtube.com/embed/dQw4w9WgXcQ?rel=0" frameborder="0" align="middle"></iframe>
+	<br>
+	<hr>
+
+
+	</section>
+	
+</div>
+
+	<div id="footer_wrap" class="footer">
+		<p >
+			Bixie is maintained by <a href="https://github.com/martinschaef" target="_blank">martinschaef</a>
+		</p>
+	</div>
+
+	<script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+	<script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-20025374-5");
+            pageTracker._trackPageview();
+            } catch(err) {}
+    </script>
+
+
+</body>
+</html>

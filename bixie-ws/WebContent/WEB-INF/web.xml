@@ -2,21 +2,13 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
   <display-name>bixie-ws</display-name>
   <welcome-file-list>
-    <welcome-file>index</welcome-file>
+    <welcome-file>index.html</welcome-file>
   </welcome-file-list>
-  <servlet>
-    <servlet-name>IndexServlet</servlet-name>
-    <servlet-class>org.bixie.ws.IndexServlet</servlet-class>
-  </servlet>
   <servlet>
     <servlet-name>BixieServlet</servlet-name>
     <servlet-class>org.bixie.ws.BixieServlet</servlet-class>
   </servlet>
  
-  <servlet-mapping>
-    <servlet-name>IndexServlet</servlet-name>
-    <url-pattern>/index</url-pattern>
-  </servlet-mapping>
   <servlet-mapping>
     <servlet-name>BixieServlet</servlet-name>
     <url-pattern>/bixie</url-pattern>

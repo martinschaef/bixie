@@ -168,6 +168,8 @@ div.center iframe{
 	
 		editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 			lineNumbers : true,
+			indentUnit: 4, 
+			tabSize: 4,
 			matchBrackets : true,
 			mode : "text/x-java",
 			gutters: ["CodeMirror-linenumbers", "CodeMirror-lint-markers"]
