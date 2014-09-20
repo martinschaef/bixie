@@ -29,13 +29,11 @@
 	border: 2px inset #dee;
 }
 
-.breakpoints {
-	width: .8em;
+.line-error {
+    background: #FBC2C4 !important;
+    color: #8a1f11 !important;
 }
 
-.breakpoint {
-	color: #822;
-}
 div.center iframe{
     display: block;
     margin-left: auto;
@@ -103,9 +101,10 @@ div.center iframe{
 		
 		
 		function submit_form(e){
-			e.preventDefault();
-			document.getElementById('submitbutton').innerHTML = '<b>test</b>'; 
-		    window.location.reload(true);
+			document.getElementById('submitbutton').innerHTML = '<b>Loading</b>';
+			document.getElementById('submitbutton').onclick = "";
+			document.getElementById('loadnext').onclick = "";
+			document.getElementById('form').submit();
 		}
 		
 		</script>	
@@ -130,8 +129,8 @@ div.center iframe{
 				
 				<p>
 					<a href="javascript:void(0)" class="button" id="submitbutton"
-						onclick="document.getElementById('form').submit(submit_form)">Ask <b>Bixie</b>!
-					</a> &nbsp; <a href="javascript:void(0)" onclick="loadnext();" class="button">Load Example</a>
+						onclick="javascript:submit_form(this);">Ask <b>Bixie</b>!
+					</a> &nbsp; <a href="javascript:void(0)" onclick="loadnext();" class="button" id="loadnext">Load Example</a>
 				</p>
 			</form>
 		</div>
@@ -191,9 +190,10 @@ div.center iframe{
 		function makeBixieWarning(line, msg) {
 			// var info = cm.lineInfo(line);	
 			var severity = "warning";
-			var tip = document.createElement("div");
+			var tip = document.createElement("div");			
 			tip.className = "CodeMirror-lint-message-" + severity;
 			tip.appendChild(document.createTextNode(msg));
+			editor.addLineClass(line, 'background', 'line-error');
 			editor.setGutterMarker(line, "CodeMirror-lint-markers", makeMarker(tip, severity,
 					false, true));
 		}
