@@ -6,7 +6,6 @@
 <%@ taglib uri="http://www.joogie.org/jsp/jstl/functions" prefix="funcs"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head>
 <head profile="http://www.w3.org/2005/10/profile">
 <link rel="icon" 
       type="image/ico" 
@@ -15,8 +14,8 @@
 <meta charset='utf-8'>
 <meta http-equiv="X-UA-Compatible" content="chrome=1">
 	<meta name="description"
-		content="Bixie : Find contradictions in Java code">
-		<title>Bixie - Find contradictions in Java code</title>
+		content="Bixie : Try it online">
+		<title>Bixie : Try it online</title>
 
 		<link rel="stylesheet" type="text/css" media="screen"
 			href="css/stylesheet.css">
@@ -55,171 +54,91 @@ div.center iframe{
 	<!-- HEADER -->
 	<div id="header_wrap" class="outer">
 		<header class="inner"> <a id="forkme_banner"
-			href="https://github.com/martinschaef/bixie">View on GitHub</a>
-
-		<h1 id="project_title">Find contradictions in Java code</h1>
-
-		<section id="downloads"> <a class="zip_download_link"
-			href="https://github.com/martinschaef/bixie/releases/download/v1.0/bixie.jar.zip">Download
-			the .zip file</a> </section> </header>
+				href="https://github.com/martinschaef/bixie">View on GitHub</a>
+	
+			<h1 id="project_title">Try it online</h1>
+	
+			<section id="downloads"> <a class="zip_download_link"
+				href="https://github.com/martinschaef/bixie/releases/download/v1.0/bixie.jar.zip">Download
+				the .zip file</a> 
+			</section> 
+		</header>
 	</div>
 
 	<!-- MAIN CONTENT -->
 	<div id="main_content_wrap" class="outer">
 		<section id="main_content" class="inner">
 
-		<p>
-			Bixie is a static checker that detects contradictions in Java code. We speak of a contradiction
-			when a statement only occurs on paths that contain conflicting assumptions. Contradictions 
-			indicate either unreachable code or code that is only executed on paths that violate some desired property 
-			(e.g., absence of runtime exceptions). Two very simple examples of contradictions are:
-		</p>
-<table style="border: none; width:100%" >
-<tr>
-<td>
-<!-- HTML generated using hilite.me --><div style="overflow:none;width:250px;border:gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
-<pre style="margin: 0; line-height: 125%">obj.x = 1;
-<span style="color: #0000ff">if</span> (obj == <span style="color: #0000ff">null</span>) {
-  <span style="color: #008000">//contradiction</span>
-}
-</pre></div>
-</td>
-<td>
-<!-- HTML generated using hilite.me --><div style="overflow:none;width:250px;border:gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
-<pre style="margin: 0; line-height: 125%"><span style="color: #0000ff">if</span> (obj == <span style="color: #0000ff">null</span>) {
-  <span style="color: #008000">//contradiction</span>
-}
-obj.x = 1;
-</pre></div>
-</td>
-</tr>
-</table>
-		<p>
-			While contradictions are not automatically bugs, they have a bad smell as they represent code that 
-			cannot be executed safely. The Java compiler, for example, treats certain instances of contradictions 
-			as errors, like the use of uninitialized variables or inevitable null-pointer dereferences. 
-		</p>
 
-	<p>
-	Bixie uses deductive verification to find those contradictions that the Java compiler
-	missed. Bixie is the successor of our  <a href="http://www.joogie.org" target="_blank">Joogie</a> tool. 
-	While Joogie was already doing a good job in detecting contradictions in Java bytecode, it produced 
-	a substantial amount of false alarms because not all contradictions in the bytecode are
-	also contradictions in Java code. In Bixie, we use a novel technique to translate bytecode into logic
-	that allows our checker to suppress almost all false alarms. At the same time, we improved
-	handling of loops and library functions to further increase the detection rate.
-	For more details on the new features of Bixie, check our 
-	<a href="https://github.com/martinschaef/jar2bpl/wiki" target="_blank">wiki</a> or watch
-	the <a href="index#thevideo" target="_blank">video</a> below.
-	</p>
+		<script type="text/javascript">
+		var editor = {};
+		var example_idx =0;
+		
+		var examples = new Array();
+				
+		<c:if test="${null != requestScope.examples}">
+			<c:forEach items="${requestScope.examples}" var="entry">
+				examples.push("${entry}");
+			</c:forEach>
+		</c:if>
+		
+		function loadnext(reload) {
+			example_idx=example_idx+1;
+			if (example_idx>=examples.length) {
+				example_idx =0;
+			}
+			editor.setValue(examples[example_idx]);
+		 }
 
-	<div id="thevideo" class="center">
-	<iframe width="600" height="315" src="//www.youtube.com/embed/dQw4w9WgXcQ?rel=0" frameborder="0" align="middle"></iframe>
-	<br>
-	<hr>
-
-	</div>
-		<script>
-		function gototab(reload)
-		   {
-		    window.location.hash = '#form';
-		    window.location.reload(true);
-		   }
+		
 		
 		function submit_form(e){
 			e.preventDefault();
-			document.getElementById('submitbutton').innerHTML = '<b>fuck</b>'; 
+			document.getElementById('submitbutton').innerHTML = '<b>test</b>'; 
 		    window.location.hash = '#form';
 		    window.location.reload(true);
 		}
 		
-		</script>
-
-		<div id="codeblock">
-			<h3>Try it!</h3>
-			Enter some Java code or browse through our examples. Depending on your Internet connection,
-			Bixie may take a few seconds to deliver results. Bixie results will be displayed as yellow
-			warnings on the side of the code, compiler errors are red crosses. Bixie is only executed if your
-			code has no compiler errors.
+		</script>	
+		<div id="codeblock" >			
 			<div id="prompt">
 				<img id="promptimg" alt="Write some Java code here!"
 					src="img/prompt.png" />
 			</div>
-			<div id="content">
-				<form id="form" action="index#form" method="post">
-					<c:choose>
-						<c:when test="${'POST' == pageContext.request.method}">
-							<c:set var="code" value="${param.code}" />
-						</c:when>
-						<c:otherwise>
-							<c:set var="code" value="${requestScope.example}" />
-						</c:otherwise>
-					</c:choose>
-					<textarea id="code" name="code"><c:out value="${code}" /></textarea>
-					
 
-					<p>
-						<b>Does this program contain contradictions?</b>
-					</p>
-					<p>
-						<a href="index#form" class="button" id="submitbutton"
-							onclick="document.getElementById('form').submit(submit_form)">Ask <b>Bixie</b>!
-						</a> &nbsp; <a href="index#form" onclick="gototab();" class="button">Next Example</a>
-					</p>
-					<p>
-						<img alt="new" src="img/new.gif" valign="middle" /><a
-							href="https://drive.google.com/file/d/0Bzy9hjNgdhK5d2R5X1gxeFlyakk/edit?usp=sharing">Click
-							here</a> to download GraVy and the TerpWord case study.
-					</p>
-				</form>
-
-			</div>
+			<form id="form" action="bixie" method="post">
+				<c:choose>
+					<c:when test="${'POST' == pageContext.request.method}">
+						<c:set var="code" value="${param.code}" />
+					</c:when>
+					<c:otherwise>
+						
+					</c:otherwise>
+				</c:choose>
+				<textarea id="code" name="code"><c:out value="${code}" /></textarea>
+				
+				<p>
+					<a href="bixie" class="button" id="submitbutton"
+						onclick="document.getElementById('form').submit(submit_form)">Ask <b>Bixie</b>!
+					</a> &nbsp; <a href="javascript:void(0)" onclick="loadnext();" class="button">Load Example</a>
+				</p>
+			</form>
 		</div>
 
-		<h3>How to use Bixie</h3>
-
-		<h3>Success Stories</h3>
-		<p>
-		We keep running Bixie on open-source projects and report our findings. 
-		In order to avoid spamming developers, we inspect each warning manually to make sure that it is relevant.
-		We only create pull requests if the warning does not involve code that is deliberatly unreachable (e.g., a debug constant 
-		disables it), or the code has a comment that says it is supposed to be unreachable. 
-		<br/>
-		Here are some of the more interesting issues where we found and reported contradictions that we have successfully fixed. 
+		<p class="inner">
+			Enter some Java code or browse through our examples. Depending on your Internet connection,
+			Bixie may take a few seconds to deliver results. Bixie results will be displayed as yellow
+			warnings on the side of the code, compiler errors are red crosses. Bixie is only executed if your
+			code has no compiler errors.
 		</p>
-		<ul> 
-		<li>Tomcat: <a href="https://github.com/apache/tomcat/pull/13" target="_blank">see pull request</a></li>
-		<li>Bouncy Castle: <a href="https://github.com/bcgit/bc-java/pull/87" target="_blank">see pull request</a></li>
-		<li> Soot: see pull request <a href="https://github.com/Sable/soot/pull/244" target="_blank"> 1</a> and 
-		<a href="https://github.com/Sable/soot/pull/261" target="_blank">2</a> and 
-		<a href="https://github.com/Sable/soot/pull/260" target="_blank">3</a> and </li>
-		</ul>
 		
-		
+	</section>
+	
+</div>
 
-		
-		
-		<h3>Prior Tools and Papers</h3>
-		<p>Bixie is the successor of our <a href="http://www.joogie.org" target="_blank">Joogie</a> tool that was presented 
-		at CAV 2012. While Joogie was already able to detect contradictions in bytecode, it produces an extreme number of 
-		false alarms because most contradictions in bytecode are not a problem in the actual Java code. Bixie fixes this
-		problem along with several other improvements in performance and precision by using a novel translation from 
-		bytecode into logic.
-		</p>
-		<p>
-		The papers below describe who the actual checking for contradicutions is implemented in Bixie:</p>
-		<ul> 
-		<li><a href="http://iist.unu.edu/publication/theory-control-flow-graph-exploration" target="_blank">A Theory for Control-Flow Graph Exploration</a>,  S. Arlt, P. R&uuml;mmer, M. Sch&auml;f, ATVA 2013 </li>
-		<li><a href="http://www.informatik.uni-freiburg.de/~schaef/joogie.pdf" target="_blank">Joogie: Infeasible Code Detection for Java</a>,  S. Arlt, M. Sch&auml;f, CAV 2012 </li>
-		<li><a href="http://cs.nyu.edu/~wies/publ/doomed_program_points.pdf" target="_blank">It's doomed; we can prove it</a>,  J. Hoenicke, R. Leino, A. Podelski, M. Sch&auml;f, T. Wies, FM 2009 </li>
-		</ul>
-		
-		</section>
-	</div>
-
-	<div id="footer_wrap" class="outer">
-		<p class="copyright">
-			Bixie is maintained by <a href="https://github.com/martinschaef">martinschaef</a>
+	<div id="footer_wrap" class="footer">
+		<p >
+			Bixie is maintained by <a href="https://github.com/martinschaef" target="_blank">martinschaef</a>
 		</p>
 	</div>
 
@@ -237,14 +156,15 @@ obj.x = 1;
 
 	<script>
 	
-		var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+		editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 			lineNumbers : true,
 			matchBrackets : true,
 			mode : "text/x-java",
 			gutters: ["CodeMirror-linenumbers", "CodeMirror-lint-markers"]
 		});
 		
-
+		editor.setValue(examples[0]);
+		
 		function makeParserError(line, msg) {
 			// var info = cm.lineInfo(line);	
 			var severity = "error";

@@ -1,5 +1,4 @@
 class Example1 {
-
 	public void trivial1(Object o) {
 		o.hashCode();
 		if (o==null) {
@@ -13,5 +12,4 @@ class Example1 {
 		}
 		o.hashCode();
 	}
-
 }

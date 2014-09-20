@@ -8,8 +8,18 @@
     <servlet-name>IndexServlet</servlet-name>
     <servlet-class>org.bixie.ws.IndexServlet</servlet-class>
   </servlet>
+  <servlet>
+    <servlet-name>BixieServlet</servlet-name>
+    <servlet-class>org.bixie.ws.BixieServlet</servlet-class>
+  </servlet>
+ 
   <servlet-mapping>
     <servlet-name>IndexServlet</servlet-name>
     <url-pattern>/index</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>BixieServlet</servlet-name>
+    <url-pattern>/bixie</url-pattern>
+  </servlet-mapping>
+  
 </web-app>

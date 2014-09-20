@@ -55,7 +55,7 @@ div#codeblock
 	line-height: 150%;
 	
 	margin: 0 auto;
-	padding: 10px 0 0 0;
+	padding: 0px 0 0 0;
 	width: 800px;
 }
 
@@ -178,7 +178,7 @@ p {
 }
 
 footer p {
-  color: #f2f2f2;
+  color: #FFFFFF;
 }
 
 a {
@@ -201,7 +201,7 @@ a {
 a:hover, a:focus {text-decoration: underline;}
 
 footer a {
-  color: #F2F2F2;
+  color: #FFFFFF;
   text-decoration: underline;
 }
 
@@ -374,7 +374,7 @@ Full-Width Styles
 }
 
 #header_wrap .inner {
-  padding: 50px 10px 30px 10px;
+  padding: 10px 10px 10px 10px;
 }
 
 #project_title {
@@ -449,6 +449,8 @@ Full-Width Styles
 
 #footer_wrap {
   background: #212121;
+  color: #FFFFFF;
+  
 }
 
 

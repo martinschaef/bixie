@@ -78,6 +78,9 @@ public class Examples {
 		// load examples
 		for (File exampleFile : exampleFiles) {
 			String example = FileIO.fromFile(exampleFile.getPath());
+			example = example.replace("\r", "");
+			example = example.replace("\n", "  \\n");
+			example = example.replace("\"", "  \\\"");
 			examples.add(example);
 		}
 	}
@@ -113,5 +116,5 @@ public class Examples {
 		}
 		return examples.get(currentExample);
 	}
-
+	
 }
