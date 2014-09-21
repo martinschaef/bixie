@@ -35,57 +35,89 @@
 	<div id="main_content_wrap" class="outer">
 		<section id="main_content" class="inner">
 
-		<p>
-			Bixie is a static checker that detects contradictions in Java code. We speak of a contradiction
-			when a statement only occurs on paths that contain conflicting assumptions. Contradictions 
-			indicate either unreachable code or code that is only executed on paths that violate some desired property 
-			(e.g., absence of runtime exceptions). Two very simple examples of contradictions are:
-		</p>
-<table style="border: none; width:100%" >
-<tr>
-<td>
-<!-- HTML generated using hilite.me --><div style="overflow:none;width:250px;border:gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
-<pre style="margin: 0; line-height: 125%">obj.x = 1;
-<span style="color: #0000ff">if</span> (obj == <span style="color: #0000ff">null</span>) {
-  <span style="color: #008000">//contradiction</span>
-}
-</pre></div>
-</td>
-<td>
-<!-- HTML generated using hilite.me --><div style="overflow:none;width:250px;border:gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
-<pre style="margin: 0; line-height: 125%"><span style="color: #0000ff">if</span> (obj == <span style="color: #0000ff">null</span>) {
-  <span style="color: #008000">//contradiction</span>
-}
-obj.x = 1;
-</pre></div>
-</td>
-</tr>
-</table>
-		<p>
-			While contradictions are not automatically bugs, they have a bad smell as they represent code that 
-			cannot be executed safely. The Java compiler, for example, treats certain instances of contradictions 
-			as errors, like the use of uninitialized variables or inevitable null-pointer dereferences. 
-		</p>
-
 	<p>
-	Bixie uses deductive verification to find those contradictions that the Java compiler
-	missed. Bixie is the successor of our  <a href="http://www.joogie.org" target="_blank">Joogie</a> tool. 
+		Bixie is a static checker that detects <b>contradictions</b> in Java code. A contradiction
+		is piece of code that only occurs on paths that contain conflicting assumptions. That is, it is either unreachable
+		or any of its executions must lead to an error.
+		While contradictions are not automatically bugs, they have a bad smell as they represent code that 
+		cannot be executed safely. The Java compiler, for example, treats certain instances of contradictions 
+		as errors, like the use of uninitialized variables or inevitable null-pointer dereferences. 
+		Bixie uses deductive verification to find those contradictions that the Java compiler missed. 
+	</p>
+
+	<div >
+		<div id="prompt">
+		<a href="./bixie">
+		<img id="screenshot" alt="Write some Java code here!"
+						src="img/screen.png" />
+		</a>
+		</div>
+		<br/>
+		<p> 
+			The easiest way to understand what Bixie does is to
+			try it <a href="./bixie">online</a>. Click on the picture
+			on the right and browse through some examples of contradictions
+			in Java code, or type your own program an check it.
+		</p>
+		
+	</div>
+	<h3>Demo Video</h3>
+	<div id="thevideo" class="center">
+	<iframe width="600" height="315" src="//www.youtube.com/embed/dQw4w9WgXcQ?rel=0" frameborder="0" align="middle"></iframe>	
+	<br/>
+	<hr/>
+	</div>
+	
+	<h3>Contradictions Found by Bixie</h3>
+		<p>
+		We keep running Bixie on open-source projects and report our findings. 
+		In order to avoid spamming developers, we inspect each warning manually to make sure that it is relevant.
+		We only create pull requests if the warning does not involve code that is generated, 
+		deliberately unreachable (e.g., a debug constant disables it), or the code has a comment that 
+		says it is supposed to be unreachable. 
+		<br/>
+		Here are some of the more contradictions found and fixed by Bixie in popular projects: 
+		</p>
+		<ul>
+		<li>Apache Cassandra: <a href="https://github.com/apache/cassandra/pull/46" target="_blank">see pull request</a></li>
+		<li>Apache jMeter: <a href="https://github.com/apache/jmeter/pull/10" target="_blank">see pull request</a></li> 
+		<li>Apache Tomcat: <a href="https://github.com/apache/tomcat/pull/13" target="_blank">see pull request</a></li>
+		<li>Bouncy Castle: <a href="https://github.com/bcgit/bc-java/pull/87" target="_blank">see pull request</a></li>
+		<li> Soot: see pull request <a href="https://github.com/Sable/soot/pull/244" target="_blank"> 1</a> and 
+		<a href="https://github.com/Sable/soot/pull/261" target="_blank">2</a> and 
+		<a href="https://github.com/Sable/soot/pull/260" target="_blank">3</a> </li>
+		</ul>
+	During the development of Bixie we also found a case where the Java compiler generates
+	unreachable bytecode (see <a href="http://stackoverflow.com/questions/25615417/try-with-resources-introduce-unreachable-bytecode" target="_blank">here</a>).
+
+	<h3>Download and Usage</h3>
+	<p>For a quick start, download the all-in-one <a href="https://github.com/martinschaef/bixie/releases/download/v1.0/bixie.jar.zip">jar file</a>. 
+	Make sure that you have JDK 7 or higher installed (run java -version from command line to check).
+    <pre>java -jar bixie.jar -j [input] -cp [classpath] -o [output] </pre>
+
+	For larger programs, we highly recommend to start Bixie with a lot of resources. In our experiments, we use the
+	following setup (which requires a 64bit JDK):
+	<pre>java -Xmx2g -Xms2g -Xss4m -jar bixie.jar ... </pre>
+	For 32bit installations of Java use -Xmx1g -Xms1g -Xss4m. 
+	
+	<h3>Previous Tools and Papers</h3>
+	<p>
+	Bixie is the successor of our  <a href="http://www.joogie.org" target="_blank">Joogie</a> tool. 
 	While Joogie was already doing a good job in detecting contradictions in Java bytecode, it produced 
 	a substantial amount of false alarms because not all contradictions in the bytecode are
 	also contradictions in Java code. In Bixie, we use a novel technique to translate bytecode into logic
 	that allows our checker to suppress almost all false alarms. At the same time, we improved
 	handling of loops and library functions to further increase the detection rate.
 	For more details on the new features of Bixie, check our 
-	<a href="https://github.com/martinschaef/jar2bpl/wiki" target="_blank">wiki</a> or watch
-	the <a href="index#thevideo" target="_blank">video</a> below.
+	<a href="https://github.com/martinschaef/jar2bpl/wiki" target="_blank">wiki</a>.
 	</p>
-
-	<div id="thevideo" class="center">
-	<iframe width="600" height="315" src="//www.youtube.com/embed/dQw4w9WgXcQ?rel=0" frameborder="0" align="middle"></iframe>
-	<br>
-	<hr>
-
-
+	<p>
+	The papers below describe who the actual checking for contradictions is implemented in Bixie:</p>
+	<ul> 
+	<li><a href="http://iist.unu.edu/publication/theory-control-flow-graph-exploration" target="_blank">A Theory for Control-Flow Graph Exploration</a>,  S. Arlt, P. R&uuml;mmer, M. Sch&auml;f, ATVA 2013 </li>
+	<li><a href="http://www.informatik.uni-freiburg.de/~schaef/joogie.pdf" target="_blank">Joogie: Infeasible Code Detection for Java</a>,  S. Arlt, M. Sch&auml;f, CAV 2012 </li>
+	<li><a href="http://cs.nyu.edu/~wies/publ/doomed_program_points.pdf" target="_blank">It's doomed; we can prove it</a>,  J. Hoenicke, R. Leino, A. Podelski, M. Sch&auml;f, T. Wies, FM 2009 </li>
+	</ul>
 	</section>
 	
 </div>
