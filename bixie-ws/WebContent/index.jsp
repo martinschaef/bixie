@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="US-ASCII" ?>
+<%@ page language="java" contentType="text/html; charset=US-ASCII"
+	pageEncoding="US-ASCII"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://www.joogie.org/jsp/jstl/functions" prefix="funcs"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 
@@ -47,7 +52,7 @@
 
 	<div >
 		<div id="prompt">
-		<a href="./bixie">
+		<a href="./bixie" target="_blank">
 		<img id="screenshot" alt="Write some Java code here!"
 						src="img/screen.png" />
 		</a>
@@ -55,7 +60,7 @@
 		<br/>
 		<p> 
 			The easiest way to understand what Bixie does is to
-			try it <a href="./bixie">online</a>. Click on the picture
+			try it <a href="./bixie" target="_blank">online</a>. Click on the picture
 			on the right and browse through some examples of contradictions
 			in Java code, or type your own program an check it.
 		</p>
@@ -91,14 +96,51 @@
 	unreachable bytecode (see <a href="http://stackoverflow.com/questions/25615417/try-with-resources-introduce-unreachable-bytecode" target="_blank">here</a>).
 
 	<h3>Download and Usage</h3>
-	<p>For a quick start, download the all-in-one <a href="https://github.com/martinschaef/bixie/releases/download/v1.0/bixie.jar.zip">jar file</a>. 
-	Make sure that you have JDK 7 or higher installed (run java -version from command line to check).
+	<p>Before you start, check your Java version. 
+	You need at least  <a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html" target="_blank">JDK 7</a> 
+	to run Bixie. Please check:
+	</p>
+	<pre>java -version</pre>
+	<p>If the result is not <code>1.7.0</code> or higher, please update your Java version, or, 
+	if you just want to play with Bixie, use our <a href="./bixie" target="_blank">web tester</a>.
+	</p> 
+	
+	<p>For a quick start, download the all-in-one 
+	<a href="https://github.com/martinschaef/bixie/releases/download/v1.0/bixie.jar.zip">jar file
+	</a>. Now you can run Bixie as follows: 
+	</p>
     <pre>java -jar bixie.jar -j [input] -cp [classpath] -o [output] </pre>
+    <p>
+	Where <code>[input]</code> is either a (debug compiled) Jar file, or the root folder of your class or source files.
+	Note that <a href="https://github.com/Sable/soot" target="_blank">Soot</a>, which we use for parsing, runs much 
+	better on class files. 
+	</p>
+    <p>
+	For <code>[classpath]</code> use the classpath that you would also use to run the code 
+	that you passed as <code>[input]</code>. If no special classpath is required, use the same
+	value as <code>[input]</code>. 
+	</p>
 
+    <p>
+	For <code>[out]</code> use the name of the text file where Bixie should write its report to. 
+	</p>
+	
+	<p>
 	For larger programs, we highly recommend to start Bixie with a lot of resources. In our experiments, we use the
 	following setup (which requires a 64bit JDK):
+	</p>
 	<pre>java -Xmx2g -Xms2g -Xss4m -jar bixie.jar ... </pre>
-	For 32bit installations of Java use -Xmx1g -Xms1g -Xss4m. 
+	<p>For 32bit installations of Java use -Xmx1g -Xms1g -Xss4m.</p> 
+	
+	<h5>Example</h5>
+	<p>
+	To check if everything is working properly, <a href="https://github.com/martinschaef/bixie/releases/download/v1.0/bixie.jar.zip">jar file</a>
+	and <a href="demo/Demo.java">Demo.java</a> and put them in the same folder. Now go to that folder and run:</p>
+    <pre>java -jar bixie.jar -j ./ -cp ./ -o report.txt </pre>	 
+	<p>Your result.txt file should look somewhat like this:</p>
+	<pre>In file: ./Demo.java
+		line 39
+		line 65</pre>
 	
 	<h3>Previous Tools and Papers</h3>
 	<p>
