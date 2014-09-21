@@ -134,7 +134,7 @@
 	
 	<h5>Example</h5>
 	<p>
-	To check if everything is working properly, <a href="https://github.com/martinschaef/bixie/releases/download/v1.0/bixie.jar.zip">jar file</a>
+	To check if everything is working properly, download the <a href="https://github.com/martinschaef/bixie/releases/download/v1.0/bixie.jar.zip">jar file</a>
 	and <a href="demo/Demo.java">Demo.java</a> and put them in the same folder. Now go to that folder and run:</p>
     <pre>java -jar bixie.jar -j ./ -cp ./ -o report.txt </pre>	 
 	<p>Your result.txt file should look somewhat like this:</p>
