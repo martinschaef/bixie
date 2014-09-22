@@ -73,7 +73,7 @@
 	<hr/>
 	</div>
 	
-	<h3>Contradictions Found by Bixie</h3>
+	<h3>Contradictions found by Bixie</h3>
 		<p>
 		We keep running Bixie on open-source projects and report our findings. 
 		In order to avoid spamming developers, we inspect each warning manually to make sure that it is relevant.

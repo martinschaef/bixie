@@ -2,7 +2,10 @@ class Example4 {
 
 	public Example4 bases;
 	
-	// from org.openecard.bouncycastle.crypto.params.NTRUSigningPrivateKeyParameters	
+	/* Found in Bouncy Castle 
+	from org.openecard.bouncycastle.crypto.params.NTRUSigningPrivateKeyParameters
+	https://github.com/bcgit/bc-java/pull/87
+	*/	
 	boolean foo(Example4 other) {
 		if (bases == null) {
 			if (other.bases != null) {

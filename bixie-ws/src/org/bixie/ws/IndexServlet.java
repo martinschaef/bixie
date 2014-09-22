@@ -20,15 +20,10 @@
 package org.bixie.ws;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.bixie.ws.util.Examples;
-import org.bixie.ws.util.BixieParserException;
-import org.bixie.ws.util.Runner;
 
 /**
  * @author arlt, schaef

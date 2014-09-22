@@ -51,7 +51,7 @@ public class BixieServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		try {
