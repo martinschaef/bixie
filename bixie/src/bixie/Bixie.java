@@ -66,7 +66,7 @@ public class Bixie {
 		if (input!=null && input.endsWith(".bpl")) {
 			try {
 				ProgramFactory pf = new ProgramFactory(input);
-				JavaReportPrinter jp = runChecker(pf);
+				InterpolatingJavaReportPrinter jp = runChecker(pf);
 				report2File(jp, output);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -77,7 +77,7 @@ public class Bixie {
 		}
 	}
 
-	protected void report2File(JavaReportPrinter jp, String output) {
+	protected void report2File(InterpolatingJavaReportPrinter jp, String output) {
 		try (PrintWriter out = new PrintWriter(output);){			
 			String str = jp.printAllReports();
 			out.println(str);
@@ -89,17 +89,17 @@ public class Bixie {
 	}
 	
 	public void translateAndRun(String input, String classpath, String output) {
-		JavaReportPrinter jp = translateAndRun(input, classpath);
+		InterpolatingJavaReportPrinter jp = translateAndRun(input, classpath);
 		report2File(jp, output);
 	}
 	
 	
-	public JavaReportPrinter translateAndRun(String input, String classpath) {
+	public InterpolatingJavaReportPrinter translateAndRun(String input, String classpath) {
 		try {
 			System.out.println("Translating");
 			org.joogie.Dispatcher.setClassPath(classpath);
 			ProgramFactory pf = org.joogie.Dispatcher.run(input);		
-			JavaReportPrinter jp = runChecker(pf);
+			InterpolatingJavaReportPrinter jp = runChecker(pf);
 			return jp;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -108,12 +108,12 @@ public class Bixie {
 		return null;
 	}
 
-	public JavaReportPrinter runChecker(ProgramFactory pf) {
+	public InterpolatingJavaReportPrinter runChecker(ProgramFactory pf) {
 		System.out.println("Checking");
 		org.gravy.Options.v().setChecker(1);
 		//Options.v().useLocationAttribute(true);
 		org.gravy.Options.v().setLoopMode(1);
-		JavaReportPrinter jp = new JavaReportPrinter();
+		InterpolatingJavaReportPrinter jp = new InterpolatingJavaReportPrinter();
 		try {
 			ProgramAnalysis.runFullProgramAnalysis(pf, jp);
 		} catch (Exception e) {
