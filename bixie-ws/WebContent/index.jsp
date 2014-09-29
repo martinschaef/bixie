@@ -68,7 +68,7 @@
 	</div>
 	<h3>Demo Video</h3>
 	<div id="thevideo" class="center">
-	<iframe width="600" height="315" src="//www.youtube.com/embed/dQw4w9WgXcQ?rel=0" frameborder="0" align="middle"></iframe>	
+	<iframe width="420" height="315" src="//www.youtube.com/embed/1_M35R1wUm4" frameborder="0" allowfullscreen></iframe>	
 	<br/>
 	<hr/>
 	</div>

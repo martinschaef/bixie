@@ -30,7 +30,11 @@
 }
 
 .line-error {
-    background: #FBC2C4 !important;
+    background: #FFAAAA !important;
+    color: #8a1f11 !important;
+}
+.line-warning {
+    background: #EECCCC !important;
     color: #8a1f11 !important;
 }
 
@@ -189,17 +193,25 @@ div.center iframe{
 					false, true));
 		}
 
+		function highlightLine(line, type) {
+			editor.addLineClass(line, 'background', type);
+		}		
+		
 		function makeBixieWarning(line, msg) {
-			// var info = cm.lineInfo(line);	
-			var severity = "warning";
-			var tip = document.createElement("div");			
-			tip.className = "CodeMirror-lint-message-" + severity;
-			tip.appendChild(document.createTextNode(msg));
-			editor.addLineClass(line, 'background', 'line-error');
-			editor.setGutterMarker(line, "CodeMirror-lint-markers", makeMarker(tip, severity,
-					false, true));
+			// var info = cm.lineInfo(line);
+			highlightLine(line, 'line-error');
+			if (msg!=null) {
+				var severity = "warning";
+				var tip = document.createElement("div");			
+				tip.className = "CodeMirror-lint-message-" + severity;
+				tip.appendChild(document.createTextNode(msg));									
+				editor.setGutterMarker(line, "CodeMirror-lint-markers", makeMarker(tip, severity,
+						false, true));
+			}
+			
 		}
-
+		
+		
 	  var GUTTER_ID = "CodeMirror-lint-markers";
 
 	  function showTooltip(e, content) {
@@ -407,13 +419,24 @@ div.center iframe{
 			</c:forEach>
 		</c:if>
 	
-		<c:if test="${null != requestScope.report}">
-			<c:forEach items="${requestScope.report}" var="entry">
+		<c:if test="${null != requestScope.inflines}">
+			
+			<c:forEach items="${requestScope.suplines}" var="line">
+				<script type="text/javascript">
+					highlightLine(${line}-1, 'line-warning' );
+				</script>
+			</c:forEach>
+
+			<c:forEach items="${requestScope.inflines}" var="entry">
 				<script type="text/javascript">
 					makeBixieWarning(${entry.key}-1, " ${entry.value}" );
 				</script>
 			</c:forEach>
+			
 		</c:if>
+
+
+
 
 </body>
 </html>

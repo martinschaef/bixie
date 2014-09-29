@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.UUID;
 
 import javax.servlet.ServletContext;
@@ -33,7 +34,8 @@ import javax.servlet.ServletContext;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 
 import bixie.Bixie;
-import bixie.JavaReportPrinter;
+import bixie.InterpolatingJavaReportPrinter;
+import bixie.util.BixieReport;
 
 /**
  * @author schaef
@@ -69,7 +71,7 @@ public class Runner {
 	 *            Context
 	 * @return Report object
 	 */
-	public static HashMap<Integer, String> run(ServletContext ctx, String code)
+	public static LinkedList<BixieReport> run(ServletContext ctx, String code)
 			throws Exception {
 		// pre-analyze code
 		if (code.length() > MAX_LENGTH) {
@@ -109,7 +111,7 @@ public class Runner {
 		// run GraVy
 		String libPath = ctx.getRealPath("/");
 		libPath = new File(libPath, PATH_LIBS).getPath();
-		JavaReportPrinter jp = null;
+		InterpolatingJavaReportPrinter jp = null;
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ByteArrayOutputStream baes = new ByteArrayOutputStream();
 		System.setOut(new PrintStream(baos));
@@ -143,7 +145,7 @@ public class Runner {
 		// don't use the actual filename because tomcat adds some prefix to
 		// it, so most likely, we're not going to find the actual
 		// string anyway.
-		return jp.getInfeasibleLines("");
+		return jp.getBixieReport("");
 	}
 
 	private static HashMap<Integer, String> parseError(String error) {

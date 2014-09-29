@@ -21,14 +21,22 @@ package org.bixie.ws;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.bixie.ws.util.Examples;
 import org.bixie.ws.util.BixieParserException;
+import org.bixie.ws.util.Examples;
 import org.bixie.ws.util.Runner;
+
+
+import bixie.util.BixieReport;
+import bixie.util.BixieReport.InfeasibleMessage;
 
 /**
  * @author arlt, schaef
@@ -38,6 +46,9 @@ public class BixieServlet extends HttpServlet {
 
 	String code = null;
 	String example_idx = "0";
+	
+	protected Set<Integer> supportLines = new HashSet<Integer>();
+	protected Map<Integer, String> infeasibleLines = new HashMap<Integer, String>(); 
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
@@ -60,8 +71,41 @@ public class BixieServlet extends HttpServlet {
 			code = req.getParameter("code");
 			this.example_idx = req.getParameter("examplecounter");
 			req.setAttribute("exampleIdx", example_idx);
-			HashMap<Integer, String> lines = Runner.run(req.getServletContext(), code);
-			req.setAttribute("report", lines);
+			
+			this.supportLines.clear();
+			this.infeasibleLines.clear();
+			LinkedList<BixieReport> reports = Runner.run(req.getServletContext(), code);
+			for (BixieReport report : reports) {
+				for (InfeasibleMessage im : report.messages) {
+					for (org.gravy.util.JavaSourceLocation loc : im.otherLines) {
+						this.supportLines.add(loc.StartLine);
+					}
+					for (org.gravy.util.JavaSourceLocation loc : im.infeasibleLines) {
+						this.supportLines.remove(loc.StartLine);
+						String comment = null;
+						if (loc.comment!=null) {
+							if (loc.comment.equals("elseBlock") || loc.comment.equals("elseblock")) {
+								comment="The else-branch of this conditional";
+							} else if (loc.comment.equals("thenBlock") || loc.comment.equals("thenblock")) {
+								comment="The then-branch of this conditional";
+							} else {
+								System.err.println(loc.comment);
+							}
+							if (this.supportLines.size()>0) {
+								comment += " confilicts with the other makred lines";
+							} else {
+								comment += " can never be executed";
+							}
+						}
+						this.infeasibleLines.put(loc.StartLine, comment);
+					}					
+				}
+			}
+			
+			
+			req.setAttribute("inflines", this.infeasibleLines);
+			req.setAttribute("suplines", this.supportLines);
+			
 		} catch (BixieParserException e) {
 			req.setAttribute("parsererror", e.getErrorMessages());
 		} catch (RuntimeException e) {
