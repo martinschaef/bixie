@@ -139,11 +139,16 @@ div.center iframe{
 			</form>
 		</div>
 
+		<h4>How to use the Web Tester</h4>
 		<p class="inner">
 			Enter some Java code or browse through our examples. Depending on your Internet connection,
-			Bixie may take a few seconds to deliver results. Bixie results will be displayed as yellow
-			warnings on the side of the code, compiler errors are red crosses. Bixie is only executed if your
-			code has no compiler errors.
+			Bixie may take a few seconds to deliver results. 
+			Bixie highlights contradictions in <font color="#FFAAAA">darker red</font> and lines that cause these 
+			contradictions in <font color="#EECCCC">lighter red</font>. Further, Bixie displays yellow
+			warnings on the side of the code with tool tips. <br/>
+			Read more on how these reports are computed in our 
+			<a href="http://iist.unu.edu/publication/explaining-inconsistent-code" target='_blank'>FSE paper</a>. <br/> 
+			Compiler errors are red crosses. Bixie is only executed if your code has no compiler errors. 
 		</p>
 		
 	</section>
