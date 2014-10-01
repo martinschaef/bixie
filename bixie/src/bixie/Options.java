@@ -53,6 +53,8 @@ public class Options {
 	@Option(name = "-cp", usage = "Classpath")
 	private String classpath="";
 
+	@Option(name = "-stats", usage = "Save statistics")
+	public boolean stopTime = true;
 
 	/**
 	 * Returns the JAR file

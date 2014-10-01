@@ -113,6 +113,15 @@ public class Bixie {
 		org.gravy.Options.v().setChecker(1);
 		//Options.v().useLocationAttribute(true);
 		org.gravy.Options.v().setLoopMode(1);
+		if (bixie.Options.v().stopTime) {			
+			try {
+				org.gravy.util.Statistics.v().setLogFilePrefix(bixie.Options.v().getOutputFile());
+				org.gravy.Options.v().stopTime = true;
+			} catch (Throwable e) {
+				e.printStackTrace();
+				org.gravy.Options.v().stopTime = false;
+			}
+		}
 		InterpolatingJavaReportPrinter jp = new InterpolatingJavaReportPrinter();
 		try {
 			ProgramAnalysis.runFullProgramAnalysis(pf, jp);

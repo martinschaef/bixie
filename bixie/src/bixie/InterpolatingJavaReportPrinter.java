@@ -26,6 +26,17 @@ public class InterpolatingJavaReportPrinter implements ReportPrinter {
 
 	protected HashMap<String, LinkedList<BixieReport>> sortedReports = new HashMap<String, LinkedList<BixieReport>>();
 	
+	public LinkedList<BixieReport> getBixieReport(String filename) {
+		if (this.sortedReports.containsKey(filename)) {
+			return sortedReports.get(filename);
+		} else {
+			if (this.sortedReports.size() == 1) {
+				String s = this.sortedReports.keySet().iterator().next();
+				return sortedReports.get(s);
+			}
+		}
+		return null;
+	}
 	
 	
 	
@@ -67,15 +78,39 @@ public class InterpolatingJavaReportPrinter implements ReportPrinter {
 
 		
 		for (Entry<String, LinkedList<BixieReport>> entry : this.sortedReports.entrySet()) {
+			if (entry.getValue().isEmpty()) continue;
 			sb.append("File : "+entry.getKey());
 			sb.append("\n");
+			sb.append(" Inconsistency detected between the following lines:\n");
 			Collections.sort(entry.getValue(), new BixieReportComparator());
 			for (BixieReport br : entry.getValue()) {
 				for (InfeasibleMessage im : br.messages) {
-					sb.append("\t");
-					for (Integer i : im.allLines) {
-						sb.append(i + ", ");
+					HashMap<Integer, JavaSourceLocation> lines = new HashMap<Integer, JavaSourceLocation>();
+					for (JavaSourceLocation jl : im.otherLines) {
+						lines.put(jl.StartLine, jl);
 					}
+					for (JavaSourceLocation jl : im.infeasibleLines) {
+						lines.put(jl.StartLine, jl);
+					}
+					LinkedList<Integer> orderedKeys = new LinkedList<Integer>();
+					orderedKeys.addAll(lines.keySet());
+					Collections.sort(orderedKeys);
+					sb.append("\t");
+					for (Integer i : orderedKeys) {
+						sb.append(i);
+						JavaSourceLocation jl = lines.get(i);
+						if (jl.comment!=null) {
+							if (jl.comment.equals("thenblock")) {
+								sb.append( "(then-block)");
+							} else if (jl.comment.equals("elseblock")) {
+								sb.append( "(else-block)");
+							}
+						}
+						if (i!=orderedKeys.getLast()) {
+							sb.append(", ");
+						}
+					}
+					
 					sb.append("\n");
 				}
 			}
