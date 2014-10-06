@@ -63,11 +63,13 @@ public class Bixie {
 	}
 
 	public void run(String input, String output) {
+		bixie.Options.v().setOutputFile(output);
+		org.gravy.Options.v().setTimeOut(25000); //set timeout to 25 sec per procedure.
 		if (input!=null && input.endsWith(".bpl")) {
 			try {
 				ProgramFactory pf = new ProgramFactory(input);
 				InterpolatingJavaReportPrinter jp = runChecker(pf);
-				report2File(jp, output);
+				report2File(jp);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -77,8 +79,8 @@ public class Bixie {
 		}
 	}
 
-	protected void report2File(InterpolatingJavaReportPrinter jp, String output) {
-		try (PrintWriter out = new PrintWriter(output);){			
+	protected void report2File(InterpolatingJavaReportPrinter jp) {
+		try (PrintWriter out = new PrintWriter(bixie.Options.v().getOutputFile());){			
 			String str = jp.printAllReports();
 			out.println(str);
 			System.out.println(str);
@@ -90,7 +92,8 @@ public class Bixie {
 	
 	public void translateAndRun(String input, String classpath, String output) {
 		InterpolatingJavaReportPrinter jp = translateAndRun(input, classpath);
-		report2File(jp, output);
+		bixie.Options.v().setOutputFile(output);
+		report2File(jp);
 	}
 	
 	

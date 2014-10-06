@@ -78,6 +78,9 @@ public class Options {
 		return this.outputFile;
 	}
 	
+	public void setOutputFile(String s) {
+		this.outputFile = s;
+	}
 	
 	/**
 	 * Determines, whether Joogie has an additional classpath
