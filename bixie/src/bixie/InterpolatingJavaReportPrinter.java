@@ -14,6 +14,7 @@ import org.gravy.report.Report;
 import org.gravy.reportprinter.ReportPrinter;
 import org.gravy.util.JavaSourceLocation;
 
+import util.Log;
 import bixie.util.BixieReport;
 import bixie.util.BixieReport.InfeasibleMessage;
 import boogie.controlflow.statement.CfgStatement;
@@ -47,14 +48,14 @@ public class InterpolatingJavaReportPrinter implements ReportPrinter {
 	public void printReport(Report r) {
 		if (r!=null && r instanceof InterpolationInfeasibleReport) {
 			InterpolationInfeasibleReport ir = (InterpolationInfeasibleReport)r;
-			this.buildBoogieErrorString(ir);
+			Log.info(this.buildBoogieErrorString(ir));
 //			if (s!=null && s.length()>0) Log.info(s);
 		}
 	}
 
 	private String buildBoogieErrorString(InterpolationInfeasibleReport ir) {
 		LinkedList<HashMap<CfgStatement, JavaSourceLocation>> reports = ir.getReports();
-		if (reports.size()==0) {
+		if (reports==null || reports.size()==0) {
 			return null;
 		}
 		BixieReport br = new BixieReport(ir);
@@ -63,7 +64,19 @@ public class InterpolatingJavaReportPrinter implements ReportPrinter {
 		}
 		this.sortedReports.get(br.fileName).add(br);
 		
-		return "";
+		StringBuilder sb = new StringBuilder();
+		sb.append("In file ");
+		sb.append(br.fileName);
+		sb.append("\n");	
+		for (InfeasibleMessage m : br.messages) {
+			sb.append("\t");
+			for (Integer i : m.allLines) {
+				sb.append(i + ", ");
+			}
+			sb.append("\n");
+		}
+			
+		return sb.toString();
 	}
 
 	public String printAllReports() {
