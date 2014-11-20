@@ -43,7 +43,7 @@
 	<p>
 		Bixie is a static checker that detects <b>inconsistencies</b> in Java code. Inconsistent Code
 		is code that only occurs on paths that contain inconsistent assumptions. That is, it is either unreachable
-		or any of its executions must lead to an uncaught exception.
+		or any of its executions must lead to a runtime exception.
 		While inconsistencies are not automatically bugs, they have a bad smell as they represent code that 
 		cannot be executed safely. The Java compiler, for example, treats certain instances of inconsistent code 
 		as errors, like the use of uninitialized variables or inevitable null-pointer dereferences. 

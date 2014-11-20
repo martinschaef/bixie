@@ -93,7 +93,7 @@ public class BixieServlet extends HttpServlet {
 								comment="This line";
 							}
 							if (this.supportLines.size()>0) {
-								comment += " confilicts with the other marked lines";
+								comment += " conflicts with the other marked lines";
 							} else {
 								comment += " can never be executed";
 							}
@@ -102,7 +102,7 @@ public class BixieServlet extends HttpServlet {
 					}					
 				}
 			}
-			
+ 
 			
 			req.setAttribute("inflines", this.infeasibleLines);
 			req.setAttribute("suplines", this.supportLines);
