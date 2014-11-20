@@ -85,15 +85,15 @@ public class BixieServlet extends HttpServlet {
 						String comment = null;
 						if (loc.comment!=null) {
 							if (loc.comment.equals("elseBlock") || loc.comment.equals("elseblock")) {
-								comment="The else-branch of this conditional";
+								comment="The case where this conditional evaluates to false";
 							} else if (loc.comment.equals("thenBlock") || loc.comment.equals("thenblock")) {
-								comment="The then-branch of this conditional";
+								comment="The case where this conditional evaluates to true";
 							} else {
 								System.err.println(loc.comment);
 								comment="This line";
 							}
 							if (this.supportLines.size()>0) {
-								comment += " confilicts with the other makred lines";
+								comment += " confilicts with the other marked lines";
 							} else {
 								comment += " can never be executed";
 							}

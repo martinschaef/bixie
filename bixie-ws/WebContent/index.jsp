@@ -15,8 +15,8 @@
 <meta charset='utf-8'>
 <meta http-equiv="X-UA-Compatible" content="chrome=1">
 	<meta name="description"
-		content="Bixie : Find Inconsistent Code in Java code">
-		<title>Bixie : Find Inconsistent Code in Java code</title>
+		content="Bixie : Find inconsistencies in Java code">
+		<title>Bixie : Find inconsistencies in Java code</title>
 		<link rel="stylesheet" type="text/css" media="screen" href="css/stylesheet.css"/>
 
 </head>
@@ -27,7 +27,7 @@
 		<header class="inner"> <a id="forkme_banner"
 				href="https://github.com/martinschaef/bixie">View on GitHub</a>
 	
-			<h1 id="project_title">Find Inconsistent Code in Java code</h1>
+			<h1 id="project_title">Find inconsistencies in Java code</h1>
 	
 			<section id="downloads"> <a class="zip_download_link"
 				href="https://github.com/martinschaef/bixie/releases/download/v1.0/bixie.jar.zip">Download
@@ -41,9 +41,9 @@
 		<section id="main_content" class="inner">
 
 	<p>
-		Bixie is a static checker that detects <b>Inconsistent Code</b> in Java code. Inconsistent Code
+		Bixie is a static checker that detects <b>inconsistencies</b> in Java code. Inconsistent Code
 		is code that only occurs on paths that contain inconsistent assumptions. That is, it is either unreachable
-		or any of its executions must lead to an error.
+		or any of its executions must lead to an uncaught exception.
 		While inconsistencies are not automatically bugs, they have a bad smell as they represent code that 
 		cannot be executed safely. The Java compiler, for example, treats certain instances of inconsistent code 
 		as errors, like the use of uninitialized variables or inevitable null-pointer dereferences. 

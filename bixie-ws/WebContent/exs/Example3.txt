@@ -3,9 +3,9 @@ class Example3 {
 	/** snippet from terpword that is reported but not obviously a true positive.
 	 * The infeasible code is 
 	 * j >= 0 in  "while (end == -1 && j >= 0)";
-	 * The reason why it is infeasible is that the loop can never terminate if
-	 * end == -1 because if j would be less than 0, the deref of temp throw an
-	 * exception before reachen the check.
+	 * The reason why it is infeasible is that if "end" is -1 in the last iteration of
+	 * the loop, then j would be less than 0 and the deref of temp throw an
+	 * exception before reaching the check.
 	 * @param temp
 	 */
 	public void foo(char[] temp) {
@@ -17,6 +17,7 @@ class Example3 {
 				end = j;
 			}
 		} while (end == -1 && j >= 0);
-		j = end;		
+		j = end;
+		//...		
 	}
 }
