@@ -61,7 +61,7 @@ div.center iframe{
 			<h1 id="project_title">Try it online</h1>
 	
 			<section id="downloads"> <a class="zip_download_link"
-				href="https://github.com/martinschaef/bixie/releases/download/v1.0/bixie.jar.zip">Download
+				href="https://github.com/martinschaef/bixie/releases">Download
 				the .zip file</a> 
 			</section> 
 		</header>

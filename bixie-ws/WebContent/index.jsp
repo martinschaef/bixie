@@ -47,7 +47,7 @@
 		While inconsistencies are not automatically bugs, they have a bad smell as they represent code that 
 		cannot be executed safely. The Java compiler, for example, treats certain instances of inconsistent code 
 		as errors, like the use of uninitialized variables or inevitable null-pointer dereferences. 
-		Bixie uses deductive verification to find those inconsistencies that the Java compiler missed. 
+		Bixie uses deductive verification to find inconsistencies that the Java compiler missed. 
 	</p>
 
 	<div >
@@ -85,6 +85,7 @@
 		</p>
 		<ul>
 		<li>Apache Cassandra: <a href="https://github.com/apache/cassandra/pull/46" target="_blank">see pull request</a></li>
+		<li>Apache Hive: <a href="https://github.com/apache/hive/pull/23" target="_blank">see pull request</a></li>
 		<li>Apache jMeter: <a href="https://github.com/apache/jmeter/pull/10" target="_blank">see pull request</a></li>
 		<li>Apache Maven: <a href="https://github.com/apache/maven/pull/30" target="_blank">see pull request</a></li>
 		<li>Apache Tomcat: <a href="https://github.com/apache/tomcat/pull/13" target="_blank">see pull request</a></li>
@@ -106,15 +107,20 @@
 	If you just want to play with Bixie, use our <a href="./bixie" target="_blank">web tester</a>.
 	</p> 
 	
-	<p>For a quick start, download the all-in-one 
-	<a href="https://github.com/martinschaef/bixie/releases/download/v1.0/bixie.jar.zip">jar file
-	</a>. Now you can run Bixie as follows: 
-	</p>
-    <pre>java -jar bixie.jar -j [input] -cp [classpath] -o [output] </pre>
+	<p> 
+	Bixie uses <a href="http://www.sable.mcgill.ca/soot/" target="_blank">Soot</a> to parse Java (byte)code. There is a big difference between Soot 2.5.0 and the latest version of Soot.
+	Hence, we provide two versions of Bixie, depending on if you plan to analyze source code or bytecode:
+	<ul> 
+	<li><b>bixie_latestSoot.jar</b> which uses the latest version of Soot. Runs stable on bytecode and jar files but Soot may throw exceptions on source files. This version is used for our experiments.</li>
+	<li><b>bixie_soot2.5.jar</b> which uses Soot 2.5.0. Runs well on source code, but can be unstable on bytecode. This version is used for the web tester.</li>	
+	</ul>
+	Download the <a href="https://github.com/martinschaef/bixie/releases">latest release</a> from GitHub and unzip it. Pick one of the Bixie jar files depending on if you want to analyze source code or bytecode. 
+	In the following, we use <b>bixie_soot2.5.jar</b> for demonstration, but <b>bixie_latestSoot.jar</b> can be used with the exact same parameters if you have class files.
+	</p>	
+
+    <pre>java -jar bixie_soot2.5.jar -j [input] -cp [classpath] -o [output] </pre>
     <p>
 	Where <code>[input]</code> is either a (debug compiled) Jar file, or the root folder of your class or source files.
-	Note that <a href="https://github.com/Sable/soot" target="_blank">Soot</a>, which we use for parsing, runs much 
-	better on class files. 
 	</p>
     <p>
 	For <code>[classpath]</code> use the classpath that you would also use to run the code 
@@ -133,25 +139,14 @@
 	<pre>java -Xmx2g -Xms2g -Xss4m -jar bixie.jar ... </pre>
 	<p>For 32bit installations of Java use -Xmx1g -Xms1g -Xss4m.</p> 
 	
-	<h5>Implementation Notes</h5>
-	<p> 
-	Bixie uses <a href="http://www.sable.mcgill.ca/soot/" target="_blank">Soot</a> to parse Java (byte)code. There is a big difference between Soot 2.5.0 and the latest version of Soot.
-	Hence, we provide two versions of Bixie, depending on if you plan to analyze source code or bytecode:
-	<ul> 
-	<li><a href="demo/bixie_latestSoot.jar">Bixie Bytecode</a> which uses the latest version of Soot. Runs stable on bytecode and jar files but Soot may throw exceptions on source files. This version is used for our experiments</li>
-	<li><a href="demo/bixie_soot2.5.jar">Bixie Source</a> which uses Soot 2.5.0. Runs good on source code, but can be unstable on bytecode. This version is used for the web tester.</li>	
-	</ul>
-	</p>	
-	
 	<h5>Example</h5>
 	<p>
-	To check if everything is working properly, download the <a href="https://github.com/martinschaef/bixie/releases/download/v1.0/bixie.jar.zip" target="_blank">jar file</a>
-	and <a href="demo/Demo.java">Demo.java</a> and put them in the same folder. Now go to that folder and run:</p>
-    <pre>java -jar bixie.jar -j ./ -cp ./ -o report.txt </pre>	 
+	To check if everything is working properly, we test Bixie on Demo.java that comes with the download. Now go to that folder and run:</p>
+    <pre>java -jar bixie_soot2.5.jar -j ./ -cp ./ -o report.txt </pre>	 
 	<p>Your result.txt file should look somewhat like this:</p>
 	<pre>In file: ./Demo.java
-		38, 39, 
-		65, 62, 
+ 		   Inconsistency detected between the following lines:
+				4(else-block), 7
 	</pre>
 	
 	<h3>Previous Tools and Papers</h3>
