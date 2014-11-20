@@ -48,7 +48,7 @@ public class InterpolatingJavaReportPrinter implements ReportPrinter {
 	public void printReport(Report r) {
 		if (r!=null && r instanceof InterpolationInfeasibleReport) {
 			InterpolationInfeasibleReport ir = (InterpolationInfeasibleReport)r;
-			Log.info(this.buildBoogieErrorString(ir));
+			Log.debug(this.buildBoogieErrorString(ir));
 //			if (s!=null && s.length()>0) Log.info(s);
 		}
 	}
