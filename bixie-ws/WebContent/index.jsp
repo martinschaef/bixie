@@ -15,8 +15,8 @@
 <meta charset='utf-8'>
 <meta http-equiv="X-UA-Compatible" content="chrome=1">
 	<meta name="description"
-		content="Bixie : Find contradictions in Java code">
-		<title>Bixie : Find contradictions in Java code</title>
+		content="Bixie : Find Inconsistent Code in Java code">
+		<title>Bixie : Find Inconsistent Code in Java code</title>
 		<link rel="stylesheet" type="text/css" media="screen" href="css/stylesheet.css"/>
 
 </head>
@@ -27,7 +27,7 @@
 		<header class="inner"> <a id="forkme_banner"
 				href="https://github.com/martinschaef/bixie">View on GitHub</a>
 	
-			<h1 id="project_title">Find contradictions in Java code</h1>
+			<h1 id="project_title">Find Inconsistent Code in Java code</h1>
 	
 			<section id="downloads"> <a class="zip_download_link"
 				href="https://github.com/martinschaef/bixie/releases/download/v1.0/bixie.jar.zip">Download
@@ -41,13 +41,13 @@
 		<section id="main_content" class="inner">
 
 	<p>
-		Bixie is a static checker that detects <b>contradictions</b> in Java code. A contradiction
-		is piece of code that only occurs on paths that contain conflicting assumptions. That is, it is either unreachable
+		Bixie is a static checker that detects <b>Inconsistent Code</b> in Java code. Inconsistent Code
+		is code that only occurs on paths that contain inconsistent assumptions. That is, it is either unreachable
 		or any of its executions must lead to an error.
-		While contradictions are not automatically bugs, they have a bad smell as they represent code that 
-		cannot be executed safely. The Java compiler, for example, treats certain instances of contradictions 
+		While inconsistencies are not automatically bugs, they have a bad smell as they represent code that 
+		cannot be executed safely. The Java compiler, for example, treats certain instances of inconsistent code 
 		as errors, like the use of uninitialized variables or inevitable null-pointer dereferences. 
-		Bixie uses deductive verification to find those contradictions that the Java compiler missed. 
+		Bixie uses deductive verification to find those inconsistencies that the Java compiler missed. 
 	</p>
 
 	<div >
@@ -61,8 +61,8 @@
 		<p> 
 			The easiest way to understand what Bixie does is to
 			try it <a href="./bixie" target="_blank">online</a>. Click on the picture
-			on the right and browse through some examples of contradictions
-			in Java code, or type your own program an check it.
+			on the right and browse through some examples of inconsistent Java code
+			or type your own program and check it.
 		</p>
 		
 	</div>
@@ -73,7 +73,7 @@
 	<hr/>
 	</div>
 	
-	<h3>Contradictions found by Bixie</h3>
+	<h3>Inconsistent Code found by Bixie</h3>
 		<p>
 		We keep running Bixie on open-source projects and report our findings. 
 		In order to avoid spamming developers, we inspect each warning manually to make sure that it is relevant.
@@ -81,11 +81,12 @@
 		deliberately unreachable (e.g., a debug constant disables it), or the code has a comment that 
 		says it is supposed to be unreachable. 
 		<br/>
-		Here are some of the more contradictions found and fixed by Bixie in popular projects: 
+		Here are some instances of inconsistent code that were found and fixed by Bixie in popular projects: 
 		</p>
 		<ul>
 		<li>Apache Cassandra: <a href="https://github.com/apache/cassandra/pull/46" target="_blank">see pull request</a></li>
-		<li>Apache jMeter: <a href="https://github.com/apache/jmeter/pull/10" target="_blank">see pull request</a></li> 
+		<li>Apache jMeter: <a href="https://github.com/apache/jmeter/pull/10" target="_blank">see pull request</a></li>
+		<li>Apache Maven: <a href="https://github.com/apache/maven/pull/30" target="_blank">see pull request</a></li>
 		<li>Apache Tomcat: <a href="https://github.com/apache/tomcat/pull/13" target="_blank">see pull request</a></li>
 		<li>Bouncy Castle: <a href="https://github.com/bcgit/bc-java/pull/87" target="_blank">see pull request</a></li>
 		<li> Soot: see pull request <a href="https://github.com/Sable/soot/pull/244" target="_blank"> 1</a> and 
@@ -101,8 +102,8 @@
 	to run Bixie. Please check:
 	</p>
 	<pre>java -version</pre>
-	<p>If the result is not <code>1.7.0</code> or higher, please update your Java version, or, 
-	if you just want to play with Bixie, use our <a href="./bixie" target="_blank">web tester</a>.
+	<p>If the result is not <code>1.7.0</code> or higher please update your Java version. 
+	If you just want to play with Bixie, use our <a href="./bixie" target="_blank">web tester</a>.
 	</p> 
 	
 	<p>For a quick start, download the all-in-one 
@@ -126,40 +127,69 @@
 	</p>
 	
 	<p>
-	For larger programs, we highly recommend to start Bixie with a lot of resources. In our experiments, we use the
+	For larger programs we highly recommend to start Bixie with lots of resources. In our experiments, we use the
 	following setup (which requires a 64bit JDK):
 	</p>
 	<pre>java -Xmx2g -Xms2g -Xss4m -jar bixie.jar ... </pre>
 	<p>For 32bit installations of Java use -Xmx1g -Xms1g -Xss4m.</p> 
 	
+	<h5>Implementation Notes</h5>
+	<p> 
+	Bixie uses <a href="http://www.sable.mcgill.ca/soot/" target="_blank">Soot</a> to parse Java (byte)code. There is a big difference between Soot 2.5.0 and the latest version of Soot.
+	Hence, we provide two versions of Bixie, depending on if you plan to analyze source code or bytecode:
+	<ul> 
+	<li><a href="demo/bixie_latestSoot.jar">Bixie Bytecode</a> which uses the latest version of Soot. Runs stable on bytecode and jar files but Soot may throw exceptions on source files. This version is used for our experiments</li>
+	<li><a href="demo/bixie_soot2.5.jar">Bixie Source</a> which uses Soot 2.5.0. Runs good on source code, but can be unstable on bytecode. This version is used for the web tester.</li>	
+	</ul>
+	</p>	
+	
 	<h5>Example</h5>
 	<p>
-	To check if everything is working properly, download the <a href="https://github.com/martinschaef/bixie/releases/download/v1.0/bixie.jar.zip">jar file</a>
+	To check if everything is working properly, download the <a href="https://github.com/martinschaef/bixie/releases/download/v1.0/bixie.jar.zip" target="_blank">jar file</a>
 	and <a href="demo/Demo.java">Demo.java</a> and put them in the same folder. Now go to that folder and run:</p>
     <pre>java -jar bixie.jar -j ./ -cp ./ -o report.txt </pre>	 
 	<p>Your result.txt file should look somewhat like this:</p>
 	<pre>In file: ./Demo.java
-		line 39
-		line 65</pre>
+		38, 39, 
+		65, 62, 
+	</pre>
 	
 	<h3>Previous Tools and Papers</h3>
 	<p>
 	Bixie is the successor of our  <a href="http://www.joogie.org" target="_blank">Joogie</a> tool. 
-	While Joogie was already doing a good job in detecting contradictions in Java bytecode, it produced 
-	a substantial amount of false alarms because not all contradictions in the bytecode are
-	also contradictions in Java code. In Bixie, we use a novel technique to translate bytecode into logic
+	While Joogie was already doing a good job in detecting inconsistent code in Java bytecode, it produced 
+	a substantial amount of false alarms because not all inconsistencies in the bytecode are
+	also inconsistencies in Java code. In Bixie, we use a novel technique to translate bytecode into logic
 	that allows our checker to suppress almost all false alarms. At the same time, we improved
 	handling of loops and library functions to further increase the detection rate.
 	For more details on the new features of Bixie, check our 
 	<a href="https://github.com/martinschaef/jar2bpl/wiki" target="_blank">wiki</a>.
 	</p>
 	<p>
-	The papers below describe who the actual checking for contradictions is implemented in Bixie:</p>
+	The papers below describe how the actual checking for inconsistent code is implemented in Bixie:</p>
 	<ul> 
 	<li><a href="http://iist.unu.edu/publication/theory-control-flow-graph-exploration" target="_blank">A Theory for Control-Flow Graph Exploration</a>,  S. Arlt, P. R&uuml;mmer, M. Sch&auml;f, ATVA 2013 </li>
 	<li><a href="http://www.informatik.uni-freiburg.de/~schaef/joogie.pdf" target="_blank">Joogie: Infeasible Code Detection for Java</a>,  S. Arlt, M. Sch&auml;f, CAV 2012 </li>
 	<li><a href="http://cs.nyu.edu/~wies/publ/doomed_program_points.pdf" target="_blank">It's doomed; we can prove it</a>,  J. Hoenicke, R. Leino, A. Podelski, M. Sch&auml;f, T. Wies, FM 2009 </li>
 	</ul>
+	<p>
+	Bixie also includes an interpolation-based fault localization to explain inconsistent code (see our papers below). Previous tools on inconsistent code 
+	could only detect single statements by proving that they do not occur on feasible paths. Bixie is the first tool that computes actual error messages for inconsistent 
+	code.
+	<ul> 
+	<li><a href="http://iist.unu.edu/publication/explaining-inconsistent-code" target="_blank">Explaining Inconsistent Code</a>,  M. Sch&auml;f, D. Schwartz-Narbonne, T. Wies, FSE 2013 </li>
+	<li><a href="http://iist.unu.edu/publication/flow-sensitive-fault-localization" target="_blank">Flow-sensitive Fault Localization</a>,   J. Christ, E. Ermis, M. Sch&auml;f, T. Wies, VMCAI 2013 </li>
+	<li><a href="http://iist.unu.edu/publication/error-invariants" target="_blank">Error Invariants</a>,  E. Ermis, M. Sch&auml;f, T. Wies, FM 2012 </li>
+	</ul>
+	</p>
+	<p>
+	Bixie uses the following components:
+	<ul> 
+	<li><a href="https://github.com/martinschaef/gravy" target="_blank">GraVy</a>,  A tool to compute feasible path covers for Boogie programs. </li>
+	<li><a href="https://github.com/martinschaef/jar2bpl" target="_blank">Jar2Bpl</a>,   A tool to translate Java Bytecode into Boogie based on Soot. </li>
+	</ul>
+	</p>
+	
 	</section>
 	
 </div>

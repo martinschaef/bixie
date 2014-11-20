@@ -90,6 +90,7 @@ public class BixieServlet extends HttpServlet {
 								comment="The then-branch of this conditional";
 							} else {
 								System.err.println(loc.comment);
+								comment="This line";
 							}
 							if (this.supportLines.size()>0) {
 								comment += " confilicts with the other makred lines";
