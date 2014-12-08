@@ -113,6 +113,7 @@ public class Bixie {
 
 	public InterpolatingJavaReportPrinter runChecker(ProgramFactory pf) {
 		System.out.println("Checking");
+		org.gravy.Options.v().setTimeOut(Options.v().getTimeout()*1000);
 		org.gravy.Options.v().setChecker(4);
 		//Options.v().useLocationAttribute(true);
 		org.gravy.Options.v().setLoopMode(1);

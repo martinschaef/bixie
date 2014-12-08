@@ -53,6 +53,18 @@ public class Options {
 	@Option(name = "-cp", usage = "Classpath")
 	private String classpath="";
 
+	
+	/**
+	 * Classpath
+	 */
+	@Option(name = "-t", usage = "Timeout per procedure. Use 0 for no timeout. (Default is 20s)")
+	private int timeout=20;
+	
+	public int getTimeout() {
+		return this.timeout;
+	}
+	
+	
 	@Option(name = "-stats", usage = "Save statistics")
 	public boolean stopTime = true;
 
