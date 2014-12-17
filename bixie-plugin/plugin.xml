@@ -2,24 +2,6 @@
 <?eclipse version="3.4"?>
 <plugin>
 
-	<extension
-		point="org.eclipse.ui.popupMenus">
-		<objectContribution
-			id="bixie.plugin.popup"
-			objectClass="org.eclipse.jdt.core.IOpenable">
-			<visibility>
-				<objectClass name="org.eclipse.jdt.core.ICompilationUnit" />
-			</visibility>
-			<action
-				label="Run Bixie"
-				class="bixie.plugin.popup.actions.RunBixieAction"
-				menubarPath="additions"
-				enablesFor="1"
-				id="bixie.plugin.popup.actions.RunBixieAction"
-				icon="icons/bixie16.png">
-			</action>
-		</objectContribution>
-	</extension>
 	
 	<extension
 		point="org.eclipse.ui.views">
@@ -49,5 +31,59 @@
 			</view>
 		</perspectiveExtension>
 	</extension>
+ <extension
+       point="org.eclipse.ui.commands">
+    <category
+          id="bixie.plugin.commands.category"
+          name="Stataic Anlaysis">
+    </category>
+    <command
+          categoryId="bixie.plugin.commands.category"
+          description="Search for inconsistencies in the current file"
+          id="bixie.plugin.commands.RunBixieCommand"
+          name="Run Bixie">
+    </command>
+ </extension>
+ <extension
+       point="org.eclipse.ui.handlers">
+    <handler
+          class="bixie.plugin.handlers.BixieHandler"
+          commandId="bixie.plugin.commands.RunBixieCommand">
+    </handler>
+ </extension>
+ <extension
+       point="org.eclipse.ui.bindings">
+    <key
+          commandId="bixie.plugin.commands.RunBixieCommand"
+          contextId="org.eclipse.ui.contexts.window"
+          schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+          sequence="M1+6">
+    </key>
+ </extension>
+ <extension
+       point="org.eclipse.ui.menus">
+    <menuContribution
+          locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+       <toolbar
+             id="bixie.plugin.toolbars.BixieToolbar">
+          <command
+                commandId="bixie.plugin.commands.RunBixieCommand"
+                icon="icons/bixie16.png"
+                id="bixie.plugin.toolbars.RunBixieCommand"
+                tooltip="Run Bixie">
+          </command>
+       </toolbar>
+    </menuContribution>
+    <menuContribution
+          allPopups="false"
+          locationURI="popup:org.eclipse.jdt.ui.CompilationUnitEditor.EditorContext?before=additions">
+       <command
+             commandId="bixie.plugin.commands.RunBixieCommand"
+             icon="icons/bixie16.png"
+             label="Run Bixie"
+             style="push">
+       </command>
+    </menuContribution>
+ </extension>
 
 </plugin>

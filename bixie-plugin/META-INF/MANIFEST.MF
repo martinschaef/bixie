@@ -8,9 +8,9 @@ Bundle-Vendor: BIXIE
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
- org.eclipse.jdt.core;bundle-version="3.7.3"
+ org.eclipse.jdt.core;bundle-version="3.7.3",
+ org.eclipse.jdt.ui;bundle-version="3.9.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: lib/jsyntaxpane-0.9.4.jar,
- .,
+Bundle-ClassPath: .,
  lib/bixie.jar

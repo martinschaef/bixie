@@ -1,28 +1,13 @@
-/*
- * Joogie translates Java bytecode to the Boogie intermediate verification language
- * Copyright (C) 2011 Martin Schaef and Stephan Arlt
- * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
-
-package bixie.plugin.popup.actions;
+package bixie.plugin.handlers;
 
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -30,13 +15,9 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.TreeSelection;
-import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import bixie.Bixie;
@@ -46,11 +27,11 @@ import bixie.util.BixieReport;
 import bixie.util.BixieReport.InfeasibleMessage;
 
 /**
- * Run Joogie Action
- * 
- * @author arlt
+ * Our sample handler extends AbstractHandler, an IHandler base class.
+ * @see org.eclipse.core.commands.IHandler
+ * @see org.eclipse.core.commands.AbstractHandler
  */
-public class RunBixieAction implements IObjectActionDelegate {
+public class BixieHandler extends AbstractHandler {
 
 	/**
 	 * Soot thread
@@ -62,31 +43,30 @@ public class RunBixieAction implements IObjectActionDelegate {
 	 */
 	private String boogieFile;
 
+	
 	/**
-	 * C-tor
+	 * The constructor.
 	 */
-	public RunBixieAction() {
-		super();
+	public BixieHandler() {
 		boogieFile = addMissingSeparator(System.getProperty("java.io.tmpdir"))
 				+ "joogie.bpl";
 	}
 
-	@Override
-	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
+	/**
+	 * the command has been executed, so extract extract the needed information
+	 * from the application context.
+	 */
+	public Object execute(ExecutionEvent event) throws ExecutionException {
 
-	}
-
-	@Override
-	public void run(IAction action) {
 		try {
 			// return, if thread is running
 			if (isThreadRunning())
-				return;
+				return null;
 
 			// get compilation unit
 			final ICompilationUnit compilationUnit = getCompilationUnit();
 			if (null == compilationUnit)
-				return;
+				return null;
 
 			// get class and source folder
 			final String clazz = getClassName(compilationUnit);
@@ -183,12 +163,9 @@ public class RunBixieAction implements IObjectActionDelegate {
 		} catch (Exception e) {
 			UI.printError(e.getMessage());
 		}
+		return null;
 	}
-
-	@Override
-	public void selectionChanged(IAction action, ISelection selection) {
-	}
-
+	
 	/**
 	 * Determines if the thread is running or not
 	 * 
@@ -208,20 +185,10 @@ public class RunBixieAction implements IObjectActionDelegate {
 	 * @return Compilation unit
 	 */
 	protected ICompilationUnit getCompilationUnit() {
-		// get workbench window
-		IWorkbenchWindow window = PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow();
-		if (null == window)
-			return null;
-
-		// get selection
-		ISelection selection = window.getSelectionService().getSelection();
-		if (null == selection)
-			return null;
-
-		// return compilation unit
-		TreeSelection treeSelection = (TreeSelection) selection;
-		return (ICompilationUnit) treeSelection.getFirstElement();
+		IWorkbenchPart workbenchPart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart(); 
+		IFile file = (IFile) workbenchPart.getSite().getPage().getActiveEditor().getEditorInput().getAdapter(IFile.class);
+		return JavaCore.createCompilationUnitFrom(file);
+//		return null;
 	}
 
 	/**
@@ -285,6 +252,6 @@ public class RunBixieAction implements IObjectActionDelegate {
 			path += File.separatorChar;
 		}
 		return path;
-	}
-
+	}	
+	
 }
