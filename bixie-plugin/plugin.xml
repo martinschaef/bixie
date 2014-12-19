@@ -5,8 +5,8 @@
 	<extension
 		point="org.eclipse.ui.views">
 		<category
-			name="Bixie"
-			id="bixie.plugin.views">
+        id="bixie.plugin.views"
+        name="Bixie">
 		</category>
 		<view
 			name="Bixie Console"
@@ -22,32 +22,37 @@
 		<perspectiveExtension
 			targetID="org.eclipse.jdt.ui.JavaPerspective">
 			<view
-				id="bixie.plugin.views.BixieConsoleView"
-				ratio="0.5"
-				relationship="right"
-				relative="org.eclipse.ui.views.TaskList"
-				visible="true">
+         id="bixie.plugin.views.BixieConsoleView"
+         ratio="0.5"
+         relationship="right"
+         relative="org.eclipse.ui.console.ConsoleView"
+         visible="true">
 			</view>
 		</perspectiveExtension>
 	</extension>
  <extension
        point="org.eclipse.ui.commands">
-    <category
-          id="bixie.plugin.commands.category"
-          name="Stataic Anlaysis">
-    </category>
     <command
+          category="bixieChecker"
           categoryId="bixie.plugin.commands.category"
           description="Search for inconsistencies in the current file"
           id="bixie.plugin.commands.RunBixieCommand"
           name="Run Bixie">
     </command>
+    <category
+          id="bixie-plugin.checker"
+          name="bixieChecker">
+    </category>
  </extension>
  <extension
        point="org.eclipse.ui.handlers">
     <handler
           class="bixie.plugin.handlers.BixieHandler"
           commandId="bixie.plugin.commands.RunBixieCommand">
+    </handler>
+    <handler
+          class="bixie.plugin.handlers.StopBixieHandler"
+          commandId="bixie.plugin.commands.StopBixieCommand">
     </handler>
  </extension>
  <extension
@@ -70,6 +75,13 @@
                 icon="icons/bixie16.png"
                 id="bixie.plugin.toolbars.RunBixieCommand"
                 tooltip="Run Bixie">
+          </command>
+          <command
+                commandId="bixie.plugin.commands.StopBixieCommand"
+                icon="icons/Xbixie16.png"
+                id="bixie.plugin.commands.StopBixieCommand"
+                label="Clear Markers"
+                style="push">
           </command>
        </toolbar>
     </menuContribution>

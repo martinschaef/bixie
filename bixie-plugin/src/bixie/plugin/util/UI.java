@@ -23,6 +23,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import bixie.plugin.views.BixieConsoleView;
@@ -57,12 +58,26 @@ public class UI {
 				if (null == page)
 					return;
 
-				// find Joogie's console view
+				// find Bixies's console view
 				BixieConsoleView view = (BixieConsoleView) page
 						.findView(BixieConsoleView.ID);
-				if (null == view)
+				if (null == view) {
+					//if its closed, open it.
+					try {
+						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("bixie.plugin.views.BixieConsoleView");
+					} catch (PartInitException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						return;
+					}
+					//and try to find it again.
+					view = (BixieConsoleView) page.findView(BixieConsoleView.ID);
+				}
+				
+				if (view == null) {
 					return;
-
+				}
+				
 				// write text
 				view.writeText(logText);
 			}

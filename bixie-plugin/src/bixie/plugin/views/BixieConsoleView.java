@@ -58,7 +58,7 @@ public class BixieConsoleView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-
+		
 	}
 
 	/**

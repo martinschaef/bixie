@@ -2,14 +2,15 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bixie Plugin
 Bundle-SymbolicName: bixie.plugin;singleton:=true
-Bundle-Version: 1.0.1
+Bundle-Version: 1.0.2
 Bundle-Activator: bixie.plugin.Activator
 Bundle-Vendor: BIXIE
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
  org.eclipse.jdt.core;bundle-version="3.7.3",
- org.eclipse.jdt.ui;bundle-version="3.9.2"
+ org.eclipse.jdt.ui;bundle-version="3.9.2",
+ org.eclipse.ui.console;bundle-version="3.5.200"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
