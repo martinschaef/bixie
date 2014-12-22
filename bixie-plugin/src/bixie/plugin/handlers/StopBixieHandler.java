@@ -59,8 +59,8 @@ public class StopBixieHandler extends AbstractHandler {
 					marker.delete();
 			}
 
-		} catch (Exception e) {
-			UI.printError(e.getMessage());
+		} catch (Throwable e) {
+			UI.printError(e.toString());
 		}
 		return null;
 	}

@@ -3,5 +3,8 @@
    <description name="Bixie" url="http://www.csl.sri.com/users/schaef/update-site/">
       Bixie is a static checker that detects inconsistencies in Java code. Inconsistent Code is code that only occurs on paths that contain inconsistent assumptions. That is, it is either unreachable or any of its executions must lead to a runtime exception. While inconsistencies are not automatically bugs, they have a bad smell as they represent code that cannot be executed safely. The Java compiler, for example, treats certain instances of inconsistent code as errors, like the use of uninitialized variables or inevitable null-pointer dereferences. Bixie uses deductive verification to find inconsistencies that the Java compiler missed.
    </description>
-   <feature url="features/bixie.plugin_1.0.0.1.jar" id="bixie.plugin" version="1.0.0.1" os="linux,macosx,win32" ws="carbon,cocoa,gtk,motif,photon,win32,wpf" nl="en_US" arch="x86,x86_64"/>
+   <feature url="features/bixie.plugin_1.0.0.9.jar" id="bixie.plugin" version="1.0.0.9" os="linux,macosx,win32" arch="x86,x86_64">
+      <category name="inconsistentcode"/>
+   </feature>
+   <category-def name="inconsistentcode" label="Inconsistent Code Detection"/>
 </site>

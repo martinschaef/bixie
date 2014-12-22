@@ -30,6 +30,7 @@ import bixie.util.BixieReport.InfeasibleMessage;
 
 /**
  * Our sample handler extends AbstractHandler, an IHandler base class.
+ * 
  * @see org.eclipse.core.commands.IHandler
  * @see org.eclipse.core.commands.AbstractHandler
  */
@@ -45,7 +46,6 @@ public class BixieHandler extends AbstractHandler {
 	 */
 	private String boogieFile;
 
-	
 	/**
 	 * The constructor.
 	 */
@@ -72,15 +72,17 @@ public class BixieHandler extends AbstractHandler {
 			// get class and source folder
 			final String clazz = getClassName(compilationUnit);
 			final String sourceFolder = getSourceFolder(compilationUnit);
-			
+
 			// create thread
 			thread = new Thread() {
 				public void run() {
 					try {
-						UI.log("Checking "+clazz);
+						UI.log("Checking " + clazz);
 						// create report
 						Bixie bixie = new Bixie();
-						InterpolatingJavaReportPrinter jp = bixie.translateAndRun(clazz, sourceFolder);
+						InterpolatingJavaReportPrinter jp = bixie
+								.translateAndRun(clazz, sourceFolder);
+						UI.log("Done.");
 						// get resource
 						IResource resource = compilationUnit
 								.getUnderlyingResource();
@@ -94,34 +96,40 @@ public class BixieHandler extends AbstractHandler {
 							if (marker.getAttribute("bixie", false))
 								marker.delete();
 						}
-						
+
 						// no infeasible code?
-						if (jp.getBixieReport("")==null || jp.getBixieReport("").isEmpty()) {
+						if (jp.getBixieReport("") == null
+								|| jp.getBixieReport("").isEmpty()) {
 							UI.printInfo("Bixie did not find inconsistencies!");
 						} else {
 							// create new markers
 							UI.log(jp.printAllReports());
-							for (BixieReport r : jp.getBixieReport(clazz)) {								
+							for (BixieReport r : jp.getBixieReport(clazz)) {
 								for (InfeasibleMessage im : r.messages) {
 									Set<Integer> supportLines = new HashSet<Integer>();
-									
+
 									for (org.gravy.util.JavaSourceLocation loc : im.otherLines) {
 										supportLines.add(loc.StartLine);
-									}									
-									
+									}
+
 									for (org.gravy.util.JavaSourceLocation loc : im.infeasibleLines) {
 										supportLines.remove(loc.StartLine);
 										StringBuffer comment = new StringBuffer();
-										if (loc.comment!=null) {
-											if (loc.comment.equals("elseBlock") || loc.comment.equals("elseblock")) {
+										if (loc.comment != null) {
+											if (loc.comment.equals("elseBlock")
+													|| loc.comment
+															.equals("elseblock")) {
 												comment.append("The case where this conditional is false");
-											} else if (loc.comment.equals("thenBlock") || loc.comment.equals("thenblock")) {
+											} else if (loc.comment
+													.equals("thenBlock")
+													|| loc.comment
+															.equals("thenblock")) {
 												comment.append("The case where this conditional is true");
 											} else {
 												System.err.println(loc.comment);
 												comment.append("This line");
 											}
-											if (supportLines.size()>0) {
+											if (supportLines.size() > 0) {
 												comment.append(" is inconsistent with lines ");
 												boolean first = true;
 												for (Integer i : supportLines) {
@@ -142,16 +150,17 @@ public class BixieHandler extends AbstractHandler {
 												comment.toString());
 										marker.setAttribute(IMarker.SEVERITY,
 												IMarker.SEVERITY_ERROR);
-										marker.setAttribute(IMarker.LINE_NUMBER,
+										marker.setAttribute(
+												IMarker.LINE_NUMBER,
 												loc.StartLine);
 										marker.setAttribute("bixie", true);
-									}										
+									}
 								}
 							}
 						}
 
-					} catch (Exception e) {
-						UI.printError(e.getMessage());
+					} catch (Throwable e) {
+						UI.log("Bixie Failed: " + e.toString());
 					} finally {
 						deleteTempFiles();
 					}
@@ -161,12 +170,12 @@ public class BixieHandler extends AbstractHandler {
 			// start thread
 			thread.start();
 
-		} catch (Exception e) {
-			UI.printError(e.getMessage());
+		} catch (Throwable e) {
+			UI.log("Plugin Crashed: " +e.toString());
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Determines if the thread is running or not
 	 * 
@@ -186,10 +195,12 @@ public class BixieHandler extends AbstractHandler {
 	 * @return Compilation unit
 	 */
 	protected ICompilationUnit getCompilationUnit() {
-		IWorkbenchPart workbenchPart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart(); 
-		IFile file = (IFile) workbenchPart.getSite().getPage().getActiveEditor().getEditorInput().getAdapter(IFile.class);
+		IWorkbenchPart workbenchPart = PlatformUI.getWorkbench()
+				.getActiveWorkbenchWindow().getActivePage().getActivePart();
+		IFile file = (IFile) workbenchPart.getSite().getPage()
+				.getActiveEditor().getEditorInput().getAdapter(IFile.class);
 		return JavaCore.createCompilationUnitFrom(file);
-//		return null;
+		// return null;
 	}
 
 	/**
@@ -236,7 +247,7 @@ public class BixieHandler extends AbstractHandler {
 			new File(boogieFile).delete();
 
 		} catch (Exception e) {
-			UI.printError(e.getMessage());
+			UI.printError(e.toString());
 		}
 	}
 
@@ -253,6 +264,6 @@ public class BixieHandler extends AbstractHandler {
 			path += File.separatorChar;
 		}
 		return path;
-	}	
-	
+	}
+
 }

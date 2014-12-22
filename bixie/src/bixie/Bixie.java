@@ -43,7 +43,7 @@ public class Bixie {
 
 			Bixie bixie = new Bixie();
 			if (options.getBoogieFile()!=null && options.getJarFile()!=null) {
-				System.err.println("Can only take either Java or Boogie input. Not both");
+				org.gravy.util.Log.error("Can only take either Java or Boogie input. Not both");
 				return;
 			} else if (options.getBoogieFile()!=null) {
 				bixie.run(options.getBoogieFile(), options.getOutputFile());
@@ -55,16 +55,15 @@ public class Bixie {
 				bixie.translateAndRun(options.getJarFile(), cp, options.getOutputFile());
 			}
 		} catch (CmdLineException e) {
-			System.err.println(e.getMessage());
+			org.gravy.util.Log.error(e.toString());
 			parser.printUsage(System.err);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			org.gravy.util.Log.error(e.toString());
 		}
 	}
 
 	public void run(String input, String output) {
 		bixie.Options.v().setOutputFile(output);
-		org.gravy.Options.v().setTimeOut(25000); //set timeout to 25 sec per procedure.
 		if (input!=null && input.endsWith(".bpl")) {
 			try {
 				ProgramFactory pf = new ProgramFactory(input);
@@ -72,10 +71,10 @@ public class Bixie {
 				report2File(jp);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				org.gravy.util.Log.error(e.toString());
 			}
-		} else {
-			System.err.println("Not a valid Boogie file: "+input);
+		} else {			
+			org.gravy.util.Log.error("Not a valid Boogie file: "+input);
 		}
 	}
 
@@ -83,36 +82,44 @@ public class Bixie {
 		try (PrintWriter out = new PrintWriter(bixie.Options.v().getOutputFile());){			
 			String str = jp.printAllReports();
 			out.println(str);
-			System.out.println(str);
+			org.gravy.util.Log.info(str);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			org.gravy.util.Log.error(e.toString());
 		}				
 	}
 	
 	public void translateAndRun(String input, String classpath, String output) {
+		try {
 		InterpolatingJavaReportPrinter jp = translateAndRun(input, classpath);
 		bixie.Options.v().setOutputFile(output);
 		report2File(jp);
+		} catch (Throwable e) {
+			org.gravy.util.Log.error(e.toString());
+		}
 	}
 	
 	
 	public InterpolatingJavaReportPrinter translateAndRun(String input, String classpath) {
 		try {
-			System.out.println("Translating");
+			org.gravy.util.Log.info("Translating");
 			org.joogie.Dispatcher.setClassPath(classpath);
-			ProgramFactory pf = org.joogie.Dispatcher.run(input);		
+			ProgramFactory pf = org.joogie.Dispatcher.run(input);
+			if (pf==null) {
+				org.gravy.util.Log.error("Internal Error: Parsing failed");
+				return null;
+			}
 			InterpolatingJavaReportPrinter jp = runChecker(pf);
 			return jp;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}			
+		} catch (Throwable e) {
+			org.gravy.util.Log.error(e.toString());
+		}	
+		org.gravy.util.Log.info("Bixie Done");
 		return null;
 	}
 
 	public InterpolatingJavaReportPrinter runChecker(ProgramFactory pf) {
-		System.out.println("Checking");
+		org.gravy.util.Log.info("Checking");
 		org.gravy.Options.v().setTimeOut(Options.v().getTimeout()*1000);
 		org.gravy.Options.v().setChecker(4);
 		//Options.v().useLocationAttribute(true);
@@ -122,7 +129,7 @@ public class Bixie {
 				org.gravy.util.Statistics.v().setLogFilePrefix(bixie.Options.v().getOutputFile());
 				org.gravy.Options.v().stopTime = true;
 			} catch (Throwable e) {
-				e.printStackTrace();
+				org.gravy.util.Log.error(e.toString());
 				org.gravy.Options.v().stopTime = false;
 			}
 		}
@@ -130,8 +137,7 @@ public class Bixie {
 		try {
 			ProgramAnalysis.runFullProgramAnalysis(pf, jp);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			org.gravy.util.Log.error(e.toString());
 		}
 		return jp;
 	}

@@ -2,11 +2,9 @@
 <feature
       id="bixie.plugin"
       label="Bixie"
-      version="1.0.0.1"
-      plugin="bixie.plugin"
+      version="1.0.0.9"
+      provider-name="SRI International"
       os="linux,macosx,win32"
-      ws="carbon,cocoa,gtk,motif,photon,win32,wpf"
-      nl="en_US"
       arch="x86,x86_64">
 
    <description url="http://www.csl.sri.com/bixie-ws/">
@@ -28,13 +26,13 @@
       <import plugin="org.eclipse.core.resources"/>
       <import plugin="org.eclipse.jdt.core" version="3.7.3" match="greaterOrEqual"/>
       <import plugin="org.eclipse.jdt.ui" version="3.9.2" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.console" version="3.5.200" match="greaterOrEqual"/>
    </requires>
 
    <plugin
          id="bixie.plugin"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
 </feature>
