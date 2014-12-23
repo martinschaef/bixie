@@ -28,15 +28,16 @@ public class BixieReport {
 	    }
 	}
 	
+	
 	public class InfeasibleMessage {
 		
 		public Integer firstLine = -2;
 		public String fileName = "";
-		public LinkedList<JavaSourceLocation> locations = new LinkedList<JavaSourceLocation>();
+		public LinkedList<SourceLine> locations = new LinkedList<SourceLine>();
 		
 		public HashSet<Integer> allLines = new HashSet<Integer>();
-		public LinkedList<JavaSourceLocation> infeasibleLines = new LinkedList<JavaSourceLocation>();
-		public LinkedList<JavaSourceLocation> otherLines = new LinkedList<JavaSourceLocation>();
+		public LinkedList<SourceLine> infeasibleLines = new LinkedList<SourceLine>();
+		public LinkedList<SourceLine> otherLines = new LinkedList<SourceLine>();
 		
 		public InfeasibleMessage(HashMap<CfgStatement, JavaSourceLocation> report) {
 
@@ -49,14 +50,17 @@ public class BixieReport {
 					firstLine = line.getValue().StartLine;
 				}
 				allLines.add(line.getValue().StartLine);
+				
+				SourceLine sl = new SourceLine(line.getValue());
+				
 				if (line.getValue().inInfeasibleBlock) {
-					this.infeasibleLines.add(line.getValue());
+					this.infeasibleLines.add(sl);
 				} else {
-					this.otherLines.add(line.getValue());
+					this.otherLines.add(sl);
 				}
-			}	
-			locations.addAll(report.values());
-			
+				this.locations.add(sl);
+				
+			}				
 		}
 		
 		public boolean includes(InfeasibleMessage other) {

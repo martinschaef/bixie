@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
@@ -20,13 +19,13 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.handlers.HandlerUtil;
 
 import bixie.Bixie;
 import bixie.InterpolatingJavaReportPrinter;
 import bixie.plugin.util.UI;
 import bixie.util.BixieReport;
 import bixie.util.BixieReport.InfeasibleMessage;
+import bixie.util.SourceLine;
 
 /**
  * Our sample handler extends AbstractHandler, an IHandler base class.
@@ -82,6 +81,10 @@ public class BixieHandler extends AbstractHandler {
 						Bixie bixie = new Bixie();
 						InterpolatingJavaReportPrinter jp = bixie
 								.translateAndRun(clazz, sourceFolder);
+						if (jp==null) {
+							throw new RuntimeException("analyzing "+clazz+" failed.");
+						}
+						
 						UI.log("Done.");
 						// get resource
 						IResource resource = compilationUnit
@@ -100,7 +103,7 @@ public class BixieHandler extends AbstractHandler {
 						// no infeasible code?
 						if (jp.getBixieReport("") == null
 								|| jp.getBixieReport("").isEmpty()) {
-							UI.printInfo("Bixie did not find inconsistencies!");
+							UI.log("Bixie did not find inconsistencies!");
 						} else {
 							// create new markers
 							UI.log(jp.printAllReports());
@@ -108,11 +111,11 @@ public class BixieHandler extends AbstractHandler {
 								for (InfeasibleMessage im : r.messages) {
 									Set<Integer> supportLines = new HashSet<Integer>();
 
-									for (org.gravy.util.JavaSourceLocation loc : im.otherLines) {
+									for (SourceLine loc : im.otherLines) {
 										supportLines.add(loc.StartLine);
 									}
 
-									for (org.gravy.util.JavaSourceLocation loc : im.infeasibleLines) {
+									for (SourceLine loc : im.infeasibleLines) {
 										supportLines.remove(loc.StartLine);
 										StringBuffer comment = new StringBuffer();
 										if (loc.comment != null) {
@@ -246,7 +249,7 @@ public class BixieHandler extends AbstractHandler {
 		try {
 			new File(boogieFile).delete();
 
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			UI.printError(e.toString());
 		}
 	}

@@ -17,6 +17,7 @@ import org.gravy.util.JavaSourceLocation;
 import util.Log;
 import bixie.util.BixieReport;
 import bixie.util.BixieReport.InfeasibleMessage;
+import bixie.util.SourceLine;
 import boogie.controlflow.statement.CfgStatement;
 
 /**
@@ -98,11 +99,11 @@ public class InterpolatingJavaReportPrinter implements ReportPrinter {
 			Collections.sort(entry.getValue(), new BixieReportComparator());
 			for (BixieReport br : entry.getValue()) {
 				for (InfeasibleMessage im : br.messages) {
-					HashMap<Integer, JavaSourceLocation> lines = new HashMap<Integer, JavaSourceLocation>();
-					for (JavaSourceLocation jl : im.otherLines) {
+					HashMap<Integer, SourceLine> lines = new HashMap<Integer, SourceLine>();
+					for (SourceLine jl : im.otherLines) {
 						lines.put(jl.StartLine, jl);
 					}
-					for (JavaSourceLocation jl : im.infeasibleLines) {
+					for (SourceLine jl : im.infeasibleLines) {
 						lines.put(jl.StartLine, jl);
 					}
 					LinkedList<Integer> orderedKeys = new LinkedList<Integer>();
@@ -111,7 +112,7 @@ public class InterpolatingJavaReportPrinter implements ReportPrinter {
 					sb.append("\t");
 					for (Integer i : orderedKeys) {
 						sb.append(i);
-						JavaSourceLocation jl = lines.get(i);
+						SourceLine jl = lines.get(i);
 						if (jl.comment!=null) {
 							if (jl.comment.equals("thenblock")) {
 								sb.append( "(then-block)");
