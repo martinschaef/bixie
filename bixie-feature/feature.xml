@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="bixie.plugin"
+      id="bixie.feature"
       label="Bixie"
-      version="1.0.0.9"
+      version="1.0.0.10"
       provider-name="SRI International"
       os="linux,macosx,win32"
       arch="x86,x86_64">

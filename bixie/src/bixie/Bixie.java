@@ -100,7 +100,7 @@ public class Bixie {
 	public InterpolatingJavaReportPrinter translateAndRun(String input,
 			String classpath) {
 		org.gravy.util.Log.info("Translating");
-		org.joogie.Dispatcher.setClassPath(classpath);
+		org.joogie.Dispatcher.setClassPath(classpath);		
 		ProgramFactory pf = org.joogie.Dispatcher.run(input);
 		if (pf == null) {
 			org.gravy.util.Log.error("Internal Error: Parsing failed");

@@ -1,6 +1,5 @@
 package bixie.plugin.handlers;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,15 +7,12 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 
@@ -41,19 +37,6 @@ public class BixieHandler extends AbstractHandler {
 	private Thread thread;
 
 	/**
-	 * Boogie file
-	 */
-	private String boogieFile;
-
-	/**
-	 * The constructor.
-	 */
-	public BixieHandler() {
-		boogieFile = addMissingSeparator(System.getProperty("java.io.tmpdir"))
-				+ "joogie.bpl";
-	}
-
-	/**
 	 * the command has been executed, so extract extract the needed information
 	 * from the application context.
 	 */
@@ -70,7 +53,26 @@ public class BixieHandler extends AbstractHandler {
 
 			// get class and source folder
 			final String clazz = getClassName(compilationUnit);
-			final String sourceFolder = getSourceFolder(compilationUnit);
+
+			// final String sourceFolder =
+			// compilationUnit.getPath().toOSString();
+
+			IWorkbenchPart workbenchPart = PlatformUI.getWorkbench()
+					.getActiveWorkbenchWindow().getActivePage().getActivePart();
+
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			String uriString = "";
+			try {
+				uriString = root
+						.getFile(
+								compilationUnit.getJavaProject()
+										.getOutputLocation()).getLocationURI()
+						.toString();
+
+			} catch (Throwable e) {
+				UI.log("depressing");
+			}
+			final String sourceFolder = uriString;
 
 			// create thread
 			thread = new Thread() {
@@ -81,10 +83,11 @@ public class BixieHandler extends AbstractHandler {
 						Bixie bixie = new Bixie();
 						InterpolatingJavaReportPrinter jp = bixie
 								.translateAndRun(clazz, sourceFolder);
-						if (jp==null) {
-							throw new RuntimeException("analyzing "+clazz+" failed.");
+						if (jp == null) {
+							throw new RuntimeException("analyzing " + clazz
+									+ " failed.");
 						}
-						
+
 						UI.log("Done.");
 						// get resource
 						IResource resource = compilationUnit
@@ -129,7 +132,6 @@ public class BixieHandler extends AbstractHandler {
 															.equals("thenblock")) {
 												comment.append("The case where this conditional is true");
 											} else {
-												System.err.println(loc.comment);
 												comment.append("This line");
 											}
 											if (supportLines.size() > 0) {
@@ -147,6 +149,7 @@ public class BixieHandler extends AbstractHandler {
 												comment.append(" can never be executed");
 											}
 										}
+
 										IMarker marker = resource
 												.createMarker(IMarker.PROBLEM);
 										marker.setAttribute(IMarker.MESSAGE,
@@ -157,6 +160,7 @@ public class BixieHandler extends AbstractHandler {
 												IMarker.LINE_NUMBER,
 												loc.StartLine);
 										marker.setAttribute("bixie", true);
+
 									}
 								}
 							}
@@ -164,8 +168,6 @@ public class BixieHandler extends AbstractHandler {
 
 					} catch (Throwable e) {
 						UI.log("Bixie Failed: " + e.toString());
-					} finally {
-						deleteTempFiles();
 					}
 				}
 			};
@@ -174,7 +176,8 @@ public class BixieHandler extends AbstractHandler {
 			thread.start();
 
 		} catch (Throwable e) {
-			UI.log("Plugin Crashed: " +e.toString());
+			UI.log("Plugin Crashed: " + e.toString());
+			thread = null;
 		}
 		return null;
 	}
@@ -218,55 +221,28 @@ public class BixieHandler extends AbstractHandler {
 		return compilationUnit.findPrimaryType().getFullyQualifiedName();
 	}
 
-	/**
-	 * Returns the source folder of a compilation unit
-	 * 
-	 * @param compilationUnit
-	 *            Compilation unit
-	 * @return Source folder
-	 */
-	protected String getSourceFolder(ICompilationUnit compilationUnit)
-			throws JavaModelException {
-		String sourceFolder = null;
-		IClasspathEntry[] classPath = compilationUnit.getJavaProject()
-				.getResolvedClasspath(true);
-		for (IClasspathEntry entry : classPath) {
-			if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-				IFolder folder = root.getFolder(entry.getPath());
-				File file = new File(folder.getLocationURI());
-				sourceFolder = file.getPath();
-				break;
-			}
-		}
-		return sourceFolder;
-	}
-
-	/**
-	 * Deletes the temporary files
-	 */
-	protected void deleteTempFiles() {
-		try {
-			new File(boogieFile).delete();
-
-		} catch (Throwable e) {
-			UI.printError(e.toString());
-		}
-	}
-
-	/**
-	 * Adds a missing separator to a path
-	 * 
-	 * @param path
-	 *            Path
-	 * @return Path without missing separator
-	 */
-	protected String addMissingSeparator(String path) {
-		if (path.length() > 0
-				&& File.separatorChar != path.charAt(path.length() - 1)) {
-			path += File.separatorChar;
-		}
-		return path;
-	}
+	// /**
+	// * Returns the source folder of a compilation unit
+	// *
+	// * @param compilationUnit
+	// * Compilation unit
+	// * @return Source folder
+	// */
+	// protected String getSourceFolder(ICompilationUnit compilationUnit)
+	// throws JavaModelException {
+	// String sourceFolder = null;
+	// IClasspathEntry[] classPath = compilationUnit.getJavaProject()
+	// .getResolvedClasspath(true);
+	// for (IClasspathEntry entry : classPath) {
+	// if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+	// IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+	// IFolder folder = root.getFolder(entry.getPath());
+	// File file = new File(folder.getLocationURI());
+	// sourceFolder = file.getPath();
+	// break;
+	// }
+	// }
+	// return sourceFolder;
+	// }
 
 }
