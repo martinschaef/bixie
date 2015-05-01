@@ -1,0 +1,144 @@
+Bixie Runner
+============
+
+The Bixie Runner (bixie.py) can be used to automate the process of downloading,
+compiling, and running Bixie on a variety of open source projects.
+
+
+Included Projects
+=================
+
+  - Apache Ant
+  - Apache Cassandra
+  - Apache Hadoop
+  - Apache Hive
+  - Apache JMeter
+  - Apache Log4j
+  - Apache Maven
+  - Apache Tomcat
+  - Apache Flume
+  - Bouncy Castle
+  - DaCapo Benchmarks
+  - Joda-Time
+  - Soot
+  - Wildfly
+  - Powermock
+  - Ambrose
+
+
+Requirements
+============
+
+This script has been tested on Ubuntu 14.04. It may work on other systems, but
+that is not guaranteed.
+
+Dependencies for all:
+- Java 8 JDK
+- Python 2.7
+- Git
+- Ant
+- Maven
+
+For BouncyCastle:
+- Gradle
+
+For DaCapo:
+- Mercurial
+
+For Hadoop:
+- Google Protocol Buffers (apt-get install protobuf-compiler)
+
+
+Quick-Start
+===========
+
+Simply run "python bixie.py". This will download, compile, and run Bixie on all
+listed projects. This will create two directories, "codebases" which will host
+the downloaded code, and "reports" which will contain Bixie's output.
+
+
+Configuration
+=============
+
+bixie.py is configured via a JSON file with two sections. The config section
+includes default configuration general to all projects, and looks like:
+
+  "config":
+  {
+    "jar": "bixie.jar",
+    "working-dir": "codebases",
+    "report-dir": "reports",
+    "except": ["tomcat", "soot"],
+    "only": ["ant", "maven"],
+    "download": true,
+    "build": true,
+    "analyze": true
+  }
+
+jar: The location of the Bixie jar file, relative to the current working dir.
+working-dir: A directory in which to download and compile projects.
+report-dir: The directory to store Bixie output.
+except: Projects listed in this this section will not be processed.
+only: Only projects listed in this section will be processed.
+  NOTE: "only" takes precedence over "except". If "only" is present, "except"
+  will be ignored. If neither is present, all projects will be processed.
+download, build, and analyze: Determines if each of these phases will be used.
+
+A simple project configuration looks like:
+
+  {
+    "name" : "maven",
+    "url": "https://git-wip-us.apache.org/repos/asf/maven.git",
+    "git-ref": "9ce1f17d1bcf85403addc9974ac2c7a9b38f2377",
+    "compile": ["mvn compile"],
+    "path-template": "%s/target/classes",
+    "paths":
+    [
+      "maven-aether-provider",
+      "maven-artifact",
+      "maven-compat",
+      "maven-core",
+      "maven-embedder",
+      "maven-model",
+      "maven-model-builder",
+      "maven-plugin-api",
+      "maven-repository-metadata",
+      "maven-settings",
+      "maven-settings-builder"
+    ]
+  }
+
+name: The name of the project. It will be stored in $working-dir/$name.
+url: The URL for a Git or Mercurial repository to download the project from.
+git-ref (or hg-ref): A specific revision to be retrieved.
+compile: A list of commands to compile the project. For examples of more complex
+  compliation requirements, look at jmeter, tomcat, hive, or dacapobench.
+paths: A list of places where directory trees containing .class files will be
+  after compilation. Bixie will be pointed at each of these paths. Each path
+  should be a directory containing the root directory of a Java package tree
+  (usually "org" or "net" or "com").
+path-template: Each path listed in paths is combined with the path-template to
+  help make the config file more readable by consolidating redundant parts of
+  paths. The %s in path-template will be filled in with each path in turn.
+
+
+Notes on Specific Projects
+==========================
+
+Tomcat
+------
+
+Tomcat theoretically works, but currently takes an extremely long time to evaluate,
+so it is excluded from the default set of projects.
+
+Bouncy Castle
+-------------
+
+If building on Ubuntu >13.10 with Java 8, Gradle will produce an error similar to:
+
+  ERROR: JAVA_HOME is set to an invalid directory: /usr/lib/jvm/default-java
+
+when building Bouncy Castle, causing the build to fail. To fix this, open up
+/usr/bin/gradle and comment out the line that reads:
+
+  export JAVA_HOME=/usr/lib/jvm/default-java

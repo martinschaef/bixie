@@ -1,0 +1,428 @@
+{
+  "config":
+  {
+    "jar": "bixie.jar",
+    "working-dir": "codebases",
+    "report-dir": "reports",
+    "except": ["tomcat"],
+    "download": true,
+    "build": true,
+    "analyze": true
+  },
+  "projects":
+  [
+    {
+      "name" : "ant",
+      "url": "https://git-wip-us.apache.org/repos/asf/ant.git",
+      "git-ref": "963d6c9a0af09690d6b37eb80175887961e7e1d6",
+      "compile": ["ant build"],
+      "path-template": "%s",
+      "paths":
+      [
+        "build/classes"
+      ]
+    },
+
+    {
+      "name" : "cassandra",
+      "url": "https://github.com/apache/cassandra",
+      "git-ref": "19c2d22e93c52bc4699a0b5a0fdcdeedd3826449",
+      "compile": ["ant"],
+      "path-template": "build/classes/%s",
+      "paths":
+      [
+        "main",
+        "stress",
+        "thrift"
+      ]
+    },
+
+    {
+      "name" : "bouncycastle",
+      "url": "https://github.com/bcgit/bc-java",
+      "git-ref": "a8e61f4ec613b7bf4cb77bd1dacd3ab54d982cbe",
+      "compile": ["gradle build -x test"],
+      "path-template": "%s/build/classes/main",
+      "paths":
+      [
+        "core",
+        "pkix",
+        "mail",
+        "prov",
+        "pg"
+      ]
+    },
+
+
+    {
+      "name" : "tomcat",
+      "url": "https://github.com/apache/tomcat",
+      "git-ref": "14cc9c4e0e9eea9f89d0426415d92f31cbea7bef",
+      "compile": ["echo base.path=/tmp > build.properties", "ant"],
+      "path-template": "%s",
+      "paths":
+      [
+        "output/classes"
+      ]
+    },
+
+    {
+      "name" : "jmeter",
+      "url": "https://github.com/apache/jmeter.git",
+      "git-ref": "95eceb8a0eefdb5e18772243f9ed0a62ada406f9",
+      "compile": ["ant download_jars", "ant"],
+      "path-template": "build/%s",
+      "paths":
+      [
+        "components",
+        "core",
+        "functions",
+        "jorphan",
+        "junit",
+        "monitor/components",
+        "monitor/model",
+        "protocol/ftp",
+        "protocol/http",
+        "protocol/java",
+        "protocol/jdbc",
+        "protocol/jms",
+        "protocol/ldap",
+        "protocol/mail",
+        "protocol/mongodb",
+        "protocol/native",
+        "protocol/tcp",
+        "reports"
+      ]
+    },
+
+    {
+      "name" : "log4j",
+      "url": "http://git-wip-us.apache.org/repos/asf/logging-log4j2.git",
+      "git-ref": "9f866d926e84a9e9169fc7dfad43b8724444d9fd",
+      "compile": ["mvn compile"],
+      "path-template": "%s/target/classes",
+      "paths":
+      [
+        "log4j-1.2-api",
+        "log4j-api",
+        "log4j-bom",
+        "log4j-core",
+        "log4j-flume-ng",
+        "log4j-iostreams",
+        "log4j-jcl",
+        "log4j-jmx-gui",
+        "log4j-jul",
+        "log4j-nosql",
+        "log4j-perf",
+        "log4j-samples",
+        "log4j-slf4j-impl",
+        "log4j-taglib",
+        "log4j-to-slf4j",
+        "log4j-web"
+      ]
+    },
+
+    {
+      "name" : "maven",
+      "url": "https://git-wip-us.apache.org/repos/asf/maven.git",
+      "git-ref": "9ce1f17d1bcf85403addc9974ac2c7a9b38f2377",
+      "compile": ["mvn compile"],
+      "path-template": "%s/target/classes",
+      "paths":
+      [
+        "maven-aether-provider",
+        "maven-artifact",
+        "maven-compat",
+        "maven-core",
+        "maven-embedder",
+        "maven-model",
+        "maven-model-builder",
+        "maven-plugin-api",
+        "maven-repository-metadata",
+        "maven-settings",
+        "maven-settings-builder"
+      ]
+    },
+
+    {
+      "name" : "hadoop",
+      "url": "https://github.com/apache/hadoop.git",
+      "git-ref": "5e3f42811ffe4a8ca68b4c49700e19f1a069f824",
+      "compile": ["mvn compile; mvn compile"],
+      "path-template": "%s/target/classes",
+      "paths":
+      [
+        "hadoop-assemblies",
+        "hadoop-maven-plugins",
+        "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api",
+        "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-unmanaged-am-launcher",
+        "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell",
+        "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-client",
+        "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-registry",
+        "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-common",
+        "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-common",
+        "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager",
+        "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-web-proxy",
+        "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-sharedcachemanager",
+        "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-tests",
+        "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-applicationhistoryservice",
+        "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager",
+        "hadoop-tools/hadoop-aws",
+        "hadoop-tools/hadoop-ant",
+        "hadoop-tools/hadoop-sls",
+        "hadoop-tools/hadoop-distcp",
+        "hadoop-tools/hadoop-rumen",
+        "hadoop-tools/hadoop-archives",
+        "hadoop-tools/hadoop-streaming",
+        "hadoop-tools/hadoop-azure",
+        "hadoop-tools/hadoop-openstack",
+        "hadoop-tools/hadoop-gridmix",
+        "hadoop-tools/hadoop-extras",
+        "hadoop-tools/hadoop-datajoin",
+        "hadoop-mapreduce-project/hadoop-mapreduce-examples",
+        "hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-jobclient",
+        "hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-core",
+        "hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-hs",
+        "hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-nativetask",
+        "hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-app",
+        "hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-shuffle",
+        "hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-hs-plugins",
+        "hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-common",
+        "hadoop-hdfs-project/hadoop-hdfs-httpfs",
+        "hadoop-hdfs-project/hadoop-hdfs/src/contrib/bkjournal",
+        "hadoop-hdfs-project/hadoop-hdfs/src/main/docs/src",
+        "hadoop-hdfs-project/hadoop-hdfs",
+        "hadoop-hdfs-project/hadoop-hdfs-nfs",
+        "hadoop-common-project/hadoop-kms",
+        "hadoop-common-project/hadoop-common/src/main/docs/src",
+        "hadoop-common-project/hadoop-common",
+        "hadoop-common-project/hadoop-auth",
+        "hadoop-common-project/hadoop-nfs",
+        "hadoop-common-project/hadoop-auth-examples",
+        "hadoop-common-project/hadoop-annotations",
+        "hadoop-common-project/hadoop-minikdc"
+      ]
+    },
+
+    {
+      "name" : "hive",
+      "url": "https://github.com/apache/hive",
+      "git-ref": "85a78a0d6b992df238bce96fd57afb385b5d8b06",
+      "compile": ["bash -c \"MVN_OPTS=\\\"-Xmx2g -XX:MaxPermSize=256M\\\" mvn compile -DskipTests -Phadoop-2\""],
+      "path-template": "%s/target/classes",
+      "paths":
+      [
+        "hwi",
+        "cli",
+        "hbase-handler",
+        "contrib",
+        "hcatalog",
+        "jdbc",
+        "serde",
+        "metastore",
+        "beeline",
+        "service",
+        "testutils",
+        "ant",
+        "common",
+        "ql"
+      ]
+    },
+
+    {
+      "name" : "soot",
+      "url": "https://github.com/Sable/soot",
+      "git-ref": "f8ab48fa081fe9e5a53af4e57ee3270b6c145cce",
+      "compile": [
+        "cp ../../ant.settings .",
+        "curl http://vandyk.st.informatik.tu-darmstadt.de/abc/jasminclasses.jar -o libs/jasminclasses.jar",
+        "curl http://vandyk.st.informatik.tu-darmstadt.de/abc/heros.jar -o libs/heros.jar",
+        "curl http://central.maven.org/maven2/org/apache/ant/ant/1.9.2/ant-1.9.2.jar -o libs/ant-1.9.2.jar",
+        "ant compile"
+      ],
+      "path-template": "%s",
+      "paths":
+      [
+        "classes"
+      ]
+    },
+
+    {
+      "name" : "flume",
+      "url": "https://github.com/apache/flume",
+      "git-ref": "8443062c8809e3ce4bee864e61d9837c5a243287",
+      "compile": ["bash -c \"MAVEN_OPTS=\\\"-Xms512m -Xmx1024m\\\" mvn compile\""],
+      "path-template": "%s/target/classes",
+      "paths":
+      [
+        "flume-ng-auth",
+        "flume-ng-channels/flume-file-channel",
+        "flume-ng-channels/flume-jdbc-channel",
+        "flume-ng-channels/flume-kafka-channel",
+        "flume-ng-channels/flume-spillable-memory-channel",
+        "flume-ng-clients/flume-ng-log4jappender",
+        "flume-ng-configuration",
+        "flume-ng-core",
+        "flume-ng-embedded-agent",
+        "flume-ng-legacy-sources/flume-avro-source",
+        "flume-ng-legacy-sources/flume-thrift-source",
+        "flume-ng-node",
+        "flume-ng-sdk",
+        "flume-ng-sinks/flume-dataset-sink",
+        "flume-ng-sinks/flume-hdfs-sink",
+        "flume-ng-sinks/flume-hive-sink",
+        "flume-ng-sinks/flume-irc-sink",
+        "flume-ng-sinks/flume-ng-elasticsearch-sink",
+        "flume-ng-sinks/flume-ng-hbase-sink",
+        "flume-ng-sinks/flume-ng-kafka-sink",
+        "flume-ng-sinks/flume-ng-morphline-solr-sink",
+        "flume-ng-sources/flume-jms-source",
+        "flume-ng-sources/flume-kafka-source",
+        "flume-ng-sources/flume-scribe-source",
+        "flume-ng-sources/flume-twitter-source",
+        "flume-ng-tests",
+        "flume-tools"
+      ]
+    },
+
+    {
+      "name" : "ambrose",
+      "url": "https://github.com/twitter/ambrose",
+      "git-ref": "849073c475e72c8d9f2b1dae11c69843f3c1b3dc",
+      "compile": ["mvn compile"],
+      "path-template": "%s/target/classes",
+      "paths":
+      [
+        "cascading",
+        "common",
+        "hive",
+        "pig",
+        "scalding"
+      ]
+    },
+
+    {
+      "name" : "powermock",
+      "url": "https://github.com/facebook/powermock",
+      "git-ref": "8f9d4674d9187abd22b3bbe221ca737a22e73e9b",
+      "compile": ["mvn compile"],
+      "path-template": "%s/target/classes",
+      "paths":
+      [
+        "api/easymock",
+        "api/mockito",
+        "api/support",
+        "classloading/classloading-base",
+        "classloading/classloading-objenesis/src/test/java/powermock",
+        "classloading/classloading-objenesis",
+        "classloading/classloading-xstream/src/test/java/powermock",
+        "classloading/classloading-xstream",
+        "core",
+        "examples/AbstractFactory",
+        "examples/ApacheCLIExample",
+        "examples/DocumentationExamples",
+        "examples/dom4j",
+        "examples/easymock31",
+        "examples/HamcrestExample",
+        "examples/java8",
+        "examples/jcl",
+        "examples/jdom",
+        "examples/jmock",
+        "examples/log4j",
+        "examples/SignedMocking",
+        "examples/simple",
+        "examples/slf4j",
+        "examples/slf4j-mockito",
+        "examples/slf4j-noimpl",
+        "examples/spring-mockito",
+        "examples/spring-mockito-xml",
+        "examples/spring-mockito-xml-agent",
+        "examples/tutorial",
+        "modules/module-impl/agent",
+        "modules/module-impl/junit3",
+        "modules/module-impl/junit4",
+        "modules/module-impl/junit4-common",
+        "modules/module-impl/junit4-legacy",
+        "modules/module-impl/junit4-rule",
+        "modules/module-impl/junit4-rule-agent",
+        "modules/module-impl/testng",
+        "modules/module-impl/testng-agent",
+        "modules/module-impl/testng-common",
+        "modules/module-test/easymock/junit45-test",
+        "reflect",
+        "tests/utils"
+      ]
+    },
+
+    {
+      "name" : "wildfly",
+      "url": "https://github.com/wildfly/wildfly",
+      "git-ref": "a0af3a7f51f9cc25035be64ae34b7588956b2cfd",
+      "compile": ["./build.sh"],
+      "path-template": "%s/target/classes",
+      "paths":
+      [
+        "appclient",
+        "batch/extension",
+        "batch/jberet",
+        "bean-validation",
+        "clustering/api",
+        "clustering/common",
+        "clustering/ee/infinispan",
+        "clustering/ee/spi",
+        "clustering/ejb/infinispan",
+        "clustering/ejb/spi",
+        "clustering/infinispan/extension",
+        "clustering/infinispan/spi",
+        "clustering/jgroups/api",
+        "clustering/jgroups/extension",
+        "clustering/jgroups/spi",
+        "clustering/marshalling",
+        "clustering/server",
+        "clustering/service",
+        "clustering/singleton",
+        "clustering/spi",
+        "clustering/web/api",
+        "clustering/web/infinispan",
+        "clustering/web/spi",
+        "clustering/web/undertow",
+        "connector",
+        "ee",
+        "ejb3",
+        "embedded",
+        "iiop-openjdk",
+        "jaxrs",
+        "jdr/jboss-as-jdr",
+        "jpa",
+        "jsf/injection",
+        "jsf/multi-jsf-installer",
+        "jsf/subsystem",
+        "jsr77",
+        "legacy/cmp",
+        "legacy/jacorb",
+        "legacy/jaxr",
+        "legacy/web",
+        "mail",
+        "messaging",
+        "mod_cluster/extension",
+        "mod_cluster/undertow",
+        "naming",
+        "picketlink",
+        "pojo",
+        "rts",
+        "sar",
+        "security/api",
+        "security/subsystem",
+        "security-manager",
+        "system-jmx",
+        "testsuite/shared",
+        "transactions",
+        "undertow",
+        "web-common",
+        "webservices/server-integration",
+        "weld",
+        "xts"
+      ]
+    }
+  ]
+}
