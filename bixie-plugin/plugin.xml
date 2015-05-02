@@ -33,15 +33,21 @@
  <extension
        point="org.eclipse.ui.commands">
     <command
-          category="bixieChecker"
-          categoryId="bixie.plugin.commands.category"
-          description="Search for inconsistencies in the current file"
+          categoryId="bixie-plugin.category1"
+          description="RunBixieCommand"
           id="bixie.plugin.commands.RunBixieCommand"
           name="Run Bixie">
     </command>
+    <command
+          categoryId="bixie-plugin.category1"
+          description="RunBixieOnSubtree"
+          id="bixie-plugin.commands.RunBixieOnSubtree"
+          name="RunBixieOnSubtree">
+    </command>
     <category
-          id="bixie-plugin.checker"
-          name="bixieChecker">
+          description="Bixie Static Analysis Commands"
+          id="bixie-plugin.category1"
+          name="bixie.commands">
     </category>
  </extension>
  <extension
@@ -53,6 +59,10 @@
     <handler
           class="bixie.plugin.handlers.StopBixieHandler"
           commandId="bixie.plugin.commands.StopBixieCommand">
+    </handler>
+    <handler
+          class="bixie.plugin.handlers.BixieSubtreeHandler"
+          commandId="bixie-plugin.commands.RunBixieOnSubtree">
     </handler>
  </extension>
  <extension
@@ -93,6 +103,17 @@
              icon="icons/bixie16.png"
              label="Run Bixie"
              style="push">
+       </command>
+    </menuContribution>
+    <menuContribution
+          allPopups="false"
+          locationURI="popup:org.eclipse.jdt.ui.PackageExplorer?before=additions">
+       <command
+             commandId="bixie-plugin.commands.RunBixieOnSubtree"
+             icon="icons/bixie16.png"
+             label="Run Bixie"
+             style="push"
+             tooltip="Run Bixie on selected elements.">
        </command>
     </menuContribution>
  </extension>

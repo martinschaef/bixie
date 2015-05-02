@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.PrintWriter;
 
 import org.gravy.ProgramAnalysis;
+import org.gravy.reportprinter.Atva15ReportPrinter;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
@@ -68,7 +69,7 @@ public class Bixie {
 		if (input != null && input.endsWith(".bpl")) {
 			try {
 				ProgramFactory pf = new ProgramFactory(input);
-				InterpolatingJavaReportPrinter jp = runChecker(pf);
+				Atva15ReportPrinter jp = runChecker(pf);
 				report2File(jp);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -79,7 +80,7 @@ public class Bixie {
 		}
 	}
 
-	protected void report2File(InterpolatingJavaReportPrinter jp) {
+	protected void report2File(Atva15ReportPrinter jp) {
 		try (PrintWriter out = new PrintWriter(bixie.Options.v()
 				.getOutputFile());) {
 			String str = jp.printAllReports();
@@ -92,12 +93,12 @@ public class Bixie {
 	}
 
 	public void translateAndRun(String input, String classpath, String output) {
-		InterpolatingJavaReportPrinter jp = translateAndRun(input, classpath);
+		Atva15ReportPrinter jp = translateAndRun(input, classpath);
 		bixie.Options.v().setOutputFile(output);
 		report2File(jp);
 	}
 
-	public InterpolatingJavaReportPrinter translateAndRun(String input,
+	public Atva15ReportPrinter translateAndRun(String input,
 			String classpath) {
 		org.gravy.util.Log.info("Translating");
 		org.joogie.Dispatcher.setClassPath(classpath);		
@@ -106,14 +107,14 @@ public class Bixie {
 			org.gravy.util.Log.error("Internal Error: Parsing failed");
 			return null;
 		}
-		InterpolatingJavaReportPrinter jp = runChecker(pf);
+		Atva15ReportPrinter jp = runChecker(pf);
 		return jp;
 	}
 
-	public InterpolatingJavaReportPrinter runChecker(ProgramFactory pf) {
+	public Atva15ReportPrinter runChecker(ProgramFactory pf) {
 		org.gravy.util.Log.info("Checking");
 		org.gravy.Options.v().setTimeOut(Options.v().getTimeout() * 1000);
-		org.gravy.Options.v().setChecker(4);
+		org.gravy.Options.v().setChecker(6);
 		// Options.v().useLocationAttribute(true);
 		org.gravy.Options.v().setLoopMode(1);
 		if (bixie.Options.v().stopTime) {
@@ -126,12 +127,13 @@ public class Bixie {
 				org.gravy.Options.v().stopTime = false;
 			}
 		}
-		InterpolatingJavaReportPrinter jp = new InterpolatingJavaReportPrinter();
+		Atva15ReportPrinter jp = new Atva15ReportPrinter();
 		try {
 			ProgramAnalysis.runFullProgramAnalysis(pf, jp);
 		} catch (Exception e) {
 			org.gravy.util.Log.error(e.toString());
 		}
+		
 		return jp;
 	}
 

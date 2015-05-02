@@ -17,10 +17,12 @@ public class TestBouncyCastle  {
 	
 	@Test
 	public void test() {
-		String dir = System.getProperty("user.dir")+"/regression/bouncycastle/java";
+		String dir = System.getProperty("user.dir")+"/regression/bouncycastle/bouncycastle/org";
 		System.out.println("Test: " + dir);
 		Bixie bx = new Bixie();
-		bx.run(dir, "/report.txt");
+		String jar = dir;
+		String cp = null ;
+		bx.translateAndRun(jar, cp , "./report.txt");
 		org.junit.Assert.assertTrue(true);		
 	}
 
