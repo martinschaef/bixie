@@ -302,93 +302,34 @@ public class PrincessProver implements Prover {
 		return new TermExpr(((TermExpr) arg).term.unary_$minus(), getIntType());
 	}
 
-	private ProverFun unintMult = null;
-	
 	public ProverExpr mkMult(ProverExpr left, ProverExpr right) {
-	  try {
-	    return new TermExpr(
-	                  ((TermExpr) left).term.$times(((TermExpr) right).term),
-	                  getIntType());
-      } catch (IllegalArgumentException e) {
-        // then we probably have a case of "non-linear" multiplication
-        // currently just use an uninterpreted function
-        
-        if (unintMult == null)
-          unintMult = mkUnintFunction("__unintMult",
-                                      new ProverType[] { getIntType(), getIntType() },
-                                      getIntType());
-        
-        return unintMult.mkExpr(new ProverExpr[] { left, right });
-      }
-	}
-
-	private ProverExpr shiftUp(ProverExpr arg, int offset, int shift) {
-		if (arg instanceof TermExpr)
-			return new TermExpr(VariableShiftVisitor.apply(
-					((TermExpr) arg).term, offset, shift),
-					((TermExpr) arg).getType());
-		else
-			return new FormulaExpr(VariableShiftVisitor.apply(
-					((FormulaExpr) arg).formula, offset, shift));
+            return new TermExpr(api.mult(((TermExpr) left).term,
+                                         ((TermExpr) right).term),
+                                getIntType());
 	}
 
 	public ProverExpr mkEDiv(ProverExpr num, ProverExpr denom) {
-		final ProverExpr shNum = shiftUp(num, 0, 1);
-		final ProverExpr shDenom = shiftUp(denom, 0, 1);
-		final ProverExpr denomProd = mkMult(mkBoundVariable(0, getIntType()),
-				shDenom);
-		return new TermExpr(new IEpsilon(((FormulaExpr) mkAnd(
-				mkLeq(denomProd, shNum),
-				mkOr(mkLt(shNum, mkPlus(denomProd, shDenom)),
-						mkLt(shNum, mkMinus(denomProd, shDenom))))).formula),
-				getIntType());
+            return new TermExpr(api.mulTheory().eDiv(((TermExpr) num).term,
+                                                     ((TermExpr) denom).term),
+                                getIntType());
 	}
 
 	public ProverExpr mkEMod(ProverExpr num, ProverExpr denom) {
-		final ProverExpr shNum = shiftUp(num, 0, 1);
-		final ProverExpr shDenom = shiftUp(denom, 0, 1);
-		final ProverExpr v0 = mkBoundVariable(0, getIntType());
-		final ProverExpr v1 = mkBoundVariable(1, getIntType());
-		return new TermExpr(new IEpsilon(((FormulaExpr) mkAnd(
-				mkAnd(mkGeq(v0, mkLiteral(0)),
-						mkOr(mkLt(v0, shDenom), mkLt(v0, mkNeg(shDenom)))),
-				mkEx(mkEq(shiftUp(shNum, 0, 1),
-						mkPlus(mkMult(v0, shiftUp(shDenom, 0, 1)), v1)),
-						getIntType()))).formula), getIntType());
+            return new TermExpr(api.mulTheory().eMod(((TermExpr) num).term,
+                                                     ((TermExpr) denom).term),
+                                getIntType());
 	}
 
 	public ProverExpr mkTDiv(ProverExpr num, ProverExpr denom) {
-		final ProverExpr shNum = shiftUp(num, 0, 1);
-		final ProverExpr shDenom = shiftUp(denom, 0, 1);
-		final ProverExpr denomProd = mkMult(mkBoundVariable(0, getIntType()),
-				shDenom);
-		final ProverExpr rem = mkMinus(shNum, denomProd);
-		final ProverExpr l0 = mkLiteral(0);
-		return new TermExpr(new IEpsilon(((FormulaExpr) mkAnd(
-				mkAnd(mkOr(mkLt(rem, shDenom), mkLt(rem, mkNeg(shDenom))),
-						mkOr(mkLt(mkNeg(rem), shDenom),
-								mkLt(mkNeg(rem), mkNeg(shDenom)))),
-				mkAnd(mkImplies(mkGt(rem, l0), mkGt(shNum, l0)),
-						mkImplies(mkLt(rem, l0), mkLt(shNum, l0))))).formula),
-				getIntType());
+            return new TermExpr(api.mulTheory().tDiv(((TermExpr) num).term,
+                                                     ((TermExpr) denom).term),
+                                getIntType());
 	}
 
 	public ProverExpr mkTMod(ProverExpr num, ProverExpr denom) {
-		final ProverExpr shNum = shiftUp(num, 0, 1);
-		final ProverExpr shDenom = shiftUp(denom, 0, 1);
-		final ProverExpr v0 = mkBoundVariable(0, getIntType());
-		final ProverExpr v1 = mkBoundVariable(1, getIntType());
-		final ProverExpr l0 = mkLiteral(0);
-		return new TermExpr(new IEpsilon(((FormulaExpr) mkAnd(
-				mkAnd(mkAnd(
-						mkOr(mkLt(v0, shDenom), mkLt(v0, mkNeg(shDenom))),
-						mkOr(mkLt(mkNeg(v0), shDenom),
-								mkLt(mkNeg(v0), mkNeg(shDenom)))),
-						mkAnd(mkImplies(mkGt(v0, l0), mkGt(shNum, l0)),
-								mkImplies(mkLt(v0, l0), mkLt(shNum, l0)))),
-				mkEx(mkEq(shiftUp(shNum, 0, 1),
-						mkPlus(mkMult(v0, shiftUp(shDenom, 0, 1)), v1)),
-						getIntType()))).formula), getIntType());
+            return new TermExpr(api.mulTheory().tMod(((TermExpr) num).term,
+                                                     ((TermExpr) denom).term),
+                                getIntType());
 	}
 
 	public ProverExpr mkGeq(ProverExpr left, ProverExpr right) {
@@ -624,9 +565,9 @@ public class PrincessProver implements Prover {
 		}
 
 		Seq<IFormula> scala_blocks = JavaConversions
-				.asScalaIterable(scalaBlock).toSeq();
-		Seq<IFormula> scala_rvars = JavaConversions.asScalaIterable(scalaVar)
-				.toSeq();
+                    .collectionAsScalaIterable(scalaBlock).toSeq();
+		Seq<IFormula> scala_rvars =
+                    JavaConversions.collectionAsScalaIterable(scalaVar).toSeq();
 
 		api.setupTheoryPlugin(CFGPlugin.apply(dag, scala_blocks, scala_rvars,
 				threshold));
