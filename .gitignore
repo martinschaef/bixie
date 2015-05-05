@@ -1,4 +1,5 @@
 .gradle/
-./**/.settings/
-./**/.project/
+**/.settings
+**/.project
+**/.DS_Store
 .metadata/

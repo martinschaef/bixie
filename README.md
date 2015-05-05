@@ -1,5 +1,6 @@
 Bixie
 =====
+[![Build Status](https://travis-ci.org/martinschaef/boogieamp.png)](https://travis-ci.org/martinschaef/boogieamp)
 
 Inconsistent Code Detection for Java
 
