@@ -57,8 +57,8 @@ public class Options {
 	/**
 	 * Classpath
 	 */
-	@Option(name = "-t", usage = "Timeout per procedure. Use 0 for no timeout. (Default is 20s)")
-	private int timeout=20;
+	@Option(name = "-t", usage = "Timeout per procedure. Use 0 for no timeout. (Default is 30s)")
+	private int timeout=30;
 	
 	public int getTimeout() {
 		return this.timeout;

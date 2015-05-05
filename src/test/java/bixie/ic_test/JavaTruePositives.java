@@ -71,7 +71,8 @@ public class JavaTruePositives extends AbstractIcTest {
 			bx.translateAndRun(classFileDir.getAbsolutePath(),
 					classFileDir.getAbsolutePath(), outFilePath);
 			if (!firstRun) {
-				assertTrue(this.compareFiles(outFile, this.goldenFile));
+				String outputString = fileToString(outFile); 
+				assertTrue("Report does not match Golden output:\n"+outputString, this.compareFiles(outFile, this.goldenFile));
 			} else {
 				assertTrue(true);
 			}

@@ -21,6 +21,23 @@ public class AbstractIcTest {
 	protected static final String testRoot = 
 			userDir + "src/test/resources/";
 
+	protected String fileToString(File f) {
+		StringBuffer sb = new StringBuffer();
+		try (FileReader fileRead = new FileReader(f);				
+				BufferedReader reader = new BufferedReader(fileRead);) {
+			String line;
+			while (true) {
+				line = reader.readLine();
+				if (line==null) break;
+				sb.append(line);
+				sb.append("\n");
+			}
+		} catch (Throwable e) {
+			
+		}
+		return sb.toString();
+	}
+	
 	protected boolean compareFiles(File out, File gold) {
 		try (FileReader fR1 = new FileReader(out);
 				FileReader fR2 = new FileReader(gold);
