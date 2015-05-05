@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: "jacoco"
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.3'
@@ -14,9 +15,29 @@ repositories {
     jcenter()
 }
 
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination "${buildDir}/reports/coverage"
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'bixie.Bixie'
+    }
+}
+
 test {
+	jacoco {
+		enabled = true
+	}
+
     testLogging {
         events "failed"
         exceptionFormat "full"
     }
+
+   	useJUnit()
 }

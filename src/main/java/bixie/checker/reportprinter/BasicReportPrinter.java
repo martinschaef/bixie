@@ -167,61 +167,6 @@ public class BasicReportPrinter implements ReportPrinter {
 	    });		
 	}
 	
-	private String buildBoogieErrorString(Report r) {
-		
-		Map<Integer, List<FaultExplanation>> reports = r.getReports();
-		
-		StringBuffer sb = new StringBuffer();
-		
-		if (reports.containsKey(0) && reports.get(0).size()>0) {
-			cirtical++;
-			sb.append("** CRITICAL (fwd reachable) **\n");
-			appendReport(reports.get(0), sb);
-		}
-		
-		if (reports.containsKey(1) && reports.get(1).size()>0) {
-			errorhandling++;
-			sb.append("** Bad Error Handling (bwd reachable) **\n");
-			appendReport(reports.get(1), sb);
-		}
-		if (reports.containsKey(2) && reports.get(2).size()>0) {
-			unreachable++;
-			sb.append("** Unreachable (bwd reachable) **\n");
-			appendReport(reports.get(2), sb);
-		}		
-		
-//		sb.append("Total reports: "+reports.size()+ " -----------------\n");
-		
-		return sb.toString();
-	}
-
-
-	private void appendReport(List<FaultExplanation> reports, StringBuffer sb) {
-		
-		
-		for (FaultExplanation fe : reports) {
-			if (fe.locations.isEmpty()) continue;
-			sb.append("  In file: " + fe.fileName+"\n");
-			sb.append("\t lines: ");
-			String comma = "";
-			
-			LinkedHashSet<Integer> lines = new LinkedHashSet<Integer>();
-			for (SourceLine line : fe.locations) {
-				lines.add(line.StartLine);
-			}
-			LinkedList<Integer> sortedLines = new LinkedList<Integer>(lines);
-			Collections.sort(sortedLines);
-			
-			for (Integer i : sortedLines) {
-				sb.append(comma);
-				sb.append(i);
-				comma = ", ";
-			}
-			sb.append("\n");
-		}
-			
-	}
-
 	@Override
 	public int countReports() {		
 		return this.cirtical + this.errorhandling + this.unreachable;
