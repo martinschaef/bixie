@@ -51,7 +51,7 @@ public class AbstractIcTest {
 	protected File compileJavaFile(File sourceFile) throws IOException {
 		final File tempDir = getTempDir();
 		final String javac_command = String.format(
-				"javac -verbose -g %s -d %s", sourceFile.getAbsolutePath(),
+				"javac -g %s -d %s", sourceFile.getAbsolutePath(),
 				tempDir.getAbsolutePath());
 
 		ProcessBuilder pb = new ProcessBuilder(javac_command.split(" "));
