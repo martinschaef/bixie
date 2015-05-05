@@ -13,3 +13,10 @@ dependencies {
 repositories {
     jcenter()
 }
+
+test {
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+    }
+}
