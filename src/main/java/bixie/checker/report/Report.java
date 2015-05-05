@@ -269,13 +269,42 @@ public class Report {
 				}
 				this.locations.add(sl);
 				
-			}				
+			}
 		}
 		
 		public boolean includes(FaultExplanation other) {
 			return this.allLines.containsAll(other.allLines);
 		}
 		
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			sb.append("File: ");
+			sb.append(this.fileName);
+			sb.append(", lines: ");
+			String comma = "";
+			for (Integer i : this.allLines) {
+				sb.append(comma);
+				sb.append(i);
+				comma = ", ";
+			}
+			sb.append("\n");
+			return sb.toString();
+		}
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (Entry<Integer, List<FaultExplanation>> entry : faultExplanations.entrySet()) {
+			sb.append("Severity: "+entry.getKey());
+			sb.append("\n");
+			for (FaultExplanation fe : entry.getValue()) {
+				sb.append(fe.toString());
+			}
+			sb.append("==========\n");
+		}
+		return sb.toString();
 	}
 	
 }

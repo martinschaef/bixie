@@ -1,6 +1,5 @@
-===========
-** Unreachable (bwd reachable) **
-  In file: TruePositives02.java
-	 lines: 10, 20, 21, 22, 29
+In File: TruePositives02.java
+ - Unreachable -
+	Lines: 10, 20, 21, 22, 29
 Summary: fwd=0	bwd=0	unr=1
 
