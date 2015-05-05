@@ -1,6 +1,7 @@
 .gradle/
 **/.settings
 **/.project
+**/.classpath
 **/.DS_Store
 .metadata/
 /bin/
