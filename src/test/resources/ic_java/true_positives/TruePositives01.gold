@@ -1,0 +1,50 @@
+===========
+** CRITICAL (fwd reachable) **
+  In file: TruePositives01.java
+	 lines: 108, 115
+===========
+** Unreachable (bwd reachable) **
+  In file: TruePositives01.java
+	 lines: 93, 94
+  In file: TruePositives01.java
+	 lines: 93, 94, 98
+===========
+** CRITICAL (fwd reachable) **
+  In file: TruePositives01.java
+	 lines: 73
+===========
+** CRITICAL (fwd reachable) **
+  In file: TruePositives01.java
+	 lines: 82, 89
+===========
+** CRITICAL (fwd reachable) **
+  In file: TruePositives01.java
+	 lines: 13, 18
+===========
+** Bad Error Handling (bwd reachable) **
+  In file: TruePositives01.java
+	 lines: 58, 59
+===========
+** Unreachable (bwd reachable) **
+  In file: TruePositives01.java
+	 lines: 66, 67
+===========
+** CRITICAL (fwd reachable) **
+  In file: TruePositives01.java
+	 lines: 45, 46
+===========
+** CRITICAL (fwd reachable) **
+  In file: TruePositives01.java
+	 lines: 30, 32
+===========
+** Unreachable (bwd reachable) **
+  In file: TruePositives01.java
+	 lines: 51, 53, 54
+  In file: TruePositives01.java
+	 lines: 51, 53, 55
+===========
+** CRITICAL (fwd reachable) **
+  In file: TruePositives01.java
+	 lines: 37, 40
+Summary: fwd=7	bwd=1	unr=3
+
