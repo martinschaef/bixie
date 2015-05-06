@@ -10,10 +10,9 @@ In File: TruePositives01.java
  * Strange * 
 	Lines: 58, 59
  - Unreachable -
-	Lines: 51, 53, 54
-	Lines: 51, 53, 55
+	Lines: 51, 53
 	Lines: 66, 67
 	Lines: 93, 94
-	Lines: 93, 94, 98
-Summary: fwd=7	bwd=1	unr=5
+	Lines: 93, 98
+Summary: fwd=7	bwd=1	unr=4
 
