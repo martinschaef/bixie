@@ -4,4 +4,5 @@
 **/.classpath
 **/.DS_Store
 .metadata/
-/bin/
+bin/
+build/
