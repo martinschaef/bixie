@@ -1,0 +1,13 @@
+apply plugin: "java"
+apply plugin: "war"
+apply plugin: "eclipse"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {      
+   compile 'javax.servlet:javax.servlet-api:3.1.0'   
+   compile fileTree(dir: 'src/main/webapp/WEB-INF/lib/', include: '*.jar')
+}
+

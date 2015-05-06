@@ -24,14 +24,13 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.UUID;
 
 import javax.servlet.ServletContext;
-
-import org.apache.tomcat.util.http.fileupload.FileUtils;
 
 import bixie.Bixie;
 import bixie.InterpolatingJavaReportPrinter;
@@ -93,9 +92,9 @@ public class Runner {
 		String dirName = String.format("%s/%s", PATH_POSTS, String.format("bixie%s", UUID.randomUUID().toString()
 				.replace("-", "")));
 		File theDir = new File(dirName);
-		if (theDir.exists()) {
-			FileUtils.deleteDirectory(theDir);
-		} 
+		if (theDir!=null && theDir.exists()) {
+			delete(theDir);
+		}
 		theDir.mkdir();
 		
 		String pathName = String.format("%s/%s", theDir.getAbsolutePath(), fileName);
@@ -132,7 +131,9 @@ public class Runner {
 					FileDescriptor.err)));
 			// delete source file
 			sourceFile.delete();
-			FileUtils.deleteDirectory(theDir);
+			if (theDir!=null && theDir.exists()) {
+				delete(theDir);
+			}
 		}
 
 		if (jp == null
@@ -186,6 +187,16 @@ public class Runner {
 
 		}
 		return errorMessages;
+	}
+
+	protected static void delete(File f) throws IOException {
+		if (f.isDirectory()) {
+			for (File c : f.listFiles())
+				delete(c);
+		}
+		if (!f.delete()) {
+			throw new IOException("Failed to delete file: " + f);
+		}
 	}
 
 }

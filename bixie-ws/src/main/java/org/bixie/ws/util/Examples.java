@@ -75,6 +75,9 @@ public class Examples {
 		File examplesDir = new File(path + PATH_EXAMPLES);
 		File[] exampleFiles = examplesDir.listFiles();
 
+		System.err.println(examplesDir.getPath());
+		if (exampleFiles==null) return;
+		
 		// load examples
 		for (File exampleFile : exampleFiles) {
 			String example = FileIO.fromFile(exampleFile.getPath());
