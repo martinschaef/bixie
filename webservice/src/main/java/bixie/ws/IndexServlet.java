@@ -129,7 +129,7 @@ public class IndexServlet extends HttpServlet {
 	protected void forward(HttpServletRequest req, HttpServletResponse resp) {
 		try {
 			// forward request
-			req.getRequestDispatcher("bixie.jsp").forward(req, resp);
+			req.getRequestDispatcher("index.jsp").forward(req, resp);
 
 		} catch (Exception e) {
 			e.printStackTrace();

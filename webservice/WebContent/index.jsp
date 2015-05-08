@@ -117,7 +117,7 @@ div.center iframe{
 					src="img/prompt.png" />
 			</div>
 
-			<form id="form" action="bixie" method="post">
+			<form id="form" action="index" method="post">
 				<c:choose>
 					<c:when test="${'POST' == pageContext.request.method}">
 						<c:set var="code" value="${param.code}" />

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
-  <display-name>bixie-ws</display-name>
+
   <welcome-file-list>
-    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>index</welcome-file>
   </welcome-file-list>
   <servlet>
     <servlet-name>IndexServlet</servlet-name>
-    <servlet-class>org.bixie.ws.IndexServlet</servlet-class>
+    <servlet-class>bixie.ws.IndexServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
@@ -14,9 +14,5 @@
     <url-pattern>/index</url-pattern>
   </servlet-mapping>
 
-  <login-config>
-    <auth-method>BASIC</auth-method>
-    <realm-name>bixie-ws</realm-name>
-  </login-config>
   
 </web-app>
