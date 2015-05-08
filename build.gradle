@@ -1,56 +1,15 @@
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'jacoco'
-apply plugin: 'application'
-
-mainClassName = "bixie.Bixie"
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.3'
+if(JavaVersion.current() < JavaVersion.VERSION_1_7){
+    println("\t************************")
+    println("\t*** Hello from Bixie ***")
+    println("\tYou will need Java 1.7 or higher if you want to continue.")
+    println("\tYour Java is really old. Found version " + JavaVersion.current())
+    println("\t************************")
+    throw new GradleException("Update your Java!")    
 }
 
-dependencies {
-    compile fileTree(dir: 'lib', include: '*.jar')
-    testCompile "junit:junit:4.11"  // Or whatever version
-}
-
-repositories {
-    jcenter()
-}
-
-jacocoTestReport {
-    reports {
-        xml.enabled false
-        csv.enabled false
-        html.destination "${buildDir}/reports/coverage"
-    }
-}
-
-
-sourceCompatibility = 1.7
-version = '1.0'
-jar {
-	baseName = 'bixie'
-
-    manifest {
-        attributes 'Main-Class': 'bixie.Bixie',
-                   'Class-Path': '.',
-                   'Implementation-Title': 'Bixie',
-                   'Implementation-Version': version
-    }
-
-    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-}
-
-test {
-	jacoco {
-		enabled = true
-	}
-
-    testLogging {
-        events "failed"
-        exceptionFormat "full"
-    }
-
-   	useJUnit()
+subprojects {
+   apply plugin : "java"
+   repositories {
+      mavenCentral()
+   }
 }

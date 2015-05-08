@@ -12,7 +12,8 @@ configurations{
     common
 }
 
-dependencies {      
+dependencies {
+   compile project(":tool")
    providedCompile 'javax.servlet:javax.servlet-api:3.1.0'   
    compile fileTree(dir: 'WebContent/WEB-INF/lib/', include: '*.jar')
 }
