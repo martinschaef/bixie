@@ -56,6 +56,10 @@ public class BasicReportPrinter implements ReportPrinter {
 		Log.info(r.toString());
 	}
 	
+	public Map<Integer, Map<String, List<List<Integer>>>> getSortedReports() {
+		return this.sortedReport;
+	}
+	
 	public String printSummary() {
 		SortedSet<String> knownFiles = new TreeSet<String>();
 		// now sort the list of lists of lines to ensure that

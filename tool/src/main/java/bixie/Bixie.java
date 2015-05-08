@@ -101,6 +101,11 @@ public class Bixie {
 
 	public ReportPrinter translateAndRun(String input,
 			String classpath) {
+		return translateAndRun(input, classpath, new BasicReportPrinter());
+	}
+	
+	public ReportPrinter translateAndRun(String input,
+			String classpath, ReportPrinter reportPrinter) {
 		bixie.util.Log.info("Translating");
 		org.joogie.Dispatcher.setClassPath(classpath);		
 		ProgramFactory pf = org.joogie.Dispatcher.run(input);
@@ -108,11 +113,15 @@ public class Bixie {
 			bixie.util.Log.error("Internal Error: Parsing failed");
 			return null;
 		}
-		ReportPrinter jp = runChecker(pf);
+		ReportPrinter jp = runChecker(pf, reportPrinter);
 		return jp;
 	}
 
 	public ReportPrinter runChecker(ProgramFactory pf) {
+		return runChecker(pf, new BasicReportPrinter());
+	}
+	
+	public ReportPrinter runChecker(ProgramFactory pf, ReportPrinter reportPrinter) {
 		bixie.util.Log.info("Checking");
 		
 		bixie.checker.ProgramAnalysis.Checker = 1;
@@ -126,14 +135,14 @@ public class Bixie {
 				bixie.util.Log.error(e.toString());				
 			}
 		}
-		ReportPrinter jp = new BasicReportPrinter();
+		
 		try {
-			ProgramAnalysis.runFullProgramAnalysis(pf, jp);
+			ProgramAnalysis.runFullProgramAnalysis(pf, reportPrinter);
 		} catch (Exception e) {
 			bixie.util.Log.error(e.toString());
 		}
 		
-		return jp;
+		return reportPrinter;
 	}
 
 }

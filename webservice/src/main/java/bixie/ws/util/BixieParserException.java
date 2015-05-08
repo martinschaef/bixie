@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.bixie.ws.util;
+package bixie.ws.util;
 
 import java.util.HashMap;
 

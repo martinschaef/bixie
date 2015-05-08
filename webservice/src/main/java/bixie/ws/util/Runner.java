@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.bixie.ws.util;
+package bixie.ws.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -27,14 +27,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.UUID;
 
 import javax.servlet.ServletContext;
 
 import bixie.Bixie;
-import bixie.InterpolatingJavaReportPrinter;
-import bixie.util.BixieReport;
 
 /**
  * @author schaef
@@ -61,16 +58,17 @@ public class Runner {
 	public static String ErrorMessage;
 
 	/**
-	 * Runs GraVy
+	 * Runs Bixie
 	 * 
 	 * @param code
 	 *            Code of the program to be checked
 	 * 
 	 * @param ctx
 	 *            Context
-	 * @return Report object
-	 */
-	public static LinkedList<BixieReport> run(ServletContext ctx, String code)
+	 * @return Map from severity level (0 is highest) to report. A report is a map from file 
+	 * name to list of inconsistencies. Each inconsistency is a list of line numbers.
+	 */	
+	public static WebserviceReportPrinter run(ServletContext ctx, String code)
 			throws Exception {
 		// pre-analyze code
 		if (code.length() > MAX_LENGTH) {
@@ -110,20 +108,21 @@ public class Runner {
 		// run GraVy
 		String libPath = ctx.getRealPath("/");
 		libPath = new File(libPath, PATH_LIBS).getPath();
-		InterpolatingJavaReportPrinter jp = null;
+		
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ByteArrayOutputStream baes = new ByteArrayOutputStream();
 		System.setOut(new PrintStream(baos));
 		System.setErr(new PrintStream(baes));
 
+		WebserviceReportPrinter reportPrinter = new WebserviceReportPrinter();
 		try {
 			Bixie bixie = new Bixie();
-			jp = bixie.translateAndRun(theDir.getAbsolutePath(), theDir.getAbsolutePath()
-					+ File.pathSeparator + libPath);
+			bixie.translateAndRun(theDir.getAbsolutePath(), theDir.getAbsolutePath()
+					+ File.pathSeparator + libPath, reportPrinter );
 
 		} catch (Throwable e) {
 			// e.printStackTrace();
-			jp = null;
+			reportPrinter = null;
 		} finally {
 			System.setOut(new PrintStream(new FileOutputStream(
 					FileDescriptor.out)));
@@ -136,7 +135,7 @@ public class Runner {
 			}
 		}
 
-		if (jp == null
+		if (reportPrinter == null
 				|| baes.toString().contains("soot.CompilationDeathException")) {
 			throw new BixieParserException(parseError(baos.toString()));
 		} else {
@@ -146,7 +145,7 @@ public class Runner {
 		// don't use the actual filename because tomcat adds some prefix to
 		// it, so most likely, we're not going to find the actual
 		// string anyway.
-		return jp.getBixieReport("");
+		return reportPrinter;
 	}
 
 	private static HashMap<Integer, String> parseError(String error) {

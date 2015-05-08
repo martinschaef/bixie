@@ -5,7 +5,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-
 <head profile="http://www.w3.org/2005/10/profile">
 <link rel="icon" 
       type="image/ico" 
@@ -14,10 +13,42 @@
 <meta charset='utf-8'>
 <meta http-equiv="X-UA-Compatible" content="chrome=1">
 	<meta name="description"
-		content="Bixie : Find inconsistencies in Java code">
-		<title>Bixie : Find inconsistencies in Java code</title>
-		<link rel="stylesheet" type="text/css" media="screen" href="css/stylesheet.css"/>
+		content="Bixie : Try it online">
+		<title>Bixie : Try it online</title>
 
+		<link rel="stylesheet" type="text/css" media="screen"
+			href="css/stylesheet.css">
+		<link rel="stylesheet" href="lib/codemirror/lib/codemirror.css" />
+		<script src="lib/codemirror/lib/codemirror.js"></script>
+		<script src="lib/codemirror/mode/clike/clike.js"></script>
+
+		<link rel="stylesheet" href="lib/codemirror/addon/lint/lint.css">
+		<style>
+.CodeMirror {
+	border: 2px inset #dee;
+}
+
+.line-error {
+    background: #FFAAAA !important;
+    color: #8a1f11 !important;
+}
+.line-warning {
+    background: #EECCCC !important;
+    color: #8a1f11 !important;
+}
+
+div.center iframe{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.noframetable {
+	border: none; 
+	border-collapse: collapse; 
+	width:100%
+}
+</style>
 </head>
 <body>
 
@@ -26,7 +57,7 @@
 		<header class="inner"> <a id="forkme_banner"
 				href="https://github.com/martinschaef/bixie">View on GitHub</a>
 	
-			<h1 id="project_title">Find inconsistencies in Java code</h1>
+			<h1 id="project_title">Try it online</h1>
 	
 			<section id="downloads"> <a class="zip_download_link"
 				href="https://github.com/martinschaef/bixie/releases">Download
@@ -39,153 +70,86 @@
 	<div id="main_content_wrap" class="outer">
 		<section id="main_content" class="inner">
 
-	<p>
-		Bixie is a static checker that detects <b>inconsistencies</b> in Java code. Inconsistent Code
-		is code that only occurs on paths that contain inconsistent assumptions. That is, it is either unreachable
-		or any of its executions must lead to a runtime exception.
-		While inconsistencies are not automatically bugs, they have a bad smell as they represent code that 
-		cannot be executed safely. The Java compiler, for example, treats certain instances of inconsistent code 
-		as errors, like the use of uninitialized variables or inevitable null-pointer dereferences. 
-		Bixie uses deductive verification to find inconsistencies that the Java compiler missed. 
-	</p>
 
-	<div >
-		<div id="prompt">
-		<a href="./bixie" target="_blank">
-		<img id="screenshot" alt="Write some Java code here!"
-						src="img/screen.png" />
-		</a>
+		<script type="text/javascript">
+		var editor = {};
+		var example_idx =0;
+		<c:if test="${null != requestScope.exampleIdx}">
+			example_idx = ${requestScope.exampleIdx};
+		</c:if>
+		
+		var examples = new Array();
+				
+		<c:if test="${null != requestScope.examples}">
+			<c:forEach items="${requestScope.examples}" var="entry">
+				examples.push("${entry}");
+			</c:forEach>
+		</c:if>
+		
+		function resetGutters() {
+			editor.clearGutter("CodeMirror-lint-markers");
+		}
+		
+		function loadnext(reload) {
+			editor.clearHistory();
+			resetGutters();
+			example_idx=example_idx+1;
+			if (example_idx>=examples.length) {
+				example_idx =0;
+			}
+			document.getElementById('examplecounter').value = example_idx;
+			editor.setValue(examples[example_idx]);
+		 }
+
+		
+		
+		function submit_form(e){
+			document.getElementById('submitbutton').innerHTML = '<b>Loading</b>';
+			document.getElementById('submitbutton').onclick = "";
+			document.getElementById('loadnext').onclick = "";
+			document.getElementById('form').submit();
+		}
+		
+		</script>	
+		<div id="codeblock" >			
+			<div id="prompt">
+				<img id="promptimg" alt="Write some Java code here!"
+					src="img/prompt.png" />
+			</div>
+
+			<form id="form" action="bixie" method="post">
+				<c:choose>
+					<c:when test="${'POST' == pageContext.request.method}">
+						<c:set var="code" value="${param.code}" />
+					</c:when>
+					<c:otherwise>
+												
+					</c:otherwise>
+				</c:choose>
+				<textarea id="code" name="code"><c:out value="${code}" /></textarea>
+				
+				<input type='hidden' id='examplecounter' name='examplecounter' value='0' />
+				
+				<p>
+					<a href="javascript:void(0)" class="button" id="submitbutton"
+						onclick="javascript:submit_form(this);">Ask <b>Bixie</b>!
+					</a> &nbsp; <a href="javascript:void(0)" onclick="loadnext();" class="button" id="loadnext">Load Example</a>
+				</p>
+			</form>
 		</div>
-		<br/>
-		<p> 
-			The easiest way to understand what Bixie does is to
-			try it <a href="./bixie" target="_blank">online</a>. Click on the picture
-			on the right and browse through some examples of inconsistent Java code
-			or type your own program and check it.
+
+		<h4>How to use the Web Tester</h4>
+		<p class="inner">
+			Enter some Java code or browse through our examples. Depending on your Internet connection,
+			Bixie may take a few seconds to deliver results. 
+			Bixie highlights inconsistencies in <font color="#FFAAAA">darker red</font> and lines that cause these 
+			inconsistencies in <font color="#EECCCC">lighter red</font>. Further, Bixie displays yellow
+			warnings on the side of the code with tool tips. <br/>
+			Read more on how these reports are computed in our 
+			<a href="http://iist.unu.edu/publication/explaining-inconsistent-code" target='_blank'>FSE paper</a>. <br/> 
+			Compiler errors are red crosses. Bixie is only executed if your code has no compiler errors. 
 		</p>
 		
-	</div>
-	<h3>Demo Video</h3>
-	<div id="thevideo" class="center">
-	<iframe width="420" height="315" src="//www.youtube.com/embed/QpsoUBJMxhk?rel=0" frameborder="0" allowfullscreen></iframe>	
-	<br/>
-	<hr/>
-	</div>
-	
-	<h3>Inconsistent Code found by Bixie</h3>
-		<p>
-		We keep running Bixie on open-source projects and report our findings. 
-		In order to avoid spamming developers, we inspect each warning manually to make sure that it is relevant.
-		We only create pull requests if the warning does not involve code that is generated, 
-		deliberately unreachable (e.g., a debug constant disables it), or the code has a comment that 
-		says it is supposed to be unreachable. 
-		<br/>
-		Here are some instances of inconsistent code that were found and fixed by Bixie in popular projects: 
-		</p>
-		<ul>
-		<li>Apache Cassandra: <a href="https://github.com/apache/cassandra/pull/46" target="_blank">see pull request</a></li>
-		<li>Apache Hive: <a href="https://github.com/apache/hive/pull/23" target="_blank">see pull request</a></li>
-		<li>Apache jMeter: <a href="https://github.com/apache/jmeter/pull/10" target="_blank">see pull request</a></li>
-		<li>Apache Maven: <a href="https://github.com/apache/maven/pull/30" target="_blank">see pull request</a></li>
-		<li>Apache Tomcat: <a href="https://github.com/apache/tomcat/pull/13" target="_blank">see pull request</a></li>
-		<li>Bouncy Castle: <a href="https://github.com/bcgit/bc-java/pull/87" target="_blank">see pull request</a></li>
-		<li> Soot: see pull request <a href="https://github.com/Sable/soot/pull/244" target="_blank"> 1</a> and 
-		<a href="https://github.com/Sable/soot/pull/261" target="_blank">2</a> and 
-		<a href="https://github.com/Sable/soot/pull/260" target="_blank">3</a> </li>
-		<li>WildFly: <a href="https://github.com/wildfly/wildfly/pull/7370" target="_blank">see pull request</a></li>
-		<li>Apache Flume: <a href="https://github.com/flume/pull/17" target="_blank">see pull request</a></li>
-		</ul>
-	During the development of Bixie we also found a case where the Java compiler generates
-	unreachable bytecode (see <a href="http://stackoverflow.com/questions/25615417/try-with-resources-introduce-unreachable-bytecode" target="_blank">here</a>).
-
-	<h3>Download and Usage</h3>
-	<p>Before you start, check your Java version. 
-	You need at least  <a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html" target="_blank">JDK 7</a> 
-	to run Bixie. Some users have experienced problems on some benchmarks when using Java 8.  Please check:
-	</p>
-	<pre>java -version</pre>
-	<p>If the result is not <code>1.7.0</code> or higher please update your Java version. 
-	If you just want to play with Bixie, use our <a href="./bixie" target="_blank">web tester</a>.
-	</p> 
-	
-	<p> 
-	Bixie uses <a href="http://www.sable.mcgill.ca/soot/" target="_blank">Soot</a> to parse Java (byte)code. There is a big difference between Soot 2.5.0 and the latest version of Soot.
-	Hence, we provide two versions of Bixie, depending on if you plan to analyze source code or bytecode:
-	<ul> 
-	<li><b>bixie_latestSoot.jar</b> which uses the latest version of Soot. Runs stable on bytecode and jar files but Soot may throw exceptions on source files. This version is used for our experiments.</li>
-	<li><b>bixie_soot2.5.jar</b> which uses Soot 2.5.0. Runs well on source code, but can be unstable on bytecode. This version is used for the web tester.</li>	
-	</ul>
-	Download the <a href="https://github.com/martinschaef/bixie/releases">latest release</a> from GitHub and unzip it. Pick one of the Bixie jar files depending on if you want to analyze source code or bytecode. 
-	In the following, we use <b>bixie_soot2.5.jar</b> for demonstration, but <b>bixie_latestSoot.jar</b> can be used with the exact same parameters if you have class files.
-	</p>	
-
-    <pre>java -jar bixie_soot2.5.jar -j [input] -cp [classpath] -o [output] </pre>
-    <p>
-	Where <code>[input]</code> is either a (debug compiled) Jar file, or the root folder of your class or source files.
-	</p>
-    <p>
-	For <code>[classpath]</code> use the classpath that you would also use to run the code 
-	that you passed as <code>[input]</code>. If no special classpath is required, use the same
-	value as <code>[input]</code>. 
-	</p>
-
-    <p>
-	For <code>[out]</code> use the name of the text file where Bixie should write its report to. 
-	</p>
-	
-	<p>
-	For larger programs we highly recommend to start Bixie with lots of resources. In our experiments, we use the
-	following setup (which requires a 64bit JDK):
-	</p>
-	<pre>java -Xmx2g -Xms2g -Xss4m -jar bixie.jar ... </pre>
-	<p>For 32bit installations of Java use -Xmx1g -Xms1g -Xss4m.</p> 
-	
-	<h5>Example</h5>
-	<p>
-	To check if everything is working properly, we test Bixie on Demo.java that comes with the download. Now go to that folder and run:</p>
-    <pre>java -jar bixie_soot2.5.jar -j ./ -cp ./ -o report.txt </pre>	 
-	<p>Your result.txt file should look somewhat like this:</p>
-	<pre>In file: ./Demo.java
- 		   Inconsistency detected between the following lines:
-				4(else-block), 7
-	</pre>
-	
-	<h3>Previous Tools and Papers</h3>
-	<p>
-	Bixie is the successor of our  <a href="http://www.joogie.org" target="_blank">Joogie</a> tool. 
-	While Joogie was already doing a good job in detecting inconsistent code in Java bytecode, it produced 
-	a substantial amount of false alarms because not all inconsistencies in the bytecode are
-	also inconsistencies in Java code. In Bixie, we use a novel technique to translate bytecode into logic
-	that allows our checker to suppress almost all false alarms. At the same time, we improved
-	handling of loops and library functions to further increase the detection rate.
-	For more details on the new features of Bixie, check our 
-	<a href="https://github.com/martinschaef/jar2bpl/wiki" target="_blank">wiki</a>.
-	</p>
-	<p>
-	The papers below describe how the actual checking for inconsistent code is implemented in Bixie:</p>
-	<ul> 
-	<li><a href="http://iist.unu.edu/publication/theory-control-flow-graph-exploration" target="_blank">A Theory for Control-Flow Graph Exploration</a>,  S. Arlt, P. R&uuml;mmer, M. Sch&auml;f, ATVA 2013 </li>
-	<li><a href="http://www.informatik.uni-freiburg.de/~schaef/joogie.pdf" target="_blank">Joogie: Infeasible Code Detection for Java</a>,  S. Arlt, M. Sch&auml;f, CAV 2012 </li>
-	<li><a href="http://cs.nyu.edu/~wies/publ/doomed_program_points.pdf" target="_blank">It's doomed; we can prove it</a>,  J. Hoenicke, R. Leino, A. Podelski, M. Sch&auml;f, T. Wies, FM 2009 </li>
-	</ul>
-	<p>
-	Bixie also includes an interpolation-based fault localization to explain inconsistent code (see our papers below). Previous tools on inconsistent code 
-	could only detect single statements by proving that they do not occur on feasible paths. Bixie is the first tool that computes actual error messages for inconsistent 
-	code.
-	<ul> 
-	<li><a href="http://iist.unu.edu/publication/explaining-inconsistent-code" target="_blank">Explaining Inconsistent Code</a>,  M. Sch&auml;f, D. Schwartz-Narbonne, T. Wies, FSE 2013 </li>
-	<li><a href="http://iist.unu.edu/publication/flow-sensitive-fault-localization" target="_blank">Flow-sensitive Fault Localization</a>,   J. Christ, E. Ermis, M. Sch&auml;f, T. Wies, VMCAI 2013 </li>
-	<li><a href="http://iist.unu.edu/publication/error-invariants" target="_blank">Error Invariants</a>,  E. Ermis, M. Sch&auml;f, T. Wies, FM 2012 </li>
-	</ul>
-	</p>
-	<p>
-	Bixie uses the following components:
-	<ul> 
-	<li><a href="https://github.com/martinschaef/gravy" target="_blank">GraVy</a>,  A tool to compute feasible path covers for Boogie programs. </li>
-	<li><a href="https://github.com/martinschaef/jar2bpl" target="_blank">Jar2Bpl</a>,   A tool to translate Java Bytecode into Boogie based on Soot. </li>
-	</ul>
-	</p>
-	
 	</section>
 	
 </div>
@@ -206,6 +170,276 @@
             pageTracker._trackPageview();
             } catch(err) {}
     </script>
+
+
+	<script>
+	
+		editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+			lineNumbers : true,
+			indentUnit: 4, 
+			tabSize: 4,
+			matchBrackets : true,
+			mode : "text/x-java",
+			gutters: ["CodeMirror-linenumbers", "CodeMirror-lint-markers"]
+		});
+		
+		<c:if test="${'POST' != pageContext.request.method}">
+		editor.setValue(examples[example_idx]);
+		</c:if>
+		
+		function makeParserError(line, msg) {
+			// var info = cm.lineInfo(line);	
+			var severity = "error";
+			var tip = document.createElement("div");
+			tip.className = "CodeMirror-lint-message-" + severity;
+			tip.appendChild(document.createTextNode(msg));
+			editor.setGutterMarker(line, "CodeMirror-lint-markers", makeMarker(tip, severity,
+					false, true));
+		}
+
+		function highlightLine(line, type) {
+			editor.addLineClass(line, 'background', type);
+		}		
+		
+		function makeBixieWarning(line, msg) {
+			// var info = cm.lineInfo(line);
+			highlightLine(line, 'line-error');
+			if (msg!=null) {
+				var severity = "warning";
+				var tip = document.createElement("div");			
+				tip.className = "CodeMirror-lint-message-" + severity;
+				tip.appendChild(document.createTextNode(msg));									
+				editor.setGutterMarker(line, "CodeMirror-lint-markers", makeMarker(tip, severity,
+						false, true));
+			}
+			
+		}
+		
+		
+	  var GUTTER_ID = "CodeMirror-lint-markers";
+
+	  function showTooltip(e, content) {
+	    var tt = document.createElement("div");
+	    tt.className = "CodeMirror-lint-tooltip";
+	    tt.appendChild(content.cloneNode(true));
+	    document.body.appendChild(tt);
+
+	    function position(e) {
+	      if (!tt.parentNode) return CodeMirror.off(document, "mousemove", position);
+	      tt.style.top = Math.max(0, e.clientY - tt.offsetHeight - 5) + "px";
+	      tt.style.left = (e.clientX + 5) + "px";
+	    }
+	    CodeMirror.on(document, "mousemove", position);
+	    position(e);
+	    if (tt.style.opacity != null) tt.style.opacity = 1;
+	    return tt;
+	  }
+	  function rm(elt) {
+	    if (elt.parentNode) elt.parentNode.removeChild(elt);
+	  }
+	  function hideTooltip(tt) {
+	    if (!tt.parentNode) return;
+	    if (tt.style.opacity == null) rm(tt);
+	    tt.style.opacity = 0;
+	    setTimeout(function() { rm(tt); }, 600);
+	  }
+
+	  function showTooltipFor(e, content, node) {
+	    var tooltip = showTooltip(e, content);
+	    function hide() {
+	      CodeMirror.off(node, "mouseout", hide);
+	      if (tooltip) { hideTooltip(tooltip); tooltip = null; }
+	    }
+	    var poll = setInterval(function() {
+	      if (tooltip) for (var n = node;; n = n.parentNode) {
+	        if (n == document.body) return;
+	        if (!n) { hide(); break; }
+	      }
+	      if (!tooltip) return clearInterval(poll);
+	    }, 400);
+	    CodeMirror.on(node, "mouseout", hide);
+	  }
+
+	  function LintState(cm, options, hasGutter) {
+	    this.marked = [];
+	    this.options = options;
+	    this.timeout = null;
+	    this.hasGutter = hasGutter;
+	    this.onMouseOver = function(e) { onMouseOver(cm, e); };
+	  }
+
+	  function parseOptions(cm, options) {
+	    if (options instanceof Function) return {getAnnotations: options};
+	    if (!options || options === true) options = {};
+	    if (!options.getAnnotations) options.getAnnotations = cm.getHelper(CodeMirror.Pos(0, 0), "lint");
+	    if (!options.getAnnotations) throw new Error("Required option 'getAnnotations' missing (lint addon)");
+	    return options;
+	  }
+
+	  function clearMarks(cm) {
+	    var state = cm.state.lint;
+	    if (state.hasGutter) cm.clearGutter(GUTTER_ID);
+	    for (var i = 0; i < state.marked.length; ++i)
+	      state.marked[i].clear();
+	    state.marked.length = 0;
+	  }
+
+	  function makeMarker(labels, severity, multiple, tooltips) {
+	    var marker = document.createElement("div"), inner = marker;
+	    marker.className = "CodeMirror-lint-marker-" + severity;
+	    if (multiple) {
+	      inner = marker.appendChild(document.createElement("div"));
+	      inner.className = "CodeMirror-lint-marker-multiple";
+	    }
+
+	    if (tooltips != false) CodeMirror.on(inner, "mouseover", function(e) {
+	      showTooltipFor(e, labels, inner);
+	    });
+
+	    return marker;
+	  }
+
+	  function getMaxSeverity(a, b) {
+	    if (a == "error") return a;
+	    else return b;
+	  }
+
+	  function groupByLine(annotations) {
+	    var lines = [];
+	    for (var i = 0; i < annotations.length; ++i) {
+	      var ann = annotations[i], line = ann.from.line;
+	      (lines[line] || (lines[line] = [])).push(ann);
+	    }
+	    return lines;
+	  }
+
+	  function annotationTooltip(ann) {
+	    var severity = ann.severity;
+	    if (!severity) severity = "error";
+	    var tip = document.createElement("div");
+	    tip.className = "CodeMirror-lint-message-" + severity;
+	    tip.appendChild(document.createTextNode(ann.message));
+	    return tip;
+	  }
+
+	  function startLinting(cm) {
+	    var state = cm.state.lint, options = state.options;
+	    if (options.async)
+	      options.getAnnotations(cm, updateLinting, options);
+	    else
+	      updateLinting(cm, options.getAnnotations(cm.getValue(), options.options));
+	  }
+
+	  function updateLinting(cm, annotationsNotSorted) {
+	    clearMarks(cm);
+	    var state = cm.state.lint, options = state.options;
+
+	    var annotations = groupByLine(annotationsNotSorted);
+
+	    for (var line = 0; line < annotations.length; ++line) {
+	      var anns = annotations[line];
+	      if (!anns) continue;
+
+	      var maxSeverity = null;
+	      var tipLabel = state.hasGutter && document.createDocumentFragment();
+
+	      for (var i = 0; i < anns.length; ++i) {
+	        var ann = anns[i];
+	        var severity = ann.severity;
+	        if (!severity) severity = "error";
+	        maxSeverity = getMaxSeverity(maxSeverity, severity);
+
+	        if (options.formatAnnotation) ann = options.formatAnnotation(ann);
+	        if (state.hasGutter) tipLabel.appendChild(annotationTooltip(ann));
+
+	        if (ann.to) state.marked.push(cm.markText(ann.from, ann.to, {
+	          className: "CodeMirror-lint-mark-" + severity,
+	          __annotation: ann
+	        }));
+	      }
+
+	      if (state.hasGutter)
+	        cm.setGutterMarker(line, GUTTER_ID, makeMarker(tipLabel, maxSeverity, anns.length > 1,
+	                                                       state.options.tooltips));
+	    }
+	    if (options.onUpdateLinting) options.onUpdateLinting(annotationsNotSorted, annotations, cm);
+	  }
+
+	  function onChange(cm) {
+	    var state = cm.state.lint;
+	    clearTimeout(state.timeout);
+	    state.timeout = setTimeout(function(){startLinting(cm);}, state.options.delay || 500);
+	  }
+
+	  function popupSpanTooltip(ann, e) {
+	    var target = e.target || e.srcElement;
+	    showTooltipFor(e, annotationTooltip(ann), target);
+	  }
+
+	  // When the mouseover fires, the cursor might not actually be over
+	  // the character itself yet. These pairs of x,y offsets are used to
+	  // probe a few nearby points when no suitable marked range is found.
+	  var nearby = [0, 0, 0, 5, 0, -5, 5, 0, -5, 0];
+
+	  function onMouseOver(cm, e) {
+	    if (!/\bCodeMirror-lint-mark-/.test((e.target || e.srcElement).className)) return;
+	    for (var i = 0; i < nearby.length; i += 2) {
+	      var spans = cm.findMarksAt(cm.coordsChar({left: e.clientX + nearby[i],
+	                                                top: e.clientY + nearby[i + 1]}, "client"));
+	      for (var j = 0; j < spans.length; ++j) {
+	        var span = spans[j], ann = span.__annotation;
+	        if (ann) return popupSpanTooltip(ann, e);
+	      }
+	    }
+	  }
+
+	  CodeMirror.defineOption("lint", false, function(cm, val, old) {
+	    if (old && old != CodeMirror.Init) {
+	      clearMarks(cm);
+	      cm.off("change", onChange);
+	      CodeMirror.off(cm.getWrapperElement(), "mouseover", cm.state.lint.onMouseOver);
+	      delete cm.state.lint;
+	    }
+
+	    if (val) {
+	      var gutters = cm.getOption("gutters"), hasLintGutter = false;
+	      for (var i = 0; i < gutters.length; ++i) if (gutters[i] == GUTTER_ID) hasLintGutter = true;
+	      var state = cm.state.lint = new LintState(cm, parseOptions(cm, val), hasLintGutter);
+	      cm.on("change", onChange);
+	      if (state.options.tooltips != false)
+	        CodeMirror.on(cm.getWrapperElement(), "mouseover", state.onMouseOver);
+
+	      startLinting(cm);
+	    }
+	  });
+	</script>
+
+	
+		<c:if test="${null != requestScope.parsererror}">
+			<c:forEach items="${requestScope.parsererror}" var="entry">
+				<script type="text/javascript">
+						makeParserError(${entry.key}-1, " ${entry.value}" );
+					</script>
+			</c:forEach>
+		</c:if>
+	
+		<c:if test="${null != requestScope.inflines}">
+			
+			<c:forEach items="${requestScope.suplines}" var="line">
+				<script type="text/javascript">
+					highlightLine(${line}-1, 'line-warning' );
+				</script>
+			</c:forEach>
+
+			<c:forEach items="${requestScope.inflines}" var="entry">
+				<script type="text/javascript">
+					makeBixieWarning(${entry.key}-1, " ${entry.value}" );
+				</script>
+			</c:forEach>
+			
+		</c:if>
+
+
 
 
 </body>
