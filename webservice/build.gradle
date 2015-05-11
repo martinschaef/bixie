@@ -18,6 +18,15 @@ dependencies {
    compile fileTree(dir: 'WebContent/WEB-INF/lib/', include: '*.jar')
 }
 
+task copyJars(dependsOn: ':tool:jar', type: Copy) {
+    into 'WebContent/WEB-INF/lib/'
+    from tasks.getByPath(':tool:jar')
+}
+
+build.dependsOn(copyJars)
+
+
+
 eclipse {
     classpath {
         file {
