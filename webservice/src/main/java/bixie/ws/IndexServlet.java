@@ -65,7 +65,7 @@ public class IndexServlet extends HttpServlet {
 	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+			throws IOException {		
 		try {
 			// run Bixie
 			req.setAttribute("examples",
@@ -78,10 +78,11 @@ public class IndexServlet extends HttpServlet {
 			this.infeasibleLines.clear();
 			WebserviceReportPrinter reportPrinter = Runner.run(
 					req.getServletContext(), code);
-
+			
 			for (Entry<Integer, List<FaultExplanation>> entry : reportPrinter
 					.getFaultExplanations().entrySet()) {
 				for (FaultExplanation im : entry.getValue()) {
+					
 					for (SourceLine loc : im.otherLines) {
 						this.supportLines.add(loc.StartLine);
 					}
@@ -95,8 +96,7 @@ public class IndexServlet extends HttpServlet {
 							} else if (loc.comment.equals("thenBlock")
 									|| loc.comment.equals("thenblock")) {
 								comment = "The case where this conditional evaluates to true";
-							} else {
-								System.err.println(loc.comment);
+							} else {								
 								comment = "This line";
 							}
 							if (this.supportLines.size() > 0) {
@@ -104,17 +104,32 @@ public class IndexServlet extends HttpServlet {
 							} else {
 								comment += " can never be executed";
 							}
+							//add prefix about the severity of the error:
+							if (entry.getKey()==0) {
+								comment = "ERROR: " + comment;
+							} else if (entry.getKey()==1) {
+								comment = "Warning: " + comment;
+							} else if (entry.getKey()==2) {
+								comment = "Unreachable: " + comment;
+							} else {
+								//don't know.
+								System.out.println(entry.getKey());
+							}
+								
 						}
 						this.infeasibleLines.put(loc.StartLine, comment);
 					}
 				}
 			}
-
 			
 			req.setAttribute("inflines", this.infeasibleLines);
 			req.setAttribute("suplines", this.supportLines);
 
 		} catch (BixieParserException e) {
+//			for (Entry<Integer, String> entry : e.getErrorMessages().entrySet()) {
+//				System.out.println(entry.getKey() + " " + entry.getValue());
+//			}
+//			e.printStackTrace();
 			req.setAttribute("parsererror", e.getErrorMessages());
 		} catch (RuntimeException e) {
 			e.printStackTrace();

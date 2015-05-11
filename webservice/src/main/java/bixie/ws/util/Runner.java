@@ -27,6 +27,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.Scanner;
 import java.util.UUID;
 
 import javax.servlet.ServletContext;
@@ -105,14 +106,42 @@ public class Runner {
 		fw.flush();
 		fw.close();
 
-		// run GraVy
-		String libPath = ctx.getRealPath("/");
-		libPath = new File(libPath, PATH_LIBS).getPath();
+
+		
+		// compile the source file.
+		String javac_command = String.format("javac -g %s -d %s", sourceFile.getAbsolutePath(), theDir.getAbsolutePath());
+		
+		ProcessBuilder pb = new ProcessBuilder(javac_command.split(" "));
+//		pb.redirectOutput(Redirect.INHERIT);
+//		pb.redirectError(Redirect.PIPE);
+
+		Process p = pb.start();
+
+		try (Scanner scanner = new Scanner(p.getErrorStream(), "UTF-8")) {
+			p.waitFor();
+			 
+			if (p.exitValue()!=0) {
+				String err = scanner.useDelimiter("\\A").next();
+				System.out.println(err);
+				throw new BixieParserException(parseError(err));
+			}
+		} catch (InterruptedException e) {			
+			return null;
+		} finally {
+			System.setErr(new PrintStream(new FileOutputStream(
+					FileDescriptor.err)));
+		}
+		
 		
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ByteArrayOutputStream baes = new ByteArrayOutputStream();
 		System.setOut(new PrintStream(baos));
 		System.setErr(new PrintStream(baes));
+
+		// run bixie
+		String libPath = ctx.getRealPath("/");
+		libPath = new File(libPath, PATH_LIBS).getPath();
+		
 
 		WebserviceReportPrinter reportPrinter = new WebserviceReportPrinter();
 		try {
@@ -121,7 +150,6 @@ public class Runner {
 					+ File.pathSeparator + libPath, reportPrinter );
 
 		} catch (Throwable e) {
-			// e.printStackTrace();
 			reportPrinter = null;
 		} finally {
 			System.setOut(new PrintStream(new FileOutputStream(
@@ -135,6 +163,7 @@ public class Runner {
 			}
 		}
 
+		
 		if (reportPrinter == null
 				|| baes.toString().contains("soot.CompilationDeathException")) {
 			throw new BixieParserException(parseError(baos.toString()));

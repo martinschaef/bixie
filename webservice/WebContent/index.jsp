@@ -8,26 +8,26 @@
 <head profile="http://www.w3.org/2005/10/profile">
 <link rel="icon" 
       type="image/ico" 
-      href="img/favicon.ico">
+      href="img/favicon.ico"/>
 
-<meta charset='utf-8'>
-<meta http-equiv="X-UA-Compatible" content="chrome=1">
-	<meta name="description"
-		content="Bixie : Try it online">
+<meta charset='utf-8'/>
+<meta http-equiv="X-UA-Compatible" content="chrome=1"/>
+<meta name="description" content="Bixie : Try it online"/>
+
 		<title>Bixie : Try it online</title>
 
 		<link rel="stylesheet" type="text/css" media="screen"
-			href="css/stylesheet.css">
-		<link rel="stylesheet" href="lib/codemirror/lib/codemirror.css" />
+			href="css/stylesheet.css"/>
+		
 		<script src="lib/codemirror/lib/codemirror.js"></script>
 		<script src="lib/codemirror/mode/clike/clike.js"></script>
 
-		<link rel="stylesheet" href="lib/codemirror/addon/lint/lint.css">
-		<style>
-.CodeMirror {
-	border: 2px inset #dee;
-}
+		<link rel="stylesheet" type="text/css" media="screen"
+			href="css/codemirror.css"/>
 
+		<link rel="stylesheet" href="lib/codemirror/addon/lint/lint.css"/>
+		
+<style>
 .line-error {
     background: #FFAAAA !important;
     color: #8a1f11 !important;
@@ -54,24 +54,28 @@ div.center iframe{
 
 	<!-- HEADER -->
 	<div id="header_wrap" class="outer">
-		<header class="inner"> <a id="forkme_banner"
-				href="https://github.com/martinschaef/bixie">View on GitHub</a>
+		<header class="inner">
+		 
+		<a id="forkme_banner" href="https://github.com/martinschaef/bixie">
+			View on GitHub
+		</a>
 	
-			<h1 id="project_title">Try it online</h1>
+		<h1 id="project_title">
+			Try it online
+		</h1>
 	
-			<section id="downloads"> <a class="zip_download_link"
-				href="https://github.com/martinschaef/bixie/releases">Download
-				the .zip file</a> 
-			</section> 
+		<section id="downloads"> 
+			<a class="zip_download_link" href="https://github.com/martinschaef/bixie/releases">
+				Download the .zip file
+			</a> 
+		</section>
+		 
 		</header>
 	</div>
 
 	<!-- MAIN CONTENT -->
-	<div id="main_content_wrap" class="outer">
-		<section id="main_content" class="inner">
-
-
-		<script type="text/javascript">
+	
+	<script type="text/javascript">
 		var editor = {};
 		var example_idx =0;
 		<c:if test="${null != requestScope.exampleIdx}">
@@ -100,7 +104,7 @@ div.center iframe{
 			document.getElementById('examplecounter').value = example_idx;
 			editor.setValue(examples[example_idx]);
 		 }
-
+		
 		
 		
 		function submit_form(e){
@@ -108,14 +112,14 @@ div.center iframe{
 			document.getElementById('submitbutton').onclick = "";
 			document.getElementById('loadnext').onclick = "";
 			document.getElementById('form').submit();
-		}
-		
-		</script>	
+		}		
+	</script>
+	
+	
+	<div id="main_content_wrap" class="outer">
+		<section id="main_content" class="inner">
+			
 		<div id="codeblock" >			
-			<div id="prompt">
-				<img id="promptimg" alt="Write some Java code here!"
-					src="img/prompt.png" />
-			</div>
 
 			<form id="form" action="index" method="post">
 				<c:choose>
@@ -154,17 +158,11 @@ div.center iframe{
 	
 </div>
 
-	<div id="footer_wrap" class="footer">
-		<p >
-			Bixie is maintained by <a href="https://github.com/martinschaef" target="_blank">martinschaef</a>
-		</p>
-	</div>
 
 	<script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-          </script>
-	<script type="text/javascript">
+
             try {
               var pageTracker = _gat._getTracker("UA-20025374-5");
             pageTracker._trackPageview();
@@ -175,10 +173,12 @@ div.center iframe{
 	<script>
 	
 		editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+			theme: 'ambiance',
 			lineNumbers : true,
 			indentUnit: 4, 
 			tabSize: 4,
 			matchBrackets : true,
+			autoCloseBrackets: true,
 			mode : "text/x-java",
 			gutters: ["CodeMirror-linenumbers", "CodeMirror-lint-markers"]
 		});
@@ -415,32 +415,29 @@ div.center iframe{
 	</script>
 
 	
-		<c:if test="${null != requestScope.parsererror}">
-			<c:forEach items="${requestScope.parsererror}" var="entry">
-				<script type="text/javascript">
-						makeParserError(${entry.key}-1, " ${entry.value}" );
-					</script>
-			</c:forEach>
-		</c:if>
+	<c:if test="${null != requestScope.parsererror}">
+		<c:forEach items="${requestScope.parsererror}" var="entry">
+			<script type="text/javascript">
+					makeParserError(${entry.key}-1, " ${entry.value}" );
+				</script>
+		</c:forEach>
+	</c:if>
 	
-		<c:if test="${null != requestScope.inflines}">
-			
-			<c:forEach items="${requestScope.suplines}" var="line">
-				<script type="text/javascript">
-					highlightLine(${line}-1, 'line-warning' );
-				</script>
-			</c:forEach>
+	<c:if test="${null != requestScope.inflines}">
+		
+		<c:forEach items="${requestScope.suplines}" var="line">
+			<script type="text/javascript">
+				highlightLine(${line}-1, 'line-warning' );
+			</script>
+		</c:forEach>
 
-			<c:forEach items="${requestScope.inflines}" var="entry">
-				<script type="text/javascript">
-					makeBixieWarning(${entry.key}-1, " ${entry.value}" );
-				</script>
-			</c:forEach>
-			
-		</c:if>
-
-
-
+		<c:forEach items="${requestScope.inflines}" var="entry">
+			<script type="text/javascript">
+				makeBixieWarning(${entry.key}-1, " ${entry.value}" );
+			</script>
+		</c:forEach>
+		
+	</c:if>
 
 </body>
 </html>

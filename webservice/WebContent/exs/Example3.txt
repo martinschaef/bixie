@@ -1,13 +1,5 @@
 class Example3 {
 
-	/** snippet from terpword that is reported but not obviously a true positive.
-	 * The infeasible code is 
-	 * j >= 0 in  "while (end == -1 && j >= 0)";
-	 * The reason why it is infeasible is that if "end" is -1 in the last iteration of
-	 * the loop, then j would be less than 0 and the deref of temp throws an
-	 * exception before reaching the check.
-	 * @param temp
-	 */
 	public void foo(char[] temp) {
 		int end = -1;
 		int j = temp.length;

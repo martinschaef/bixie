@@ -48,16 +48,7 @@ table {
 Theme Styles
 *******************************************************************************/
 
-div#codeblock
-{
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: small;
-	line-height: 150%;
-	
-	margin: 0 auto;
-	padding: 0px 0 0 0;
-	width: 800px;
-}
+
 
 
 
@@ -331,11 +322,6 @@ td {
   padding: 10px;
   border: 1px solid #373737;
  }
-
-form {
-  background: #f2f2f2;
-  padding: 20px;
-}
 
 /*******************************************************************************
 Full-Width Styles

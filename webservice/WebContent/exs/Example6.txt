@@ -1,4 +1,4 @@
-public class Example6 {
+class Example6 {
 
 	String[] resolvers;
 	int size;

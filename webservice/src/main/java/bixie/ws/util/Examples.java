@@ -74,8 +74,7 @@ public class Examples {
 		String path = ctx.getRealPath("/");
 		File examplesDir = new File(path + PATH_EXAMPLES);
 		File[] exampleFiles = examplesDir.listFiles();
-
-		System.err.println(examplesDir.getPath());
+		
 		if (exampleFiles==null) return;
 		
 		// load examples
