@@ -1,8 +1,5 @@
 class Example2 {
 
-	/* Found in Apache Cassandra
-	https://github.com/apache/cassandra/pull/46
-	*/
     public Boolean generate(int id)
     {
         return id % 1 == 0;

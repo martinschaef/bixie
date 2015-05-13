@@ -3,9 +3,6 @@ class Example6 {
 	String[] resolvers;
 	int size;
 
-	/* Found in Tomcat
-	https://github.com/apache/tomcat/pull/13/commits
-	*/
     public void add(String elResolver) {
         if (resolvers.length < size) {
             resolvers[size] = elResolver;

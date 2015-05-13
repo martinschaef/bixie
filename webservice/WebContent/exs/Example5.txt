@@ -1,6 +1,5 @@
 class Example3 {
 
-	// from org.openecard.bouncycastle.pqc.math.linearalgebra.GF2Polynomial
 	void foo(int i, int len) {
 		if (i < 0 || i > (len - 1)) {
 			throw new RuntimeException();
@@ -8,6 +7,6 @@ class Example3 {
 		if (i > (len - 1)) {
 			return;
 		}
-		// ...
+
 	}
 }

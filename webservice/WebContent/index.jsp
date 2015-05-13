@@ -3,52 +3,52 @@
 	pageEncoding="US-ASCII"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head profile="http://www.w3.org/2005/10/profile">
-<link rel="icon" 
-      type="image/ico" 
-      href="img/favicon.ico"/>
+	<link rel="icon" 
+	      type="image/ico" 
+	      href="img/favicon.ico"/>
+	
+	<meta charset='utf-8'/>
+	<meta http-equiv="X-UA-Compatible" content="chrome=1"/>
+	<meta name="description" content="Bixie : Try it online"/>
 
-<meta charset='utf-8'/>
-<meta http-equiv="X-UA-Compatible" content="chrome=1"/>
-<meta name="description" content="Bixie : Try it online"/>
+	<title>Bixie : Try it online</title>
 
-		<title>Bixie : Try it online</title>
+	<link rel="stylesheet" type="text/css" media="screen"
+		href="css/stylesheet.css"/>
+	
+	<script src="lib/codemirror/lib/codemirror.js"></script>
+	<script src="lib/codemirror/mode/clike/clike.js"></script>
 
-		<link rel="stylesheet" type="text/css" media="screen"
-			href="css/stylesheet.css"/>
+	<link rel="stylesheet" type="text/css" media="screen"
+		href="css/codemirror.css"/>
+
+	<link rel="stylesheet" href="lib/codemirror/addon/lint/lint.css"/>
 		
-		<script src="lib/codemirror/lib/codemirror.js"></script>
-		<script src="lib/codemirror/mode/clike/clike.js"></script>
-
-		<link rel="stylesheet" type="text/css" media="screen"
-			href="css/codemirror.css"/>
-
-		<link rel="stylesheet" href="lib/codemirror/addon/lint/lint.css"/>
+	<style>
+		.line-error {
+		    background: #990000 !important;
+		    color: #8a1f11 !important;
+		}
+		.line-warning {
+		    background: #660000 !important;
+		    color: #8a1f11 !important;
+		}
 		
-<style>
-.line-error {
-    background: #FFAAAA !important;
-    color: #8a1f11 !important;
-}
-.line-warning {
-    background: #EECCCC !important;
-    color: #8a1f11 !important;
-}
-
-div.center iframe{
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.noframetable {
-	border: none; 
-	border-collapse: collapse; 
-	width:100%
-}
-</style>
+		div.center iframe{
+		    display: block;
+		    margin-left: auto;
+		    margin-right: auto;
+		}
+		
+		.noframetable {
+			border: none; 
+			border-collapse: collapse; 
+			width:100%
+		}
+	</style>
 </head>
 <body>
 
@@ -60,9 +60,11 @@ div.center iframe{
 			View on GitHub
 		</a>
 	
+		
 		<h1 id="project_title">
-			Try it online
+			Inconsistent Code Detection - Try it online
 		</h1>
+		
 	
 		<section id="downloads"> 
 			<a class="zip_download_link" href="https://github.com/martinschaef/bixie/releases">
@@ -112,14 +114,17 @@ div.center iframe{
 			document.getElementById('submitbutton').onclick = "";
 			document.getElementById('loadnext').onclick = "";
 			document.getElementById('form').submit();
-		}		
+		}	
+		
+		function report_snippet(is_false_pos) {
+			console.log(is_false_pos);
+			document.getElementById('falsepos').style.display = 'none';
+			document.getElementById('falseneg').style.display = 'none';		  
+
+		}
+		
 	</script>
 	
-	
-	<div id="main_content_wrap" class="outer">
-		<section id="main_content" class="inner">
-			
-		<div id="codeblock" >			
 
 			<form id="form" action="index" method="post">
 				<c:choose>
@@ -130,36 +135,44 @@ div.center iframe{
 												
 					</c:otherwise>
 				</c:choose>
+
+				<p>
+					&nbsp;
+					<a href="javascript:void(0)" onclick="loadnext();" class="button" id="loadnext">
+						Load Example
+					</a>
+					&nbsp; 
+					<a href="javascript:void(0)" class="button" id="submitbutton"
+						onclick="javascript:submit_form(this);">
+						Ask <b>Bixie</b>!
+					</a>
+					&nbsp;
+					<a href="javascript:void(0)" onclick="report_snippet(true)" class="button" id="falsepos">
+						False Positive
+					</a>					
+					&nbsp;
+					<a href="javascript:void(0)" onclick="report_snippet(false)" class="button" id="falseneg">
+						False Negative
+					</a>										
+				</p>
+				
 				<textarea id="code" name="code"><c:out value="${code}" /></textarea>
 				
 				<input type='hidden' id='examplecounter' name='examplecounter' value='0' />
 				
-				<p>
-					<a href="javascript:void(0)" class="button" id="submitbutton"
-						onclick="javascript:submit_form(this);">Ask <b>Bixie</b>!
-					</a> &nbsp; <a href="javascript:void(0)" onclick="loadnext();" class="button" id="loadnext">Load Example</a>
-				</p>
-			</form>
-		</div>
 
-		<h4>How to use the Web Tester</h4>
-		<p class="inner">
-			Enter some Java code or browse through our examples. Depending on your Internet connection,
-			Bixie may take a few seconds to deliver results. 
-			Bixie highlights inconsistencies in <font color="#FFAAAA">darker red</font> and lines that cause these 
-			inconsistencies in <font color="#EECCCC">lighter red</font>. Further, Bixie displays yellow
-			warnings on the side of the code with tool tips. <br/>
-			Read more on how these reports are computed in our 
-			<a href="http://iist.unu.edu/publication/explaining-inconsistent-code" target='_blank'>FSE paper</a>. <br/> 
-			Compiler errors are red crosses. Bixie is only executed if your code has no compiler errors. 
-		</p>
-		
-	</section>
+			</form>
+
 	
-</div>
 
 
 	<script type="text/javascript">
+			//hide the report buttons if there is nothing
+			//to report yet.
+			document.getElementById('falsepos').style.display = 'none';
+			document.getElementById('falseneg').style.display = 'none';		  
+
+	
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
 
@@ -186,6 +199,12 @@ div.center iframe{
 		<c:if test="${'POST' != pageContext.request.method}">
 		editor.setValue(examples[example_idx]);
 		</c:if>
+		
+	  editor.on('change', function() {
+		    document.getElementById('falsepos').style.display = 'none';
+		    document.getElementById('falseneg').style.display = 'none';		  
+	  });
+
 		
 		function makeParserError(line, msg) {
 			// var info = cm.lineInfo(line);	
@@ -330,6 +349,7 @@ div.center iframe{
 	      updateLinting(cm, options.getAnnotations(cm.getValue(), options.options));
 	  }
 
+	  
 	  function updateLinting(cm, annotationsNotSorted) {
 	    clearMarks(cm);
 	    var state = cm.state.lint, options = state.options;
@@ -364,7 +384,7 @@ div.center iframe{
 	    }
 	    if (options.onUpdateLinting) options.onUpdateLinting(annotationsNotSorted, annotations, cm);
 	  }
-
+	  
 	  function onChange(cm) {
 	    var state = cm.state.lint;
 	    clearTimeout(state.timeout);
@@ -424,6 +444,11 @@ div.center iframe{
 	</c:if>
 	
 	<c:if test="${null != requestScope.inflines}">
+	  
+	  <script type="text/javascript">
+		document.getElementById('falsepos').style.display = 'inline-block';
+		document.getElementById('falseneg').style.display = 'inline-block';		  
+	  </script>
 		
 		<c:forEach items="${requestScope.suplines}" var="line">
 			<script type="text/javascript">
