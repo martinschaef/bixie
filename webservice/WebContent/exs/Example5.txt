@@ -1,4 +1,4 @@
-class Example3 {
+class Example5 {
 
 	void foo(int i, int len) {
 		if (i < 0 || i > (len - 1)) {

@@ -200,6 +200,14 @@ public class Runner {
 					continue;
 				}
 				lastLine = Integer.parseInt(substr.substring(0, idx));
+				if (substr.contains("error:")) {
+					String msg = substr.substring(substr.indexOf("error:"), substr.length());
+					if (errorMessages.containsKey(lastLine)) {
+						msg = errorMessages.get(lastLine) + "\\n" +msg;
+					}					
+					errorMessages.put(lastLine, msg);
+					
+				}
 				found = true;
 			} else {
 				if (found) {
