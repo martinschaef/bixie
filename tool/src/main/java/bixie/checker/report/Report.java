@@ -18,7 +18,6 @@ import java.util.concurrent.TimeoutException;
 
 import util.Log;
 import bixie.checker.faultlocalization.FaultLocalizationThread;
-import bixie.checker.util.SourceLine;
 import bixie.checker.util.SourceLocation;
 import bixie.checker.verificationcondition.AbstractTransitionRelation;
 import boogie.ProgramFactory;
@@ -242,11 +241,11 @@ public class Report {
 	public class FaultExplanation {		
 		public Integer firstLine = -2;
 		public String fileName = "";
-		public LinkedList<SourceLine> locations = new LinkedList<SourceLine>();
+		public LinkedList<SourceLocation> locations = new LinkedList<SourceLocation>();
 		
 		public HashSet<Integer> allLines = new HashSet<Integer>();
-		public LinkedList<SourceLine> infeasibleLines = new LinkedList<SourceLine>();
-		public LinkedList<SourceLine> otherLines = new LinkedList<SourceLine>();
+		public LinkedList<SourceLocation> infeasibleLines = new LinkedList<SourceLocation>();
+		public LinkedList<SourceLocation> otherLines = new LinkedList<SourceLocation>();
 		
 		public FaultExplanation(Map<CfgStatement, SourceLocation> report) {
 
@@ -260,7 +259,7 @@ public class Report {
 				}
 				allLines.add(line.getValue().StartLine);
 				
-				SourceLine sl = new SourceLine(line.getValue());
+				SourceLocation sl = new SourceLocation(line.getValue());
 				
 				if (line.getValue().inInfeasibleBlock) {
 					this.infeasibleLines.add(sl);

@@ -4,6 +4,8 @@
 package bixie;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
 import org.kohsuke.args4j.CmdLineException;
@@ -82,8 +84,9 @@ public class Bixie {
 	}
 
 	protected void report2File(ReportPrinter reportPrinter) {
-		try (PrintWriter out = new PrintWriter(bixie.Options.v()
-				.getOutputFile());) {
+		try (PrintWriter out = new PrintWriter(new OutputStreamWriter(
+				new FileOutputStream(bixie.Options.v().getOutputFile()),
+				"UTF-8"));) {
 			String str = reportPrinter.printSummary();
 			out.println(str);
 			bixie.util.Log.info(str);
@@ -99,15 +102,14 @@ public class Bixie {
 		report2File(reportPrinter);
 	}
 
-	public ReportPrinter translateAndRun(String input,
-			String classpath) {
+	public ReportPrinter translateAndRun(String input, String classpath) {
 		return translateAndRun(input, classpath, new BasicReportPrinter());
 	}
-	
-	public ReportPrinter translateAndRun(String input,
-			String classpath, ReportPrinter reportPrinter) {
+
+	public ReportPrinter translateAndRun(String input, String classpath,
+			ReportPrinter reportPrinter) {
 		bixie.util.Log.info("Translating");
-		org.joogie.Dispatcher.setClassPath(classpath);		
+		org.joogie.Dispatcher.setClassPath(classpath);
 		ProgramFactory pf = org.joogie.Dispatcher.run(input);
 		if (pf == null) {
 			bixie.util.Log.error("Internal Error: Parsing failed");
@@ -120,28 +122,29 @@ public class Bixie {
 	public ReportPrinter runChecker(ProgramFactory pf) {
 		return runChecker(pf, new BasicReportPrinter());
 	}
-	
-	public ReportPrinter runChecker(ProgramFactory pf, ReportPrinter reportPrinter) {
+
+	public ReportPrinter runChecker(ProgramFactory pf,
+			ReportPrinter reportPrinter) {
 		bixie.util.Log.info("Checking");
-		
+
 		bixie.checker.ProgramAnalysis.Checker = 1;
 		// Options.v().useLocationAttribute(true);
-		
+
 		if (bixie.Options.v().stopTime) {
 			try {
 				bixie.checker.util.Statistics.v().setLogFilePrefix(
-						bixie.Options.v().getOutputFile());				
+						bixie.Options.v().getOutputFile());
 			} catch (Throwable e) {
-				bixie.util.Log.error(e.toString());				
+				bixie.util.Log.error(e.toString());
 			}
 		}
-		
+
 		try {
 			ProgramAnalysis.runFullProgramAnalysis(pf, reportPrinter);
 		} catch (Exception e) {
 			bixie.util.Log.error(e.toString());
 		}
-		
+
 		return reportPrinter;
 	}
 

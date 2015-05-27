@@ -34,12 +34,11 @@ import boogie.controlflow.CfgProcedure;
  * @author schaef
  * 
  */
-public class Atva15Checker extends AbstractChecker {
-
-	public static long overhead_time = 0L;
+public class Atva15Checker extends AbstractChecker {	
 	
 	protected HashSet<BasicBlock> dangerousBlocks;
 
+	protected long overhead_time = 0L;
 	private StopWatch overheadTimer;
 	
 	/**
@@ -76,7 +75,7 @@ public class Atva15Checker extends AbstractChecker {
 	@Override
 	public Report checkSat(Prover prover, AbstractControlFlowFactory cff, CfgProcedure p) {
 
-		overhead_time = 0L;
+		this.overhead_time = 0L;
 		
 		Atva15TransitionRelation tr = new Atva15TransitionRelation(procedure, cff, prover);
 
@@ -396,7 +395,7 @@ public class Atva15Checker extends AbstractChecker {
 		}
 		
 		if (this.overheadTimer != null) {
-			overhead_time = this.overheadTimer.stop();
+			this.overhead_time = this.overheadTimer.stop();
 		}
 		
 		// new remove all blocks that have been covered in the first round.

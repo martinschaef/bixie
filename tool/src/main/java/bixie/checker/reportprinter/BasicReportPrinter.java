@@ -18,7 +18,7 @@ import java.util.TreeSet;
 import util.Log;
 import bixie.checker.report.Report;
 import bixie.checker.report.Report.FaultExplanation;
-import bixie.checker.util.SourceLine;
+import bixie.checker.util.SourceLocation;
 
 /**
  * @author schaef
@@ -124,7 +124,7 @@ public class BasicReportPrinter implements ReportPrinter {
 				}
 				//get the sorted list of line numbers for this report.
 				LinkedHashSet<Integer> lines = new LinkedHashSet<Integer>();
-				for (SourceLine line : fe.locations) {
+				for (SourceLocation line : fe.locations) {
 					lines.add(line.StartLine);
 				}
 				LinkedList<Integer> sortedLines = new LinkedList<Integer>(lines);

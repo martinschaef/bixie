@@ -2,6 +2,17 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'jacoco'
 apply plugin: 'application'
+apply plugin: 'findbugs'
+
+tasks.withType(FindBugs) {
+    effort = "default"
+    reportLevel = "high"
+
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+ }
 
 mainClassName = "bixie.Bixie"
 
@@ -53,4 +64,23 @@ test {
     }
 
    	useJUnit()
+}
+
+task selfCheck {
+  group 'Verification'
+  description 'Run Bixie on itself.'
+
+  doLast {
+    def bixieJar = jar.archivePath
+    def bixieDir = compileJava.destinationDir
+    def bixieClassPath = compileJava.classpath.asPath
+    //TODO generate this.
+    def bixieReportDir = './build/reports/bixie/out.txt'
+
+    exec {
+        workingDir '.'
+        commandLine 'java', '-jar', bixieJar, '-j', bixieDir, '-cp', bixieClassPath, '-o', bixieReportDir
+    }
+
+  }
 }

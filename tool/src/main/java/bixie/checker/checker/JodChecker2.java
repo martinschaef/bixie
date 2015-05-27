@@ -3,8 +3,9 @@
  */
 package bixie.checker.checker;
 
-import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.HashMap;
@@ -97,8 +98,7 @@ public class JodChecker2 extends AbstractChecker {
 	@Override
 	public Report checkSat(Prover prover, AbstractControlFlowFactory cff,
 			CfgProcedure p) {
-		Nfm15TransitionRelation tr = new Nfm15TransitionRelation(
-				p, cff, prover);
+		Nfm15TransitionRelation tr = new Nfm15TransitionRelation(p, cff, prover);
 
 		Statistics.HACK_effectualSetSize = tr.getEffectualSet().size();
 
@@ -185,7 +185,7 @@ public class JodChecker2 extends AbstractChecker {
 			return result;
 		} else {
 			HashSet<BasicBlock> result = new HashSet<BasicBlock>(alreadyCovered);
-			if (alreadyCovered.contains(node.getElements()))
+			if (alreadyCovered.containsAll(node.getElements()))
 				return result;
 			result.addAll(tryToFindConflictInPO(prover, tr, node, 0));
 			return result;
@@ -372,9 +372,8 @@ public class JodChecker2 extends AbstractChecker {
 		// node2color.put(node, (int)color );
 		// }
 
-		File fpw = new File(filename);
-		try {
-			PrintWriter pw = new PrintWriter(fpw);
+		try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(
+				new FileOutputStream(filename), "UTF-8"))) {
 			pw.println("digraph dot {");
 			LinkedList<BasicBlock> todo = new LinkedList<BasicBlock>();
 			HashSet<BasicBlock> done = new HashSet<BasicBlock>();
@@ -423,9 +422,8 @@ public class JodChecker2 extends AbstractChecker {
 	public void hasseToDot(String filename, Nfm15TransitionRelation tr) {
 		HasseDiagram hd = tr.getHasseDiagram();
 
-		File fpw = new File(filename);
-		try {
-			PrintWriter pw = new PrintWriter(fpw);
+		try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(
+				new FileOutputStream(filename), "UTF-8"))) {
 			pw.println("digraph dot {");
 			LinkedList<PartialBlockOrderNode> todo = new LinkedList<PartialBlockOrderNode>();
 			HashSet<PartialBlockOrderNode> done = new HashSet<PartialBlockOrderNode>();
@@ -474,8 +472,7 @@ public class JodChecker2 extends AbstractChecker {
 	 */
 
 	private Set<BasicBlock> tryToFindConflictInPO(Prover prover,
-			Nfm15TransitionRelation tr, PartialBlockOrderNode node,
-			int timeout) {
+			Nfm15TransitionRelation tr, PartialBlockOrderNode node, int timeout) {
 		// pick any
 		learnedConflicts.clear();
 		BasicBlock current = node.getElements().iterator().next();

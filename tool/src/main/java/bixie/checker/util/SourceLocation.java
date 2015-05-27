@@ -25,6 +25,23 @@ public class SourceLocation {
 	public boolean isNoVerify = false;
 	public boolean inInfeasibleBlock = false;
 
+	public SourceLocation() {
+		//do nothing
+	}
+	
+	public SourceLocation(SourceLocation other) {
+		this.FileName=other.FileName;
+		this.StartLine=other.StartLine;
+		this.StartCol = other.StartCol;
+		this.EndLine=other.EndLine;
+		this.EndCol = other.EndCol;
+		this.comment = other.comment;
+		this.isCloned = other.isCloned;
+		this.isNoVerify = other.isNoVerify;
+		this.inInfeasibleBlock = other.inInfeasibleBlock;
+	}
+	
+	
 	@Override
 	public boolean equals(Object other) {
 		if (other instanceof SourceLocation) {
