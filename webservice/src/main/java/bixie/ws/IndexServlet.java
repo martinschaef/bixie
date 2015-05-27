@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import bixie.checker.report.Report.FaultExplanation;
-import bixie.checker.util.SourceLine;
+import bixie.checker.util.SourceLocation;
 import bixie.ws.util.BixieParserException;
 import bixie.ws.util.Examples;
 import bixie.ws.util.Runner;
@@ -83,10 +83,10 @@ public class IndexServlet extends HttpServlet {
 					.getFaultExplanations().entrySet()) {
 				for (FaultExplanation im : entry.getValue()) {
 					
-					for (SourceLine loc : im.otherLines) {
+					for (SourceLocation loc : im.otherLines) {
 						this.supportLines.add(loc.StartLine);
 					}
-					for (SourceLine loc : im.infeasibleLines) {
+					for (SourceLocation loc : im.infeasibleLines) {
 						this.supportLines.remove(loc.StartLine);
 						String comment = null;
 						if (loc.comment != null) {
