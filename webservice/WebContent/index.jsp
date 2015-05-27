@@ -56,8 +56,8 @@
 	<div id="header_wrap" class="outer">
 		<header class="inner">
 		 
-		<a id="forkme_banner" href="https://github.com/martinschaef/bixie">
-			View on GitHub
+		<a id="forkme_banner" href="http://martinschaef.github.io/bixie/">
+			View GitHub Page
 		</a>
 	
 		

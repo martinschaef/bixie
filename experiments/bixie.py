@@ -1,9 +1,13 @@
+import sys
 import json
 import tempfile
 import os
 import subprocess
 import string
 from contextlib import contextmanager
+
+def log(msg):
+  sys.stderr.write(msg)
 
 @contextmanager
 def cd(newdir):
@@ -41,30 +45,30 @@ def run_project(project):
 
 def download_git(project):
   if not os.path.isdir(project['name']):
-    print "Downloading %s into %s" % (project['name'], project['working-dir'])
+    log("Downloading %s into %s" % (project['name'], project['working-dir']))
     subprocess.call(['git', 'clone', project['url'], project['name']], stdout=devnull, stderr=devnull)
   else:
-    print "Already downloaded %s." % (project['name'])
+    log("Already downloaded %s." % (project['name']))
 
   with cd(project['name']):
-    print "Cleaning."
+    log("Cleaning.")
     subprocess.call(['git', 'clean', '-df'], stdout=devnull, stderr=devnull)
 
-    print "Checking out git-ref %s." % project['git-ref']
+    log("Checking out git-ref %s." % project['git-ref'])
     subprocess.call(['git', 'checkout', project['git-ref']], stdout=devnull, stderr=devnull)
 
 def download_hg(project):
   if not os.path.isdir(project['name']):
-    print "Downloading %s into %s" % (project['name'], project['working-dir'])
+    log("Downloading %s into %s" % (project['name'], project['working-dir']))
     subprocess.call(['hg', 'clone', project['url'], project['name']], stdout=devnull, stderr=devnull)
   else:
-    print "Already downloaded %s." % (project['name'])
+    log("Already downloaded %s." % (project['name']))
 
   with cd(project['name']):
-    print "Cleaning."
+    log("Cleaning.")
     subprocess.call('hg status -un | xargs -I {} rm {}', shell=True, stdout=devnull, stderr=devnull)
 
-    print "Checking out hg-ref %s." % project['hg-ref']
+    log("Checking out hg-ref %s." % project['hg-ref'])
     subprocess.call(['hg', 'update', '-r', project['hg-ref'], '-C'], stdout=devnull, stderr=devnull)
 
 def download_project(project):
@@ -74,10 +78,10 @@ def download_project(project):
     download_hg(project)
 
 def compile_project(project):
-  print "Compiling %s" % project['name']
+  log("Compiling %s" % project['name'])
   for command in project['compile']:
     if subprocess.call(command, shell=True, stdout=devnull, stderr=devnull) != 0:
-      print "Failed to compile %s. Oops." % project['name']
+      log("Failed to compile %s. Oops." % project['name'])
       return False
   return True
 
@@ -86,7 +90,7 @@ def report_name(project, path):
   return os.path.join(project['report-dir'], filename)
 
 def analyze_project(project):
-  print "Analyzing %s" % project['name']
+  log("Analyzing %s" % project['name'])
 
   for path in project['paths']:
     full_path = project['path-template'] % path
@@ -94,7 +98,7 @@ def analyze_project(project):
     report_path = report + '.txt'
     log_path = report + '.log'
     error_path = report + '.err'
-    print "Analyzing component %s at path %s" % (path, full_path)
+    log("Analyzing component %s at path %s" % (path, full_path))
 
     with open(log_path, 'w') as log, open(error_path, 'w') as err:
       subprocess.call(['java', '-jar', project['jar'], '-j', full_path, '-cp', full_path, '-o', report_path], stdout=log, stderr=err)
@@ -121,5 +125,5 @@ def main():
 
         run_project(proj)
 
-if __name__ == "__main__":
+if __name__ == "__main__":    
   main()

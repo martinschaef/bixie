@@ -13,3 +13,32 @@ subprojects {
       mavenCentral()
    }
 }
+
+def toolJar = subprojects.findAll {it.name.contains('tool')}.jar
+
+
+task runExperiments {
+  group 'Verification'
+  description 'Run all experiments for Bixie.'
+
+  doLast {
+    println("Running the experiments.")
+    println("\tcopy the bixie jar into the experiments folder")  
+    copy {
+      from toolJar.archivePath 
+      into 'experiments'
+      rename { fileName ->
+        "bixie.jar"
+      }
+    }
+    println("\tRun the experiments.")  
+    println("\tATTENTION: this may take hours!")
+    exec {
+      workingDir 'experiments'
+      executable 'python'
+      args 'bixie.py'
+    }
+    println("Done.")
+  }
+}
+

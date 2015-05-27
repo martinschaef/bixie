@@ -92,10 +92,10 @@ public class IndexServlet extends HttpServlet {
 						if (loc.comment != null) {
 							if (loc.comment.equals("elseBlock")
 									|| loc.comment.equals("elseblock")) {
-								comment = "The case where this conditional evaluates to false";
+								comment = "The case where this conditional evaluates to true";
 							} else if (loc.comment.equals("thenBlock")
 									|| loc.comment.equals("thenblock")) {
-								comment = "The case where this conditional evaluates to true";
+								comment = "The case where this conditional evaluates to false";
 							} else {								
 								comment = "This line";
 							}
