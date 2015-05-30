@@ -79,6 +79,9 @@ public class Examples {
 		
 		// load examples
 		for (File exampleFile : exampleFiles) {
+			if (!exampleFile.isFile() || !exampleFile.getName().endsWith(".txt")) {
+				continue;
+			}
 			String example = FileIO.fromFile(exampleFile.getPath());
 			example = example.replace("\r", "");
 			example = example.replace("\n", "  \\n");

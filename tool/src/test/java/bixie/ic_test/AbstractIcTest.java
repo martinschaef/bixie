@@ -16,34 +16,30 @@ import org.junit.AfterClass;
  */
 public class AbstractIcTest {
 
-	protected static final String userDir = 
-			System.getProperty("user.dir") + "/";
-	protected static final String testRoot = 
-			userDir + "src/test/resources/";
+	protected static final String userDir = System.getProperty("user.dir")
+			+ "/";
+	protected static final String testRoot = userDir + "src/test/resources/";
 
-	@edu.umd.cs.findbugs.annotations.SuppressWarnings(
-		    value="DM_DEFAULT_ENCODING", 
-		    justification="I know what I'm doing")
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "DM_DEFAULT_ENCODING")
 	protected String fileToString(File f) {
 		StringBuffer sb = new StringBuffer();
-		try (FileReader fileRead = new FileReader(f);				
+		try (FileReader fileRead = new FileReader(f);
 				BufferedReader reader = new BufferedReader(fileRead);) {
 			String line;
 			while (true) {
 				line = reader.readLine();
-				if (line==null) break;
+				if (line == null)
+					break;
 				sb.append(line);
 				sb.append("\n");
 			}
 		} catch (Throwable e) {
-			
+
 		}
 		return sb.toString();
 	}
-	
-	@edu.umd.cs.findbugs.annotations.SuppressWarnings(
-		    value="DM_DEFAULT_ENCODING", 
-		    justification="I know what I'm doing")
+
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "DM_DEFAULT_ENCODING")
 	protected boolean compareFiles(File out, File gold) {
 		try (FileReader fR1 = new FileReader(out);
 				FileReader fR2 = new FileReader(gold);
@@ -73,9 +69,8 @@ public class AbstractIcTest {
 
 	protected File compileJavaFile(File sourceFile) throws IOException {
 		final File tempDir = getTempDir();
-		final String javac_command = String.format(
-				"javac -g %s -d %s", sourceFile.getAbsolutePath(),
-				tempDir.getAbsolutePath());
+		final String javac_command = String.format("javac -g %s -d %s",
+				sourceFile.getAbsolutePath(), tempDir.getAbsolutePath());
 
 		ProcessBuilder pb = new ProcessBuilder(javac_command.split(" "));
 		pb.redirectOutput(Redirect.INHERIT);

@@ -575,10 +575,7 @@ public class PrincessProver implements Prover {
 		return ((FormulaExpr) exp).formula;
 	}
 
-	
-	@edu.umd.cs.findbugs.annotations.SuppressWarnings(
-		    value="DM_DEFAULT_ENCODING", 
-		    justification="I know what I'm doing")
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value="DM_DEFAULT_ENCODING")
 	public String proverExprToSMT(ProverExpr exp) {
 		PrintStream originalOut = scala.Console.out();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();

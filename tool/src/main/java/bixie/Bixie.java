@@ -15,6 +15,7 @@ import bixie.checker.ProgramAnalysis;
 import bixie.checker.reportprinter.BasicReportPrinter;
 import bixie.checker.reportprinter.ReportPrinter;
 import bixie.util.Log;
+import bixie.util.aspects.Loggable;
 import boogie.ProgramFactory;
 
 /**
@@ -95,13 +96,15 @@ public class Bixie {
 			bixie.util.Log.error(e.toString());
 		}
 	}
-
+	
+	@Loggable
 	public void translateAndRun(String input, String classpath, String output) {
 		ReportPrinter reportPrinter = translateAndRun(input, classpath);
 		bixie.Options.v().setOutputFile(output);
 		report2File(reportPrinter);
 	}
 
+	@Loggable
 	public ReportPrinter translateAndRun(String input, String classpath) {
 		return translateAndRun(input, classpath, new BasicReportPrinter());
 	}

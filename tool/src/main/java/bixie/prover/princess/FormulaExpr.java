@@ -2,9 +2,9 @@ package bixie.prover.princess;
 
 import java.math.BigInteger;
 
+import ap.SimpleAPI$;
 import ap.parser.IBoolLit;
 import ap.parser.IFormula;
-import ap.SimpleAPI$;
 import bixie.prover.ProverExpr;
 import bixie.prover.ProverType;
 
