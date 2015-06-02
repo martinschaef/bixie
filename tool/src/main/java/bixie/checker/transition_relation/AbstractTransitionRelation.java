@@ -1,7 +1,7 @@
 /**
  * 
  */
-package bixie.checker.verificationcondition;
+package bixie.checker.transition_relation;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,11 +13,17 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.joogie.cfgPlugin.CFGPlugin;
+import org.joogie.cfgPlugin.Util.Dag;
+
+import util.Log;
+import ap.parser.IFormula;
 import bixie.checker.GlobalsCache;
 import bixie.prover.Prover;
 import bixie.prover.ProverExpr;
 import bixie.prover.ProverFun;
 import bixie.prover.ProverType;
+import bixie.prover.princess.PrincessProver;
 import boogie.controlflow.AbstractControlFlowFactory;
 import boogie.controlflow.BasicBlock;
 import boogie.controlflow.CfgAxiom;
@@ -235,6 +241,68 @@ public class AbstractTransitionRelation {
 
 	}
 
+	protected Dag<IFormula> procToPrincessDag(CfgProcedure proc,
+			HashMap<BasicBlock, ProverExpr> reachVars) {
+		// First transform the CFG into a list and record
+		// the index of each block
+		// it is imporatant that the list starts with the
+		// exitblock
+		
+		LinkedList<BasicBlock> todo = new LinkedList<BasicBlock>();
+		LinkedList<BasicBlock> done = new LinkedList<BasicBlock>();
+		todo.add(proc.getRootNode());
+		while (!todo.isEmpty()) {
+			BasicBlock current = todo.pollLast();
+			boolean allDone = true;
+			for (BasicBlock pre : current.getPredecessors()) {
+				if (!done.contains(pre)) {
+					allDone = false;
+					continue;
+				}
+			}
+			if (!allDone) {
+				todo.addFirst(current);
+				continue;
+			}
+			// store the position the block will have in the 'done' list.
+			done.addLast(current);
+			for (BasicBlock suc : current.getSuccessors()) {
+				if (!todo.contains(suc) && !done.contains(suc)) {
+					if (suc != current) {
+						todo.addLast(suc);
+					} else {
+						// This has to be checked
+						Log.error("The node has a self-loop! This is not supposed to happen.");
+					}
+				}
+			}
+		}
+
+		Dag<IFormula> currentNode = CFGPlugin.mkDagEmpty();
+		// TODO: assert that the first one in the list is actually the ExitBlock
+		for (int j = done.size() - 1; j >= 0; j--) {
+			BasicBlock b = done.get(j);
+			List<Integer> succIndices = new LinkedList<Integer>();
+			for (BasicBlock suc : b.getSuccessors()) {
+				// TODO: @Philipp willst du die absolute position oder den
+				// offset?
+				int idx = done.indexOf(suc) - done.indexOf(b);
+				succIndices.add(idx);
+				// Log.error("\t " +idx+":"+suc.getName() );
+			}
+			// TODO: review. can be done better
+			if (reachVars.get(b)==null) throw new RuntimeException("Cannot find var for "+b.getLabel());
+			IFormula d = ((PrincessProver) this.prover)
+					.proverExpToIFormula(reachVars.get(b));
+			int[] succidx = new int[succIndices.size()];
+			for (int i = 0; i < succIndices.size(); i++) {
+				succidx[i] = succIndices.get(i);
+			}
+			currentNode = CFGPlugin.mkDagNode(d, succidx, currentNode);
+		}
+		// currentNode.prettyPrint();
+		return currentNode;
+	}
 	/*
 	 * private void genFullPOConstraints() { //TODO: @Philipp:
 	 * this.usedPOVariables haelt alle variablen die in dem aktuellen //scope

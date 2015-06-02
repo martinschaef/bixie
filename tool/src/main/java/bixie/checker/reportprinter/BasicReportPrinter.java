@@ -18,7 +18,6 @@ import java.util.TreeSet;
 import util.Log;
 import bixie.checker.report.Report;
 import bixie.checker.report.Report.FaultExplanation;
-import bixie.checker.util.SourceLocation;
 
 /**
  * @author schaef
@@ -34,8 +33,6 @@ public class BasicReportPrinter implements ReportPrinter {
 	*/
 	Map<Integer, Map<String, List<List<Integer>>>> sortedReport = new HashMap<Integer, Map<String, List<List<Integer>>>>();
 	
-	
-	StringBuilder reports = new StringBuilder();
 	int cirtical, errorhandling, unreachable;
 	
 	/**

@@ -73,6 +73,26 @@ public class Options {
 	@Option(name = "-stats", usage = "Save statistics")
 	public boolean stopTime = true;
 
+	@Option(name = "-logProver", usage = "Write prover querries to tmp with given prefix")
+	protected String proverLogPrefix = null; 
+	
+	public String getProverLogPrefix() {
+		return this.proverLogPrefix;
+	}
+
+	
+	@Option(name = "-checker", usage = "Checker to be used during analysis. Ask the waiter for daily menu.")
+	protected int selectedChecker = 1; 
+	
+	public int getSelectedChecker() {
+		return this.selectedChecker;
+	}
+
+	public void setSelectedChecker(int checker) {
+		this.selectedChecker = checker;
+	}
+	
+	
 	/**
 	 * Returns the JAR file
 	 * 

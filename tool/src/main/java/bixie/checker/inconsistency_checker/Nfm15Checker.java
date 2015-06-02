@@ -1,12 +1,13 @@
 /**
  * 
  */
-package bixie.checker.checker;
+package bixie.checker.inconsistency_checker;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -15,8 +16,7 @@ import org.joogie.cfgPlugin.Util.Dag;
 import util.Log;
 import ap.parser.IFormula;
 import bixie.checker.report.Report;
-import bixie.checker.util.Statistics;
-import bixie.checker.verificationcondition.Nfm15TransitionRelation;
+import bixie.checker.transition_relation.Nfm15TransitionRelation;
 import bixie.prover.Prover;
 import bixie.prover.ProverExpr;
 import bixie.prover.ProverFactory;
@@ -63,16 +63,15 @@ public class Nfm15Checker extends
 	 * @see bixie.checker.infeasiblecode.AbstractInfeasibleCodeDetection#checkSat(bixie.checker.prover.Prover, bixie.checker.verificationcondition.CfgTransitionRelation)
 	 */
 	@Override
-	public Report checkSat(Prover prover, AbstractControlFlowFactory cff,
-			CfgProcedure p) {
+	public Report runAnalysis(Prover prover) {
 		Nfm15TransitionRelation tr = new Nfm15TransitionRelation(
-				p, cff, prover);
+				this.procedure, this.cff, prover);
 		
 		// generate ineff flags; this map is also used to keep
 		// track of the remaining uncovered blocks
 		LinkedHashMap<ProverExpr, ProverExpr> ineffFlags = new LinkedHashMap<ProverExpr, ProverExpr>();
 
-		Statistics.HACK_effectualSetSize = tr.getEffectualSet().size();
+//		Statistics.HACK_effectualSetSize = tr.getEffectualSet().size();
 		
 		for (BasicBlock block : tr.getEffectualSet()) {
 			ProverExpr v = tr.getReachabilityVariables().get(block);
@@ -122,15 +121,7 @@ public class Nfm15Checker extends
 		
 		// construct the inverted reachabilityVariables which is used later
 		// to keep track of what has been covered so far.
-		LinkedHashMap<ProverExpr, BasicBlock> uncoveredBlocks = new LinkedHashMap<ProverExpr, BasicBlock>();
-		for (Entry<BasicBlock, ProverExpr> entry : tr
-				.getReachabilityVariables().entrySet()) {
-			if (blocks2cover.contains(entry.getKey())) {
-				//ignore the blocks that we are not interested in
-				uncoveredBlocks.put(entry.getValue(), entry.getKey());
-			}	
-		}
-
+		Map<ProverExpr, BasicBlock> uncoveredBlocks = createdInvertedReachabilityVariableMap(tr, blocks2cover);
 		
 		int threshold = ineffFlags.size();
 		// hint for the greedy cover algorithm about

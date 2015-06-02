@@ -1,4 +1,4 @@
-package bixie.checker.verificationcondition;
+package bixie.checker.transition_relation;
 
 import java.util.HashMap;
 import java.util.HashSet;

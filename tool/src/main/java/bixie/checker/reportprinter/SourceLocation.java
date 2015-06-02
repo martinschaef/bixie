@@ -1,7 +1,7 @@
 /**
  * 
  */
-package bixie.checker.util;
+package bixie.checker.reportprinter;
 
 import boogie.ProgramFactory;
 import boogie.ast.Attribute;

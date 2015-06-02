@@ -7,14 +7,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import typechecker.TypeChecker;
-import bixie.checker.checker.AbstractChecker;
-import bixie.checker.checker.Atva15Checker;
-import bixie.checker.checker.JodChecker2;
-import bixie.checker.checker.Nfm15Checker;
+import bixie.Options;
+import bixie.checker.inconsistency_checker.AbstractChecker;
+import bixie.checker.inconsistency_checker.CdcChecker;
+import bixie.checker.inconsistency_checker.GreedyCfgChecker;
 import bixie.checker.report.Report;
 import bixie.checker.reportprinter.ReportPrinter;
-import bixie.checker.util.Statistics;
 import bixie.util.Log;
+import bixie.util.Statistics;
 import boogie.ProgramFactory;
 import boogie.controlflow.AbstractControlFlowFactory;
 import boogie.controlflow.CfgProcedure;
@@ -105,46 +105,23 @@ public class ProgramAnalysis {
 		GlobalsCache.resetInstance();		
 		Statistics.resetInstance();
 	}
-
-	// private static int countStatementsForStatistics(CfgProcedure p) {
-	// int total = 0;
-	// try {
-	// LinkedList<BasicBlock> todo = new LinkedList<BasicBlock>();
-	// HashSet<BasicBlock> done = new HashSet<BasicBlock>();
-	// todo.add(p.getRootNode());
-	// while (!todo.isEmpty()) {
-	// BasicBlock current = todo.pop();
-	// total += current.getStatements().size();
-	// done.add(current);
-	// for (BasicBlock next : current.getSuccessors()) {
-	// if (!done.contains(next) && !todo.contains(next)) {
-	// todo.add(next);
-	// }
-	// }
-	// }
-	// } catch (Throwable e) {
-	//
-	// }
-	// return total;
-	// }
-
-	public static int Checker = 6;
 	
 	private static AbstractChecker getChecker(AbstractControlFlowFactory cff,
 			CfgProcedure p) {
 		AbstractChecker checker = null;
 
-		switch (Checker) {
+		switch (Options.v().getSelectedChecker()) {
 		case 1: {
-			checker = new Atva15Checker(cff, p);
+//			checker = new CdcChecker(cff, p);
+			checker = new GreedyCfgChecker(cff, p);
 			break;
 		}
 		case 2: {
-			checker = new JodChecker2(cff, p);
+			checker = new CdcChecker(cff, p);
 			break;
 		}
 		default: {
-			checker = new Nfm15Checker(cff, p);
+			checker = new GreedyCfgChecker(cff, p);
 			break;
 		}
 		}

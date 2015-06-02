@@ -130,12 +130,9 @@ public class Bixie {
 			ReportPrinter reportPrinter) {
 		bixie.util.Log.info("Checking");
 
-		bixie.checker.ProgramAnalysis.Checker = 1;
-		// Options.v().useLocationAttribute(true);
-
 		if (bixie.Options.v().stopTime) {
 			try {
-				bixie.checker.util.Statistics.v().setLogFilePrefix(
+				bixie.util.Statistics.v().setLogFilePrefix(
 						bixie.Options.v().getOutputFile());
 			} catch (Throwable e) {
 				bixie.util.Log.error(e.toString());

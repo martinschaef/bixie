@@ -48,7 +48,17 @@ public class JavaTruePositives extends AbstractIcTest {
 	}
 
 	@Test
-	public void test() {
+	public void test1() {
+		testWithChecker(1);
+	}
+
+	@Test
+	public void test2() {
+		testWithChecker(2);
+	}
+
+	
+	public void testWithChecker(int i) {
 		System.out.println("Running test: "+sourceFile.getName());
 		File classFileDir = null;
 		File outFile = null;
@@ -59,7 +69,8 @@ public class JavaTruePositives extends AbstractIcTest {
 				assertTrue(false);
 			}
 			Bixie bx = new Bixie();
-			String outFilePath = outFile.getAbsolutePath();
+			bixie.Options.v().setSelectedChecker(i);
+			String outFilePath = outFile.getAbsolutePath();			
 			// if no golden output has been generated for this test,
 			// generate one using the current result.
 			boolean firstRun = false;

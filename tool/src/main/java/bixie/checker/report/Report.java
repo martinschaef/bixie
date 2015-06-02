@@ -18,8 +18,8 @@ import java.util.concurrent.TimeoutException;
 
 import util.Log;
 import bixie.checker.faultlocalization.FaultLocalizationThread;
-import bixie.checker.util.SourceLocation;
-import bixie.checker.verificationcondition.AbstractTransitionRelation;
+import bixie.checker.reportprinter.SourceLocation;
+import bixie.checker.transition_relation.AbstractTransitionRelation;
 import boogie.ProgramFactory;
 import boogie.ast.Attribute;
 import boogie.ast.NamedAttribute;
@@ -238,7 +238,7 @@ public class Report {
 	 * @author schaef
 	 *
 	 */
-	public class FaultExplanation {		
+	static public class FaultExplanation {		
 		public Integer firstLine = -2;
 		public String fileName = "";
 		public LinkedList<SourceLocation> locations = new LinkedList<SourceLocation>();

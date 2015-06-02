@@ -12,9 +12,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import util.Log;
-import bixie.checker.util.SourceLocation;
-import bixie.checker.verificationcondition.AbstractTransitionRelation;
-import bixie.checker.verificationcondition.FaultLocalizationTransitionRelation;
+import bixie.checker.reportprinter.SourceLocation;
+import bixie.checker.transition_relation.AbstractTransitionRelation;
+import bixie.checker.transition_relation.FaultLocalizationTransitionRelation;
 import bixie.prover.Prover;
 import bixie.prover.ProverExpr;
 import bixie.prover.ProverFactory;
@@ -39,7 +39,8 @@ public class FaultLocalizationThread implements Runnable {
 	private AbstractTransitionRelation tr;
 	private Prover prover = null;
 
-	public FaultLocalizationThread(AbstractTransitionRelation tr, Set<BasicBlock> infeasibleBlocks) {
+	public FaultLocalizationThread(AbstractTransitionRelation tr,
+			Set<BasicBlock> infeasibleBlocks) {
 		this.infeasibleBlocks = infeasibleBlocks;
 		this.tr = tr;
 	}
@@ -94,8 +95,8 @@ public class FaultLocalizationThread implements Runnable {
 			try {
 				this.prover = pf.spawn();
 				this.prover.setConstructProofs(true);
-				HashMap<CfgStatement, SourceLocation> res = localizeFault(
-						tr, cmp, this.prover);
+				HashMap<CfgStatement, SourceLocation> res = localizeFault(tr,
+						cmp, this.prover);
 				if (res != null && !res.isEmpty()) {
 					reports.add(res);
 				}
@@ -145,7 +146,7 @@ public class FaultLocalizationThread implements Runnable {
 		// slice.pruneUnreachableBlocks();
 
 		// tr.getProcedure().toDot("./orig_"+slice.getProcedureName()+".dot");
-//		slice.toDot("./slice_" + slice.getProcedureName() + ".dot");
+		// slice.toDot("./slice_" + slice.getProcedureName() + ".dot");
 
 		// System.err.println("compute tr");
 		FaultLocalizationTransitionRelation sliceTr = new FaultLocalizationTransitionRelation(
@@ -288,22 +289,21 @@ public class FaultLocalizationThread implements Runnable {
 				}
 
 				if (loc != null) {
-					if (origin != null
-							&& containsNamedAttribute(origin,
-									ProgramFactory.Cloned)) {
+
+					if (containsNamedAttribute(origin, ProgramFactory.Cloned)) {
 						loc.isCloned = true;
 						anyCloned = true;
 					}
 
-					if (origin != null
-							&& containsNamedAttribute(origin,
-									ProgramFactory.NoVerifyTag)) {
+					if (containsNamedAttribute(origin,
+							ProgramFactory.NoVerifyTag)) {
 						loc.isNoVerify = true;
 					}
 
 					for (BasicBlock b : component) {
 						if (b.getLabel().equals(origin.getLabel())) {
-							// compare them by name because we cloned them, so
+							// compare them by name because we cloned them,
+							// so
 							// they are not
 							// the same by reference.
 							loc.inInfeasibleBlock = true;

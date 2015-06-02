@@ -1,7 +1,7 @@
 /**
  * 
  */
-package bixie.checker.checker;
+package bixie.checker.inconsistency_checker;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,8 +19,7 @@ import org.joogie.cfgPlugin.Util.Dag;
 
 import ap.parser.IFormula;
 import bixie.checker.report.Report;
-import bixie.checker.util.Statistics;
-import bixie.checker.verificationcondition.Nfm15TransitionRelation;
+import bixie.checker.transition_relation.Nfm15TransitionRelation;
 import bixie.prover.Prover;
 import bixie.prover.ProverExpr;
 import bixie.prover.ProverResult;
@@ -55,36 +54,17 @@ public class JodChecker2 extends AbstractChecker {
 	public JodChecker2(AbstractControlFlowFactory cff, CfgProcedure p) {
 		super(cff, p);
 
-		System.err.println("prune unreachable");
-
-		// p.toDot("./"+p.getProcedureName()+".dot");
-
 		p.pruneUnreachableBlocks();
-
-		// p.toDot("./"+p.getProcedureName()+".dot");
-
-		// System.err.println("remove calls");
 
 		CallUnwinding cunwind = new CallUnwinding();
 		cunwind.unwindCalls(p);
 
-		// System.err.println("unwind loops");
 		AbstractLoopUnwinding.unwindeLoops(p);
 		p.pruneUnreachableBlocks();
 
-		// System.err.println("ssa");
-		// p.toFile("./"+p.getProcedureName()+".bpl");
-
 		SingleStaticAssignment ssa = new SingleStaticAssignment();
 		ssa.computeSSA(p);
-
-		// System.err.println("prune again");
 		p.pruneUnreachableBlocks();
-
-		// System.err.println("done");
-
-		// p.toFile("./"+p.getProcedureName()+".bpl");
-		// p.toDot("./"+p.getProcedureName()+"_lf.dot");
 	}
 
 	/*
@@ -96,11 +76,10 @@ public class JodChecker2 extends AbstractChecker {
 	 * bixie.checker.verificationcondition.CfgTransitionRelation)
 	 */
 	@Override
-	public Report checkSat(Prover prover, AbstractControlFlowFactory cff,
-			CfgProcedure p) {
-		Nfm15TransitionRelation tr = new Nfm15TransitionRelation(p, cff, prover);
+	public Report runAnalysis(Prover prover) {
+		Nfm15TransitionRelation tr = new Nfm15TransitionRelation(this.procedure, cff, prover);
 
-		Statistics.HACK_effectualSetSize = tr.getEffectualSet().size();
+//		Statistics.HACK_effectualSetSize = tr.getEffectualSet().size();
 
 		// now exclude all feasible paths that may violate the postcondition
 		// compute the feasible path cover under the given postcondition
@@ -672,6 +651,12 @@ public class JodChecker2 extends AbstractChecker {
 	 * ================ stuff to find path with sat solver =====================
 	 */
 
+	/**
+	 * Use the solver to find a path through 'current' in 
+	 * the abstract model that has not yet been covered. 
+	 * @param current The block that must be contained on the path.
+	 * @return The set of all blocks on that path.
+	 */
 	private Set<BasicBlock> findNextPath(BasicBlock current) {
 		Log.debug("Finding next path");
 		Set<BasicBlock> blocks = this.getSubprogContaining(current);
@@ -713,6 +698,10 @@ public class JodChecker2 extends AbstractChecker {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param blocks
+	 */
 	private void assertAbstractaPathCfGTheory(Set<BasicBlock> blocks) {
 		LinkedHashMap<ProverExpr, ProverExpr> ineffFlags = new LinkedHashMap<ProverExpr, ProverExpr>();
 		for (BasicBlock block : blocks) {
@@ -753,22 +742,6 @@ public class JodChecker2 extends AbstractChecker {
 			// Assert it
 			prover.addAssertion(assertion);
 
-			// //now assert bwd
-			// LinkedList<BasicBlock> predecessors = new
-			// LinkedList<BasicBlock>();
-			// for (BasicBlock pred : block.getPredecessors()) {
-			// if (blocks.contains(pred)) {
-			// predecessors.add(pred);
-			// }
-			// }
-			//
-			// assertion = prover.mkImplies(
-			// transRel.getReachabilityVariables().get(block),
-			// mkDisjunction(transRel, predecessors)
-			// );
-			//
-			// // Assert it
-			// prover.addAssertion(assertion);
 		}
 
 		prover.addAssertion(transRel.getReachabilityVariables().get(

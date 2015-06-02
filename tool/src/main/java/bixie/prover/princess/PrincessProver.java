@@ -436,7 +436,7 @@ public class PrincessProver implements Prover {
 		for (int i = 0; i < partitionSeq.length; ++i) {
 			final ArrayBuffer<Object> indexes = new ArrayBuffer<Object>();
 			for (int j = 0; j < partitionSeq[i].length; ++j)
-				indexes.$plus$eq(new Integer(partitionSeq[i][j]));
+				indexes.$plus$eq(Integer.valueOf(partitionSeq[i][j]));
 			args.$plus$eq(indexes.toSet());
 		}
 

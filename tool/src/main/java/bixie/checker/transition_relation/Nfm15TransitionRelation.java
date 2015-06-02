@@ -1,4 +1,4 @@
-package bixie.checker.verificationcondition;
+package bixie.checker.transition_relation;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -6,14 +6,11 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.joogie.cfgPlugin.CFGPlugin;
 import org.joogie.cfgPlugin.Util.Dag;
 
-import util.Log;
 import ap.parser.IFormula;
 import bixie.prover.Prover;
 import bixie.prover.ProverExpr;
-import bixie.prover.princess.PrincessProver;
 import boogie.controlflow.AbstractControlFlowFactory;
 import boogie.controlflow.BasicBlock;
 import boogie.controlflow.CfgProcedure;
@@ -36,13 +33,6 @@ public class Nfm15TransitionRelation extends AbstractTransitionRelation {
 	
 	protected Dag<IFormula> proverDAG;	
 	
-//	protected ProverExpr expetionalReturnFlag = null;
-	
-	//TODO: this is a hack, like the creation
-	//of this variable in the constructor
-//	public ProverExpr getExpetionalReturnFlag() {
-//		return expetionalReturnFlag;
-//	}
 
 	public Dag<IFormula> getProverDAG() {
 		return proverDAG;
@@ -136,71 +126,7 @@ public class Nfm15TransitionRelation extends AbstractTransitionRelation {
 				this.prover.mkAnd(conj)));
 		proofobligations.put(b, obligations);
 		return blockvar;
-	}
-
-	private Dag<IFormula> procToPrincessDag(CfgProcedure proc,
-			HashMap<BasicBlock, ProverExpr> reachVars) {
-		// First transform the CFG into a list and record
-		// the index of each block
-		// it is imporatant that the list starts with the
-		// exitblock
-		
-		LinkedList<BasicBlock> todo = new LinkedList<BasicBlock>();
-		LinkedList<BasicBlock> done = new LinkedList<BasicBlock>();
-		todo.add(proc.getRootNode());
-		while (!todo.isEmpty()) {
-			BasicBlock current = todo.pollLast();
-			boolean allDone = true;
-			for (BasicBlock pre : current.getPredecessors()) {
-				if (!done.contains(pre)) {
-					allDone = false;
-					continue;
-				}
-			}
-			if (!allDone) {
-				todo.addFirst(current);
-				continue;
-			}
-			// store the position the block will have in the 'done' list.
-			done.addLast(current);
-			for (BasicBlock suc : current.getSuccessors()) {
-				if (!todo.contains(suc) && !done.contains(suc)) {
-					if (suc != current) {
-						todo.addLast(suc);
-					} else {
-						// This has to be checked
-						Log.error("The node has a self-loop! This is not supposed to happen.");
-					}
-				}
-			}
-		}
-
-		Dag<IFormula> currentNode = CFGPlugin.mkDagEmpty();
-		// TODO: assert that the first one in the list is actually the ExitBlock
-		for (int j = done.size() - 1; j >= 0; j--) {
-			BasicBlock b = done.get(j);
-			List<Integer> succIndices = new LinkedList<Integer>();
-			for (BasicBlock suc : b.getSuccessors()) {
-				// TODO: @Philipp willst du die absolute position oder den
-				// offset?
-				int idx = done.indexOf(suc) - done.indexOf(b);
-				succIndices.add(idx);
-				// Log.error("\t " +idx+":"+suc.getName() );
-			}
-			// TODO: review. can be done better
-			if (reachVars.get(b)==null) throw new RuntimeException("Cannot find var for "+b.getLabel());
-			IFormula d = ((PrincessProver) this.prover)
-					.proverExpToIFormula(reachVars.get(b));
-			int[] succidx = new int[succIndices.size()];
-			for (int i = 0; i < succIndices.size(); i++) {
-				succidx[i] = succIndices.get(i);
-			}
-			currentNode = CFGPlugin.mkDagNode(d, succidx, currentNode);
-		}
-		// currentNode.prettyPrint();
-		return currentNode;
-	}
-	
+	}	
 	
 	protected ProverExpr mkConjunction(Collection<ProverExpr> conjuncts) {
 		if (conjuncts.size() == 0) {
