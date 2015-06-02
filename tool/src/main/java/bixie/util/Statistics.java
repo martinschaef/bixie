@@ -1,7 +1,7 @@
 /**
  * 
  */
-package bixie.checker.util;
+package bixie.util;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
@@ -16,8 +16,6 @@ import bixie.checker.report.Report;
  *
  */
 public class Statistics {
-	
-	public static Integer HACK_effectualSetSize = 0;
 
 	private static Statistics instance = null;
 
@@ -81,8 +79,7 @@ public class Statistics {
 				this.checkerBuffer.write(", -1");
 
 				this.checkerBuffer.write(", ");
-				this.checkerBuffer.write(Statistics.HACK_effectualSetSize
-						.toString());
+				this.checkerBuffer.write(-1); //TODO was effectual set size.
 				this.checkerBuffer.write("\n");
 				this.checkerBuffer.flush();
 			} catch (IOException e) {
