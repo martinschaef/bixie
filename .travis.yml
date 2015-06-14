@@ -1,1 +1,17 @@
 language: java
+
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "ZbrC6tJAuP89dUyxaqrIwKAdjIST8YPYNFfVUzx7s8IJzv17v8l23YI+pIfTK1+EkSREG47loYUDKRbPt6bqS6dX0u3RJtidV0vPuHUSK1zCLSVA9UAYcPRJUGrtnaHG3yW5jdwtgHsjl949QPLA/ez4L4tZOVeiW7xyUJF251M="
+
+addons:
+  coverity_scan:
+    project:
+      name: "martinschaef/bixie"
+      description: "Inconsistent Code Detection"
+    notification_email: martinschaef@gmail.com
+    build_command_prepend: ""
+    build_command:   "gardlew build"
+    branch_pattern: coverity_scan
