@@ -13,7 +13,7 @@ addons:
       description: "Inconsistent Code Detection"
     notification_email: martinschaef@gmail.com
     build_command_prepend: "./tool/gradlew clean"
-    build_command:   "./tool/gradle assemble"
+    build_command:   "./tool/gradlew assemble"
     branch_pattern: coverity_scan
 
 script:
