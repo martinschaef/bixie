@@ -1,6 +1,7 @@
 Bixie - Inconsistent Code Detection for Java
 =====
 [![Build Status](https://travis-ci.org/martinschaef/bixie.png)](https://travis-ci.org/martinschaef/bixie)
+[![Coverity Scan](https://scan.coverity.com/projects/5463/badge.svg)](https://scan.coverity.com/projects/5463)
 
 Check our [Website](http://martinschaef.github.io/bixie/) or the [Online Demo](http://csl.sri.com/projects/bixie/).
 
