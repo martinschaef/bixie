@@ -2,7 +2,7 @@ Bixie - Inconsistent Code Detection for Java
 =====
 [![Build Status](https://travis-ci.org/martinschaef/bixie.png)](https://travis-ci.org/martinschaef/bixie)
 
-For further information on what inconsistent code is and an online demo to play with, please see the [Bixie website](http://csl.sri.com/projects/bixie/).
+Check our [Website](http://martinschaef.github.io/bixie/) or the [Online Demo](http://csl.sri.com/projects/bixie/).
 
 Stable releases and experimental setups to repeat the experiments from our papers are in the [Release](https://github.com/martinschaef/bixie/releases) section. 
 
