@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import bixie.checker.report.Report.FaultExplanation;
-import bixie.checker.util.SourceLocation;
+import bixie.checker.reportprinter.SourceLocation;
 import bixie.ws.util.BixieParserException;
 import bixie.ws.util.Examples;
 import bixie.ws.util.Runner;
