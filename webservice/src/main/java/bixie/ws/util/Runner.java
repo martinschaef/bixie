@@ -162,10 +162,13 @@ public class Runner {
 					FileDescriptor.err)));
 			// delete source file
 			try {
-				sourceFile.delete();
+				if (!sourceFile.delete()) {
+					System.err.println("Warning, source file not deleted!");
+				}
 				if (theDir!=null && theDir.exists()) {
 					delete(theDir);
 				}				
+
 			} catch (Throwable t) {
 				
 			}
@@ -235,8 +238,12 @@ public class Runner {
 
 	protected static void delete(File f) throws IOException {
 		if (f.isDirectory()) {
-			for (File c : f.listFiles())
-				delete(c);
+			File[] files = f.listFiles();
+			if (files!=null) {
+				for (File c : files) {
+					delete(c);
+				}
+			}
 		}
 		if (!f.delete()) {
 			throw new IOException("Failed to delete file: " + f);
