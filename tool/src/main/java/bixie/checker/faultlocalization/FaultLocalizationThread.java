@@ -195,16 +195,15 @@ public class FaultLocalizationThread implements Runnable {
 		// System.err.println("compute interpolants");
 		ProverExpr[] interpolants = prover.interpolate(ordering);
 
-		// debug code
-		{
-			// System.err.println("#interpolants: "+ interpolants.length +
-			// " / #assertions: ======================");
-			// for (int i=0; i<interpolants.length; i++) {
-			// System.err.println("Assertion "+i+":"+sliceTr.pe2StmtMap.get(sliceTr.obligations.get(i)));
-			// System.err.println("Obligation "+i+":"+sliceTr.obligations.get(i));
-			// System.err.println("\tInterpolant "+i+":"+interpolants[i]+"\n");
-			// }
-		}
+		// debug code		
+		// System.err.println("#interpolants: "+ interpolants.length +
+		// " / #assertions: ======================");
+		// for (int i=0; i<interpolants.length; i++) {
+		// System.err.println("Assertion "+i+":"+sliceTr.pe2StmtMap.get(sliceTr.obligations.get(i)));
+		// System.err.println("Obligation "+i+":"+sliceTr.obligations.get(i));
+		// System.err.println("\tInterpolant "+i+":"+interpolants[i]+"\n");
+		// }
+		
 
 		boolean allInfeasibleCloned = true;
 		boolean anyCloned = false;
@@ -308,9 +307,7 @@ public class FaultLocalizationThread implements Runnable {
 							// the same by reference.
 							loc.inInfeasibleBlock = true;
 							break;
-						} else {
-							// do nothing
-						}
+						} 
 					}
 
 					if (loc.inInfeasibleBlock && !loc.isCloned) {

@@ -110,12 +110,12 @@ public class Report {
 			}			
 		} catch (TimeoutException e) {
 			Log.error("fault localization timeout.");
-			throw(e);
+			throw e;
 		} catch (OutOfMemoryError e) {
-			throw(e);
+			throw e;
 		} catch (Throwable e) {
 			e.printStackTrace();
-			throw(e);
+			throw e;
 		} finally {
 			if (flt != null) {
 				flt.shutDownProver();
@@ -139,8 +139,6 @@ public class Report {
 				Statement ast_stmt = cff.findAstStatement(s);
 				if (ast_stmt!=null && ast_stmt.getLocation()!=null) {
 					astStatements.add(ast_stmt);
-				} else {
-					//for debugging only
 				}
 			}
 		}

@@ -98,7 +98,7 @@ public class CdcChecker extends AbstractChecker {
 		
 		/* Cover all feasible path in the procedure while the assertion flag is set. */
 		prover.push();
-		prover.addAssertion(prover.mkNot(this.transitionRelation.assertionFlag));;
+		prover.addAssertion(prover.mkNot(this.transitionRelation.assertionFlag));
 
 		coveredBlocks.addAll(computeJodCover(prover, tr, alreadyCovered) );		
 		this.feasibleBlocks = new HashSet<BasicBlock>(coveredBlocks);
@@ -671,9 +671,7 @@ public class CdcChecker extends AbstractChecker {
 			}
 			prover.pop();
 
-			if (res == ProverResult.Unsat) {
-				// otherwise, we can remove it.
-			} else {
+			if (res != ProverResult.Unsat) {
 				path.add(current); // then we needed this one
 			}
 		}

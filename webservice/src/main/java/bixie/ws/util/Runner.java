@@ -95,7 +95,10 @@ public class Runner {
 		if (theDir!=null && theDir.exists()) {
 			delete(theDir);
 		}
-		theDir.mkdir();
+		
+		if (!theDir.mkdir()) {
+			throw new RuntimeException("Could not create folder.");
+		}
 		
 		String pathName = String.format("%s/%s", theDir.getAbsolutePath(), fileName);
 		String clazz = String.format("public class %s {}", uuid);

@@ -243,16 +243,16 @@ public class GreedyCfgChecker extends AbstractChecker {
 			// prover.checkSat(false);
 			// res = prover.getResult(TIME_LIMIT);
 
-			if (res == ProverResult.Running) {
-				// the coverage algorithm could not make progress within the
-				// given time limit. Falling back to the new algorithms.
-				// prover.stop();
-				// prover.pop();
-				// if (phase==0) prover.pop(); //pop again if we're still in
-				// phase 0
-				// coverHardToGetBlocks(tr, coveredBlocks, phase);
-				// return;
-			}
+//			if (res == ProverResult.Running) {
+//				// the coverage algorithm could not make progress within the
+//				// given time limit. Falling back to the new algorithms.
+//				// prover.stop();
+//				// prover.pop();
+//				// if (phase==0) prover.pop(); //pop again if we're still in
+//				// phase 0
+//				// coverHardToGetBlocks(tr, coveredBlocks, phase);
+//				// return;
+//			}
 
 		}
 		return coveredBlocks;

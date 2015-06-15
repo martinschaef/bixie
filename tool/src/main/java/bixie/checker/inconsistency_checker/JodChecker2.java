@@ -600,9 +600,7 @@ public class JodChecker2 extends AbstractChecker {
 			prover.pop();
 			if (res == ProverResult.Sat) {
 				path.add(current); // then we needed this one
-			} else if (res == ProverResult.Unsat) {
-				// otherwise, we can remove it.
-			} else {
+			} else if (res != ProverResult.Unsat) {
 				throw new RuntimeException("PROVER FAILED");
 			}
 		}

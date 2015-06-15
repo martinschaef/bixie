@@ -125,7 +125,7 @@ public class Options {
 	 * @return true = Joogie has an additional classpath
 	 */
 	public boolean hasClasspath() {
-		return (null != classpath);
+		return null != classpath;
 	}
 
 	/**
