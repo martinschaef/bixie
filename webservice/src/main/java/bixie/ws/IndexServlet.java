@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,18 +45,16 @@ import bixie.ws.util.WebserviceReportPrinter;
 @SuppressWarnings("serial")
 public class IndexServlet extends HttpServlet {
 
-	String code = null;
-	String example_idx = "0";
-
-	protected Set<Integer> supportLines = new HashSet<Integer>();
-	protected Map<Integer, String> infeasibleLines = new HashMap<Integer, String>();
-
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		try {
 			// load all examples
 			req.setAttribute("examples",
 					Examples.v().getExamples(req.getServletContext()));
+			String example_idx = req.getParameter("examplecounter");
+			if (example_idx==null || example_idx.isEmpty()) {
+				example_idx = "0";
+			}
 			req.setAttribute("exampleIdx", example_idx);
 			forward(req, resp);
 
@@ -70,24 +69,37 @@ public class IndexServlet extends HttpServlet {
 			// run Bixie
 			req.setAttribute("examples",
 					Examples.v().getExamples(req.getServletContext()));
-			code = req.getParameter("code");
-			this.example_idx = req.getParameter("examplecounter");
-			req.setAttribute("exampleIdx", example_idx);
+			String code = req.getParameter("code");
 
-			this.supportLines.clear();
-			this.infeasibleLines.clear();
+			String example_idx = req.getParameter("examplecounter");
+			if (example_idx==null || example_idx.isEmpty()) {
+				example_idx = "0";
+			}
+			req.setAttribute("exampleIdx", example_idx);
+			
+
+			Set<Integer> supportLines = new HashSet<Integer>();
+			Map<Integer, String> infeasibleLines = new HashMap<Integer, String>();
+
+			
+			supportLines.clear();
+			infeasibleLines.clear();
 			WebserviceReportPrinter reportPrinter = Runner.run(
 					req.getServletContext(), code);
+			
+			if (reportPrinter==null) {
+				return;
+			}
 			
 			for (Entry<Integer, List<FaultExplanation>> entry : reportPrinter
 					.getFaultExplanations().entrySet()) {
 				for (FaultExplanation im : entry.getValue()) {
 					
 					for (SourceLocation loc : im.otherLines) {
-						this.supportLines.add(loc.StartLine);
+						supportLines.add(loc.StartLine);
 					}
 					for (SourceLocation loc : im.infeasibleLines) {
-						this.supportLines.remove(loc.StartLine);
+						supportLines.remove(loc.StartLine);
 						String comment = null;
 						if (loc.comment != null) {
 							if (loc.comment.equals("elseBlock")
@@ -99,7 +111,7 @@ public class IndexServlet extends HttpServlet {
 							} else {								
 								comment = "This line";
 							}
-							if (this.supportLines.size() > 0) {
+							if (supportLines.size() > 0) {
 								comment += " conflicts with the other marked lines";
 							} else {
 								comment += " can never be executed";
@@ -117,13 +129,13 @@ public class IndexServlet extends HttpServlet {
 							}
 								
 						}
-						this.infeasibleLines.put(loc.StartLine, comment);
+						infeasibleLines.put(loc.StartLine, comment);
 					}
 				}
 			}
 			
-			req.setAttribute("inflines", this.infeasibleLines);
-			req.setAttribute("suplines", this.supportLines);
+			req.setAttribute("inflines", infeasibleLines);
+			req.setAttribute("suplines", supportLines);
 
 		} catch (BixieParserException e) {
 //			for (Entry<Integer, String> entry : e.getErrorMessages().entrySet()) {
@@ -144,8 +156,10 @@ public class IndexServlet extends HttpServlet {
 	protected void forward(HttpServletRequest req, HttpServletResponse resp) {
 		try {
 			// forward request
-			req.getRequestDispatcher("index.jsp").forward(req, resp);
-
+			RequestDispatcher rqd = req.getRequestDispatcher("index.jsp");
+			if (rqd!=null) {
+				rqd.forward(req, resp);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -1,6 +1,7 @@
 apply plugin: "java"
 apply plugin: "war"
 apply plugin: "eclipse-wtp"
+apply plugin: 'findbugs'
 
 webAppDirName =  'WebContent'
 
@@ -43,4 +44,17 @@ eclipse {
         }
     }
 }
+
+// testing related activities -----------------
+tasks.withType(FindBugs) {
+    effort = "default"
+    reportLevel = "high"
+
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+ }
+ 
+ 
 

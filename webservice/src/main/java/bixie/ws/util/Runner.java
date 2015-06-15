@@ -23,8 +23,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -69,6 +69,7 @@ public class Runner {
 	 * @return Map from severity level (0 is highest) to report. A report is a map from file 
 	 * name to list of inconsistencies. Each inconsistency is a list of line numbers.
 	 */	
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value="DM_DEFAULT_ENCODING")
 	public static WebserviceReportPrinter run(ServletContext ctx, String code)
 			throws Exception {
 		// pre-analyze code
@@ -101,11 +102,14 @@ public class Runner {
 
 		// create source file
 		File sourceFile = new File(pathName);
-		FileWriter fw = new FileWriter(sourceFile);
-		fw.write(String.format("%s %s", code, clazz));
-		fw.flush();
-		fw.close();
-
+		try (FileOutputStream fileStream = new FileOutputStream(sourceFile);
+			OutputStreamWriter writer = new OutputStreamWriter(fileStream, "UTF-8");) {
+			writer.write(String.format("%s %s", code, clazz));
+			writer.flush();
+			writer.close();
+		} catch (Throwable t) {
+			return null;
+		}
 
 		
 		// compile the source file.
@@ -157,16 +161,20 @@ public class Runner {
 			System.setErr(new PrintStream(new FileOutputStream(
 					FileDescriptor.err)));
 			// delete source file
-			sourceFile.delete();
-			if (theDir!=null && theDir.exists()) {
-				delete(theDir);
+			try {
+				sourceFile.delete();
+				if (theDir!=null && theDir.exists()) {
+					delete(theDir);
+				}				
+			} catch (Throwable t) {
+				
 			}
 		}
 
 		
 		if (reportPrinter == null
-				|| baes.toString().contains("soot.CompilationDeathException")) {
-			throw new BixieParserException(parseError(baos.toString()));
+				|| baes.toString("UTF-8").contains("soot.CompilationDeathException")) {
+			throw new BixieParserException(parseError(baos.toString("UTF-8")));
 		} else {
 			ErrorMessage = null;
 		}
