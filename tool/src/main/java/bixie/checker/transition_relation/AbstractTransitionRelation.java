@@ -24,6 +24,7 @@ import bixie.prover.ProverExpr;
 import bixie.prover.ProverFun;
 import bixie.prover.ProverType;
 import bixie.prover.princess.PrincessProver;
+import boogie.ProgramFactory;
 import boogie.controlflow.AbstractControlFlowFactory;
 import boogie.controlflow.BasicBlock;
 import boogie.controlflow.CfgAxiom;
@@ -472,7 +473,7 @@ public class AbstractTransitionRelation {
 	 */
 	protected ProverExpr wrapInInt(ProverExpr e, BoogieType type) {
 		if (type == null) throw new RuntimeException("wrapInInt has type null! Did you forget to run the typechecker?");
-		if (type == GlobalsCache.v().getProgramFactory().getBoolType())
+		if (GlobalsCache.v().getProgramFactory()!=null && type == GlobalsCache.v().getProgramFactory().getBoolType())
 			return this.prover.mkIte(e, this.prover.mkLiteral(0),
 					this.prover.mkLiteral(1));
 		else
@@ -488,7 +489,7 @@ public class AbstractTransitionRelation {
 	 */
 	protected ProverExpr unwrapFromInt(ProverExpr e, BoogieType type) {
 		if (type == null) throw new RuntimeException("wrapInInt has type null! Did you forget to run the typechecker? "+e.toString() );
-		if (type == GlobalsCache.v().getProgramFactory().getBoolType())
+		if (GlobalsCache.v().getProgramFactory()!=null && type == GlobalsCache.v().getProgramFactory().getBoolType())
 			return this.prover.mkEq(e, this.prover.mkLiteral(0));
 		else
 			return e;
@@ -758,11 +759,15 @@ public class AbstractTransitionRelation {
 	 * joogie-specific.
 	 */
 	protected ProverType boogieType2ProverType(BoogieType type) {
-		if (type == GlobalsCache.v().getProgramFactory().getIntType()) {
+		ProgramFactory pf = GlobalsCache.v().getProgramFactory();
+		if (pf == null) {
+			throw new RuntimeException(" bug ");
+		}
+		if (type == pf.getIntType()) {
 			return this.prover.getIntType();
-		} else if (type == GlobalsCache.v().getProgramFactory().getBoolType()) {
+		} else if (type == pf.getBoolType()) {
 			return this.prover.getBooleanType();
-		} else if (type == GlobalsCache.v().getProgramFactory().getRealType()) {
+		} else if (type == pf.getRealType()) {
 			// TODO
 			return this.prover.getIntType();
 		} else if (type instanceof ArrayType) {
