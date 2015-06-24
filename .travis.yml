@@ -12,7 +12,7 @@ addons:
       name: "martinschaef/bixie"
       description: "Inconsistent Code Detection"
     notification_email: martinschaef@gmail.com
-    build_command_prepend: "cd tool"
-    build_command:   "gradle build"
+    build_command_prepend: "./tool/gradlew clean"
+    build_command:   "./tool/gradlew clean assemble"
     branch_pattern: master
 
