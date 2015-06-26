@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'jacoco'
+apply plugin: 'com.github.kt3k.coveralls'
 apply plugin: 'application'
 apply plugin: 'findbugs'
 
@@ -92,9 +93,20 @@ tasks.withType(FindBugs) {
     }
  }
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.1'
+    }
+}
+
 jacocoTestReport {
     reports {
-        xml.enabled false
+        xml.enabled true
+        html.enabled true
         csv.enabled false
         html.destination "${buildDir}/reports/coverage"
     }
