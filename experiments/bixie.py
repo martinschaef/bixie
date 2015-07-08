@@ -6,9 +6,6 @@ import subprocess
 import string
 from contextlib import contextmanager
 
-def log(msg):
-  sys.stderr.write(msg)
-
 @contextmanager
 def cd(newdir):
   prevdir = os.getcwd()
@@ -42,6 +39,11 @@ def run_project(project):
 
     if project['analyze']:
       analyze_project(project)
+
+def log(msg):
+  sys.stderr.write(msg)
+  sys.stderr.write("\n")
+
 
 def download_git(project):
   if not os.path.isdir(project['name']):
@@ -94,17 +96,21 @@ def analyze_project(project):
 
   for path in project['paths']:
     full_path = project['path-template'] % path
-    report = report_name(project, path)
+    report = report_name(project, path)   
     report_path = report + '.txt'
     log_path = report + '.log'
     error_path = report + '.err'
     log("Analyzing component %s at path %s" % (path, full_path))
 
-    with open(log_path, 'w') as log, open(error_path, 'w') as err:
-      subprocess.call(['java', '-jar', project['jar'], '-j', full_path, '-cp', full_path, '-o', report_path], stdout=log, stderr=err)
+    with open(log_path, 'w') as log_file, open(error_path, 'w') as err:
+      subprocess.call(['java', '-jar', project['jar'], '-j', full_path, '-cp', full_path, '-o', report_path], stdout=log_file, stderr=err)
 
 def main():
-  f = open('bixie.json')
+  file_name = 'bixie.json'
+  if len(sys.argv)>1:
+    file_name = sys.argv[1]
+
+  f = open(file_name)
   j = json.loads(f.read())
 
   basedir = os.path.dirname(os.path.abspath(__file__))
