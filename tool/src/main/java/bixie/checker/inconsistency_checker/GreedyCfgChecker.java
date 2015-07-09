@@ -12,7 +12,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import bixie.checker.report.Report;
-import bixie.checker.transition_relation.Atva15TransitionRelation;
+import bixie.checker.transition_relation.TransitionRelation;
 import bixie.prover.Prover;
 import bixie.prover.ProverExpr;
 import bixie.prover.ProverResult;
@@ -53,7 +53,7 @@ public class GreedyCfgChecker extends AbstractChecker {
 	@Override
 	public Report runAnalysis(Prover prover) {
 
-		Atva15TransitionRelation tr = new Atva15TransitionRelation(this.procedure,
+		TransitionRelation tr = new TransitionRelation(this.procedure,
 				this.cff, prover);
 
 		// Statistics.HACK_effectualSetSize = tr.getEffectualSet().size();
@@ -153,7 +153,7 @@ public class GreedyCfgChecker extends AbstractChecker {
 	 * @return The set of blocks that could be covered.
 	 */
 	protected Set<BasicBlock> coverBlocks(Map<ProverExpr, BasicBlock> blocks,
-			Atva15TransitionRelation tr,
+			TransitionRelation tr,
 			LinkedHashMap<ProverExpr, ProverExpr> ineffFlags) {
 
 		Set<BasicBlock> coveredBlocks = new HashSet<BasicBlock>();
@@ -196,7 +196,7 @@ public class GreedyCfgChecker extends AbstractChecker {
 	 * @return The set of blocks that could be covered for the given threshold.
 	 */
 	protected Set<BasicBlock> coverBlocksWithThreshold(
-			Map<ProverExpr, BasicBlock> blocks, Atva15TransitionRelation tr,
+			Map<ProverExpr, BasicBlock> blocks, TransitionRelation tr,
 			LinkedHashMap<ProverExpr, ProverExpr> ineffFlags, int threshold) {
 
 		// setup the CFG module
@@ -265,7 +265,7 @@ public class GreedyCfgChecker extends AbstractChecker {
 	 * @param ineffFlags The flags for the solver.
 	 * @return True, if b is reachable in tr. Otherwise False.
 	 */
-	private boolean forwardReachable(BasicBlock b, Atva15TransitionRelation tr,
+	private boolean forwardReachable(BasicBlock b, TransitionRelation tr,
 			LinkedHashMap<ProverExpr, ProverExpr> ineffFlags) {
 		
 		if (tr.getProcedure().getRootNode()==b) return true;

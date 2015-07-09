@@ -15,9 +15,14 @@ import boogie.controlflow.AbstractControlFlowFactory;
 import boogie.controlflow.BasicBlock;
 import boogie.controlflow.CfgProcedure;
 import boogie.controlflow.CfgVariable;
+import boogie.controlflow.expression.CfgBooleanLiteral;
 import boogie.controlflow.expression.CfgExpression;
 import boogie.controlflow.expression.CfgIdentifierExpression;
+import boogie.controlflow.statement.CfgAssertStatement;
 import boogie.controlflow.statement.CfgAssignStatement;
+import boogie.controlflow.statement.CfgAssumeStatement;
+import boogie.controlflow.statement.CfgCallStatement;
+import boogie.controlflow.statement.CfgHavocStatement;
 import boogie.controlflow.statement.CfgStatement;
 
 /**
@@ -25,22 +30,33 @@ import boogie.controlflow.statement.CfgStatement;
  * TODO: if we plan to do interprocedural analysis, we have
  * to change the way globals are handled here.
  */
-public class Nfm15TransitionRelation extends AbstractTransitionRelation {
+public class TransitionRelation extends AbstractTransitionRelation {
 	
 	public HashMap<BasicBlock, ProverExpr> blockTransitionReleations = new HashMap<BasicBlock, ProverExpr>();	
 	public HashMap<BasicBlock, ProverExpr> abstractTransitionReleations = new HashMap<BasicBlock, ProverExpr>();
 	
 	
+	public ProverExpr assertionFlag;
+	
 	protected Dag<IFormula> proverDAG;	
 	
+//	protected ProverExpr expetionalReturnFlag = null;
+	
+	//TODO: this is a hack, like the creation
+	//of this variable in the constructor
+//	public ProverExpr getExpetionalReturnFlag() {
+//		return expetionalReturnFlag;
+//	}
 
 	public Dag<IFormula> getProverDAG() {
 		return proverDAG;
 	}
 
-	public Nfm15TransitionRelation(CfgProcedure cfg, AbstractControlFlowFactory cff, Prover p) {
+	public TransitionRelation(CfgProcedure cfg, AbstractControlFlowFactory cff, Prover p) {
 		super(cfg, cff, p);
 		makePrelude();
+		
+		this.assertionFlag = prover.mkVariable("MartinsAssertionFlag", prover.getBooleanType());
 		
 		//create the ProverExpr for the precondition 
 		ProverExpr[] prec = new ProverExpr[cfg.getRequires().size()];
@@ -126,7 +142,8 @@ public class Nfm15TransitionRelation extends AbstractTransitionRelation {
 				this.prover.mkAnd(conj)));
 		proofobligations.put(b, obligations);
 		return blockvar;
-	}	
+	}
+
 	
 	protected ProverExpr mkConjunction(Collection<ProverExpr> conjuncts) {
 		if (conjuncts.size() == 0) {
@@ -197,10 +214,87 @@ public class Nfm15TransitionRelation extends AbstractTransitionRelation {
 		return abstractStatements;
 	}
 
-	public void removeBlock(BasicBlock b) {
-		this.blockTransitionReleations.remove(b);
-		this.reachabilityVariables.remove(b);
-	}
+//	public void removeBlock(BasicBlock b) {
+//		this.blockTransitionReleations.remove(b);
+//		this.reachabilityVariables.remove(b);
+//	}
 		
+	/*
+	 * (non-Javadoc)
+	 * @see bixie.checker.verificationcondition.AbstractTransitionRelation#statements2proverExpression(java.util.List)
+	 * 
+	 * override the original ones to add a flag to all assertions so that we can disable them.
+	 */
+	@Override
+	protected List<ProverExpr> statements2proverExpression(List<CfgStatement> stmts) {
+		LinkedList<ProverExpr> res = new LinkedList<ProverExpr>(); 
+		for (CfgStatement s : stmts) {
+			if (s instanceof CfgAssumeStatement 
+					&& ((CfgAssumeStatement)s).getCondition() instanceof CfgBooleanLiteral 
+					&& ((CfgBooleanLiteral)((CfgAssumeStatement)s).getCondition()).getValue()==true) {
+				//do nothing
+				continue;
+			}
+			if (s instanceof CfgAssertStatement 
+					&& ((CfgAssertStatement)s).getCondition() instanceof CfgBooleanLiteral 
+					&& ((CfgBooleanLiteral)((CfgAssertStatement)s).getCondition()).getValue()==true) {
+				//do nothing
+				continue;
+			}
+			ProverExpr pe = statement2proverExpression(s);
+			this.pe2StmtMap.put(pe, s);
+			res.add(pe);
+		}
+		return res;
+	}
+	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see bixie.checker.verificationcondition.AbstractTransitionRelation#statements2proverExpression(java.util.List)
+	 * 
+	 * override the original ones to add a flag to all assertions so that we can disable them.
+	 */	
+	@Override
+	protected ProverExpr statement2proverExpression(CfgStatement s) {
+		if (s instanceof CfgAssertStatement) {
+			CfgAssertStatement assrt = (CfgAssertStatement) s;
+			/*!!!!! Here we translate 'assert(e)' to 'e\/assertionFlag' so that we can disable all
+			 * assertions at once by setting the flag to true.
+			 */
+			return this.prover.mkOr(expression2proverExpression(assrt.getCondition()), this.assertionFlag);
+//			return expression2proverExpression(assrt.getCondition());
+		} else if (s instanceof CfgAssignStatement) {
+			CfgAssignStatement assgn = (CfgAssignStatement) s;
+			if (assgn.getLeft().length != assgn.getRight().length) {
+				throw new RuntimeException("malformed assignment.");
+			}
+			ProverExpr[] conj = new ProverExpr[assgn.getLeft().length];
+			for (int i = 0; i < assgn.getLeft().length; i++) {
+				ProverExpr left = expression2proverExpression(assgn.getLeft()[i]);
+				ProverExpr right = expression2proverExpression(assgn.getRight()[i]);
+				conj[i] = this.prover.mkEq(left, right);
+			}
+			return this.prover.mkAnd(conj);
+
+		} else if (s instanceof CfgAssumeStatement) {
+			CfgAssumeStatement assme = (CfgAssumeStatement) s;
+			return expression2proverExpression(assme.getCondition());
+		} else if (s instanceof CfgCallStatement) {
+			// CfgCallStatement call = (CfgCallStatement)s;
+			throw new RuntimeException(
+					"Call statements must be removed before SSA: "
+							+ s.toString());
+		} else if (s instanceof CfgHavocStatement) {
+			// s Log.error("BUG: no havoc should be in the passive program!");
+			// Havoc is a no-op after SSA, so no need to keep it
+			// in the transition relation
+			return prover.mkLiteral(true);
+		} else {
+			throw new RuntimeException("Unknown statement type: "
+					+ s.getClass().toString());
+		}
+	}	
+	
 	
 }

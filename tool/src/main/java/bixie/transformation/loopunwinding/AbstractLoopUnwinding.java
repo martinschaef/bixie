@@ -267,7 +267,7 @@ public abstract class AbstractLoopUnwinding {
 		// now redirect all back edges to the original loop head.
 		for (BasicBlock b : loop.loopingPred) {
 			if (!clonemap.containsKey(b)) {
-				System.err.println("something fishy with that loop!");
+				Log.error("something fishy with that loop!");
 				continue;
 			}
 			BasicBlock clone = clonemap.get(b);

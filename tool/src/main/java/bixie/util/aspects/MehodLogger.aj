@@ -12,7 +12,6 @@ import util.Log;
 public aspect MehodLogger {
 
 	Object around() : execution(* *(..)) && @annotation(Loggable) {
-//		System.out.println("Before " + thisJoinPoint.getSignature());
 		long startTime = System.currentTimeMillis();
 		Object result = proceed();
 		long elapsed = System.currentTimeMillis() - startTime;

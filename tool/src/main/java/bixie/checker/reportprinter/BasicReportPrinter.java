@@ -50,7 +50,8 @@ public class BasicReportPrinter implements ReportPrinter {
 	@Override
 	public void printReport(Report r) {
 		consumeReport(r);
-		Log.info(r.toString());
+		String s = r.toString();
+		if (s!=null && !s.isEmpty()) Log.info(r.toString());
 	}
 	
 	public Map<Integer, Map<String, List<List<Integer>>>> getSortedReports() {

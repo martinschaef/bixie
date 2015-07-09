@@ -19,11 +19,12 @@ import org.joogie.cfgPlugin.Util.Dag;
 
 import ap.parser.IFormula;
 import bixie.checker.report.Report;
-import bixie.checker.transition_relation.Atva15TransitionRelation;
+import bixie.checker.transition_relation.TransitionRelation;
 import bixie.prover.Prover;
 import bixie.prover.ProverExpr;
 import bixie.prover.ProverResult;
 import bixie.prover.princess.PrincessProver;
+import bixie.util.Log;
 import boogie.controlflow.AbstractControlFlowFactory;
 import boogie.controlflow.BasicBlock;
 import boogie.controlflow.CfgAxiom;
@@ -47,7 +48,7 @@ import boogie.controlflow.util.PartialBlockOrderNode;
  */
 public class CdcChecker extends AbstractChecker {
 
-	Atva15TransitionRelation transitionRelation;
+	TransitionRelation transitionRelation;
 	HashSet<PartialBlockOrderNode> knownInfeasibleNodes = new HashSet<PartialBlockOrderNode>();
 	// TODO: keep track of everything that has been proved infeasible
 	// to make sure that we don't do the same work twice.
@@ -74,11 +75,11 @@ public class CdcChecker extends AbstractChecker {
 	 */
 	@Override
 	public Report runAnalysis(Prover prover) {
-		Atva15TransitionRelation tr = new Atva15TransitionRelation(this.procedure, cff, prover);
+		TransitionRelation tr = new TransitionRelation(this.procedure, cff, prover);
 		return runAnalysisFromIntermediateResult(prover, tr, new HashSet<BasicBlock>());
 	}
 	
-	public Report runAnalysisFromIntermediateResult(Prover prover, Atva15TransitionRelation tr, Set<BasicBlock> alreadyCovered) {
+	public Report runAnalysisFromIntermediateResult(Prover prover, TransitionRelation tr, Set<BasicBlock> alreadyCovered) {
 		
 		transitionRelation = tr;
 		/* before adding anything, push a frame on the prover stack so that we can clean up
@@ -92,7 +93,7 @@ public class CdcChecker extends AbstractChecker {
 		prover.addAssertion(tr.getRequires());
 		prover.addAssertion(tr.getEnsures());
 
-		System.err.println("Round1 "+this.transitionRelation.getProcedureName());
+		Log.debug("Round1 "+this.transitionRelation.getProcedureName());
 		
 		Set<BasicBlock> coveredBlocks = new HashSet<BasicBlock>();
 		
@@ -105,7 +106,7 @@ public class CdcChecker extends AbstractChecker {
 		/* pop the assertion flag. */
 		prover.pop();
 		
-		System.err.println("Round2 "+this.transitionRelation.getProcedureName());
+		Log.debug("Round2 "+this.transitionRelation.getProcedureName());
 		
 		
 		//TODO: reset the known infeasible node...?
@@ -167,7 +168,7 @@ public class CdcChecker extends AbstractChecker {
 
 	
 	public Collection<BasicBlock> computeJodCover(Prover prover,
-			Atva15TransitionRelation tr, Set<BasicBlock> alreadyCovered) {
+			TransitionRelation tr, Set<BasicBlock> alreadyCovered) {
 		HashSet<BasicBlock> coveredBlocks = new HashSet<BasicBlock>(
 				alreadyCovered);
 
@@ -189,12 +190,12 @@ public class CdcChecker extends AbstractChecker {
 	 * @return
 	 */
 	private HashSet<BasicBlock> findFeasibleBlocks2(Prover prover,
-			Atva15TransitionRelation tr, PartialBlockOrderNode node,
+			TransitionRelation tr, PartialBlockOrderNode node,
 			Set<BasicBlock> alreadyCovered) {		
 		if (node.getSuccessors().size() > 0) {
 			boolean allChildrenInfeasible = true;
 			HashSet<BasicBlock> result = new HashSet<BasicBlock>();
-			System.err.println("Step 3 B");
+			Log.debug("Step 3 B");
 			for (PartialBlockOrderNode child : node.getSuccessors()) {
 				Set<BasicBlock> res = findFeasibleBlocks2(prover, tr, child,
 						alreadyCovered);
@@ -209,7 +210,7 @@ public class CdcChecker extends AbstractChecker {
 				knownInfeasibleNodes.add(node);
 			return result;
 		} else {
-			System.err.println("Step 3 A");
+			Log.debug("Step 3 A");
 			HashSet<BasicBlock> result = new HashSet<BasicBlock>(alreadyCovered);
 			if (alreadyCovered.containsAll(node.getElements()))
 				return result;
@@ -276,7 +277,7 @@ public class CdcChecker extends AbstractChecker {
 		return infeasibleBlocks;
 	}
 
-	private ProverExpr mkDisjunction(Atva15TransitionRelation tr,
+	private ProverExpr mkDisjunction(TransitionRelation tr,
 			Collection<BasicBlock> blocks) {
 		ProverExpr next;
 		if (blocks.size() == 0) {
@@ -304,7 +305,7 @@ public class CdcChecker extends AbstractChecker {
 	 * @return
 	 */
 	private HashSet<BasicBlock> getPathFromModel(Prover prover,
-			Atva15TransitionRelation tr, Set<BasicBlock> allBlocks,
+			TransitionRelation tr, Set<BasicBlock> allBlocks,
 			Set<BasicBlock> necessaryNodes) {
 		// Blocks selected by the model
 		HashSet<BasicBlock> enabledBlocks = new HashSet<BasicBlock>();
@@ -385,7 +386,7 @@ public class CdcChecker extends AbstractChecker {
 
 	}
 
-	public void toDot(String filename, Atva15TransitionRelation tr) {
+	public void toDot(String filename, TransitionRelation tr) {
 		HasseDiagram hd = tr.getHasseDiagram();
 		// HashSet<PartialBlockOrderNode> poNodes = getPoNodes(hd.getRoot());
 		HashMap<PartialBlockOrderNode, Integer> node2color = new HashMap<PartialBlockOrderNode, Integer>();
@@ -445,7 +446,7 @@ public class CdcChecker extends AbstractChecker {
 		}
 	}
 
-	public void hasseToDot(String filename, Atva15TransitionRelation tr) {
+	public void hasseToDot(String filename, TransitionRelation tr) {
 		HasseDiagram hd = tr.getHasseDiagram();
 
 		try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(
@@ -498,7 +499,7 @@ public class CdcChecker extends AbstractChecker {
 	 */
 
 	private Set<BasicBlock> tryToFindConflictInPO(Prover prover,
-			Atva15TransitionRelation tr, PartialBlockOrderNode node, int timeout) {
+			TransitionRelation tr, PartialBlockOrderNode node, int timeout) {
 		// pick any
 		learnedConflicts.clear();
 		BasicBlock current = node.getElements().iterator().next();
@@ -509,25 +510,25 @@ public class CdcChecker extends AbstractChecker {
 					new HashSet<BasicBlock>());
 
 			while (path != null) {
-				System.err.println("Searching Path ... ");
+				Log.debug("Searching Path ... ");
 				if (checkPath(current, path)) {
 					return path;
 				}
 				path = findNextPath(current);
 			}
 
-			System.err.println("DONE Searching Path ... ");
+			Log.debug("DONE Searching Path ... ");
 			
 			// Set<BasicBlock> res = up(current, current, new
 			// HashSet<BasicBlock>());
 			if (path == null) {
-				System.err.println("Cool ... learned stuff from conflict.");
+				Log.debug("Cool ... learned stuff from conflict.");
 				res = new HashSet<BasicBlock>();
 			}
 			return res;
 		} catch (HackInfeasibleException e) {
 			this.knownInfeasibleNodes.add(node);
-			System.err.println("YEAH");
+			Log.debug("YEAH");
 		}
 		return new HashSet<BasicBlock>();
 	}
@@ -584,7 +585,7 @@ public class CdcChecker extends AbstractChecker {
 				// for (BasicBlock b : conflict) {
 				// System.err.print(b.getLabel()+", ");
 				// }
-				// System.err.println();
+				// Log.debug();
 				return true;
 			}
 		}
@@ -599,7 +600,7 @@ public class CdcChecker extends AbstractChecker {
 
 	private boolean checkPath(BasicBlock source, Set<BasicBlock> path)
 			throws HackInfeasibleException {
-		System.err.println("checking path");
+		Log.debug("checking path");
 
 		prover.push();
 		for (BasicBlock b : path) {
@@ -608,25 +609,25 @@ public class CdcChecker extends AbstractChecker {
 		ProverResult res = prover.checkSat(true);
 		prover.pop();
 		if (res == ProverResult.Sat) {
-			System.err.println("\tSAT");
+			Log.debug("\tSAT");
 			return true;
 		} else if (res == ProverResult.Unsat) {
-			System.err.println("\tUNST");
+			Log.debug("\tUNST");
 			int oldsize = path.size();
 			computePseudoUnsatCore(path);
 			learnedConflicts.add(new HashSet<BasicBlock>(path));
 			if (oldsize == path.size()) {
-				System.err.println("nothing could be removed");
+				Log.debug("nothing could be removed");
 				return false;
 			}
 			Set<BasicBlock> inevitableBlocks = findNodeThatMustBePassed(this.transitionRelation
 					.getHasseDiagram().findNode(source));
 			if (inevitableBlocks.containsAll(path)) {
-				System.err.println("FOUND CONFLICT! DONE");
+				Log.debug("FOUND CONFLICT! DONE");
 				markSmallestSubtreeInfeasible(path);
 				throw new HackInfeasibleException();
 			} else {
-				System.err.println("nothing learned. Looking for next path.");
+				Log.debug("nothing learned. Looking for next path.");
 			}
 		} else {
 			throw new RuntimeException("PROVER FAILED");
@@ -644,9 +645,9 @@ public class CdcChecker extends AbstractChecker {
 		
 		
 		LinkedList<BasicBlock> todo = new LinkedList<BasicBlock>(path);
-		System.err.println("computing pseudo unsat core");
+		Log.debug("computing pseudo unsat core");
 		while (!todo.isEmpty()) {
-			System.err.println("\tSize of todo "+todo.size() + " path "+path.size());
+			Log.debug("\tSize of todo "+todo.size() + " path "+path.size());
 			BasicBlock current = todo.pop();
 			path.remove(current);
 			prover.push();
@@ -664,7 +665,7 @@ public class CdcChecker extends AbstractChecker {
 				if (res == ProverResult.Running) {
 					// the coverage algorithm could not make progress within the
 					// given time limit. Falling back to the new algorithms.
-					System.err.println("\tComputing Unsat Core took too long and got killed.");
+					Log.debug("\tComputing Unsat Core took too long and got killed.");
 					prover.stop();
 					res = ProverResult.Unknown;
 				}			
@@ -675,7 +676,7 @@ public class CdcChecker extends AbstractChecker {
 				path.add(current); // then we needed this one
 			}
 		}
-		System.err.println("found core");
+		Log.debug("found core");
 	}
 
 	private Set<BasicBlock> findNodeThatMustBePassed(PartialBlockOrderNode node) {
@@ -728,7 +729,7 @@ public class CdcChecker extends AbstractChecker {
 	 * @return The set of all blocks on that path.
 	 */
 	private Set<BasicBlock> findNextPath(BasicBlock current) {
-		System.err.println("Finding next path");
+		Log.debug("Finding next path");
 		Set<BasicBlock> blocks = this.getSubprogContaining(current);
 
 		prover.push();
@@ -739,7 +740,7 @@ public class CdcChecker extends AbstractChecker {
 
 		prover.addAssertion(transitionRelation.getReachabilityVariables().get(current));
 		// block all learned conflicts
-		System.err.println("Asserting " + this.learnedConflicts.size() + " conflicts");
+		Log.debug("Asserting " + this.learnedConflicts.size() + " conflicts");
 		for (Set<BasicBlock> conflict : this.learnedConflicts) {
 			ProverExpr[] conj = new ProverExpr[conflict.size()];
 			int i = 0;
@@ -748,7 +749,7 @@ public class CdcChecker extends AbstractChecker {
 			}
 			prover.addAssertion(prover.mkNot(prover.mkAnd(conj)));
 		}
-		System.err.println("Checking for path.");
+		Log.debug("Checking for path.");
 		ProverResult res = prover.checkSat(true);
 		if (res == ProverResult.Sat) {
 			HashSet<BasicBlock> necessaryNodes = new HashSet<BasicBlock>();
@@ -756,7 +757,7 @@ public class CdcChecker extends AbstractChecker {
 			Set<BasicBlock> path = this.getPathFromModel(prover, transitionRelation,
 					blocks, necessaryNodes);
 			prover.pop();
-			System.err.println("Found one.");
+			Log.debug("Found one.");
 			return path;
 		} else if (res == ProverResult.Unsat) {
 			prover.pop();
@@ -764,7 +765,7 @@ public class CdcChecker extends AbstractChecker {
 		} else {
 			throw new RuntimeException("PROVER FAILED");
 		}
-		System.err.println("Found NONE.");
+		Log.debug("Found NONE.");
 		return null;
 	}
 
@@ -818,7 +819,7 @@ public class CdcChecker extends AbstractChecker {
 				transitionRelation.getProcedure().getRootNode()));
 		prover.addAssertion(transitionRelation.getReachabilityVariables().get(
 				transitionRelation.getProcedure().getExitNode()));
-		// System.err.println("Entries "+count);
+		// Log.debug("Entries "+count);
 	}
 
 	
@@ -830,7 +831,7 @@ public class CdcChecker extends AbstractChecker {
 	 * @param ineffFlags The flags for the solver.
 	 * @return True, if b is reachable in tr. Otherwise False.
 	 */
-	private boolean forwardReachable(BasicBlock b, Atva15TransitionRelation tr,
+	private boolean forwardReachable(BasicBlock b, TransitionRelation tr,
 			LinkedHashMap<ProverExpr, ProverExpr> ineffFlags) {
 		
 		if (tr.getProcedure().getRootNode()==b) return true;

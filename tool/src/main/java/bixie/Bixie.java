@@ -89,8 +89,10 @@ public class Bixie {
 				new FileOutputStream(bixie.Options.v().getOutputFile()),
 				"UTF-8"));) {
 			String str = reportPrinter.printSummary();
-			out.println(str);
-			bixie.util.Log.info(str);
+			if (str!=null && !str.isEmpty()) {
+				out.println(str);
+				bixie.util.Log.info(str);	
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			bixie.util.Log.error(e.toString());
