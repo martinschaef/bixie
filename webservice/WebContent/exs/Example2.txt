@@ -1,8 +1,0 @@
-class Example2 {
-
-    public Boolean generate(int id)
-    {
-        return id % 1 == 0;
-    }
-
-}

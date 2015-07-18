@@ -6,3 +6,4 @@
 .metadata/
 bin/
 build/
+**/*.log
