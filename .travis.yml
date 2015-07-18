@@ -13,9 +13,9 @@ addons:
       name: "martinschaef/bixie"
       description: "Inconsistent Code Detection"
     notification_email: martinschaef@gmail.com
-    build_command_prepend: "./tool/gradlew clean"
-    build_command:   "./tool/gradlew clean assemble"
+    build_command_prepend: "./gradlew clean"
+    build_command:   "./gradlew clean assemble"
     branch_pattern: master
 
 after_success:
-   - ./tool/gradlew jacocoTestReport coveralls
+   - ./gradlew jacocoTestReport coveralls
