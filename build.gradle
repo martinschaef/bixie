@@ -22,7 +22,7 @@ task wrapper(type: Wrapper) {
 sourceCompatibility = 1.7
 def version = '1.0'
 jar.archiveName = "bixie.jar"
-def mainClassName = "bixie.Bixie"
+mainClassName = "bixie.Bixie"
 
 repositories {
   mavenCentral()
