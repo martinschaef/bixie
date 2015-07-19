@@ -102,8 +102,12 @@ public class Bixie {
 	@Loggable
 	public void translateAndRun(String input, String classpath, String output) {
 		ReportPrinter reportPrinter = translateAndRun(input, classpath);
-		bixie.Options.v().setOutputFile(output);
-		report2File(reportPrinter);
+		if (reportPrinter!=null) {
+			bixie.Options.v().setOutputFile(output);
+			report2File(reportPrinter);
+		} else {
+			Log.error("Could not generate report.");
+		}
 	}
 
 	@Loggable

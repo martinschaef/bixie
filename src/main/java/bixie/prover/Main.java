@@ -7,11 +7,11 @@ import bixie.prover.princess.PrincessProverFactory;
 
 public class Main {
 
-	@SuppressWarnings("unused")
+
 	public static void main(String[] args) {
 		final ProverFactory factory = new PrincessProverFactory();
 		final Prover p = factory.spawn();
-		p.getBooleanType();
+		
 /*
 		final ProverExpr c = p.mkVariable("c", p.getIntType());
 		final ProverExpr d = p.mkVariable("d", p.getIntType());

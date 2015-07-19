@@ -366,7 +366,7 @@ public class AbstractTransitionRelation {
 		final Prover p = this.prover;
 		final ProverFun po = this.partialOrderOperator;
 
-		for (CfgVariable var : usedPOVariables) {
+		for (CfgVariable var : new LinkedList<CfgVariable>(usedPOVariables)) {
 			if (var.isConstant() && var.isGlobal()) {
 				// transitively compute all parents
 				final LinkedHashSet<CfgVariable> todo = new LinkedHashSet<CfgVariable>();
@@ -383,7 +383,7 @@ public class AbstractTransitionRelation {
 				}
 
 				// add constraints
-				for (CfgVariable var2 : usedPOVariables) {
+				for (CfgVariable var2 : new LinkedList<CfgVariable>(usedPOVariables)) {
 					final ProverExpr pred = po
 							.mkExpr(new ProverExpr[] { createProverVar(var, 0),
 									createProverVar(var2, 0) });
@@ -396,7 +396,7 @@ public class AbstractTransitionRelation {
 					}
 				}
 			} else {
-				throw new RuntimeException ("WTF");
+				throw new RuntimeException ("unexpected.");
 			}
 		}
 	}
