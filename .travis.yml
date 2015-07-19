@@ -1,21 +1,11 @@
 language: java
+sudo: false
 
 env:
   global:
    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
    #   via the "travis encrypt" command using the project repo's public key
-   - secure: "ZbrC6tJAuP89dUyxaqrIwKAdjIST8YPYNFfVUzx7s8IJzv17v8l23YI+pIfTK1+EkSREG47loYUDKRbPt6bqS6dX0u3RJtidV0vPuHUSK1zCLSVA9UAYcPRJUGrtnaHG3yW5jdwtgHsjl949QPLA/ez4L4tZOVeiW7xyUJF251M="
    - TERM=dumb
-
-addons:
-  coverity_scan:
-    project:
-      name: "martinschaef/bixie"
-      description: "Inconsistent Code Detection"
-    notification_email: martinschaef@gmail.com
-    build_command_prepend: "./gradlew clean"
-    build_command:   "./gradlew clean assemble"
-    branch_pattern: master
 
 after_success:
    - ./gradlew jacocoTestReport coveralls

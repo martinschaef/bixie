@@ -168,7 +168,7 @@ public class Main {
                     final ProverExpr zero = p.mkLiteral(0);
                     final ProverExpr one = p.mkLiteral(1);
                     final ProverExpr two = p.mkLiteral(2);
-                    ProverExpr[] toIgnore = new ProverExpr[] {a1,b1};
+                    //ProverExpr[] toIgnore = new ProverExpr[] {a1,b1};
                     		
                     		
                 	//ProverExpr hypo = p.mkEq(ap,bp);

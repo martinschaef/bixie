@@ -30,25 +30,24 @@ repositories {
 
 
 configurations{
-    common
+  common
+  
   ajc
   aspects
   ajInpath
 }
 
 dependencies {
-    compile fileTree(dir: 'lib', include: '*.jar')
-    compile 'org.aspectj:aspectjrt:1.8.5'
-
     compile 'args4j:args4j:2.32'    
     compile 'log4j:log4j:1.2.17'
     compile 'com.google.code.findbugs:annotations:3.0.0'
     compile 'org.scala-lang:scala-actors:2.11.7'
     compile 'org.scala-lang:scala-library:2.11.7'
 
-    
+    compile fileTree(dir: 'lib', include: '*.jar')    
     testCompile "junit:junit:4.11"  // Or whatever version
-    
+
+    compile 'org.aspectj:aspectjrt:1.8.5'    
     ajc 'org.aspectj:aspectjtools:1.8.5'
 }
 
@@ -64,8 +63,9 @@ sourceSets {
 
 }
 
-compileJava.deleteAllActions()
-compileJava << {
+//compileJava.deleteAllActions()
+//compileJava << {
+task compileAspectJ << {
   ant.taskdef(
     resource: 'org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties',
     classpath: configurations.ajc.asPath)
@@ -165,6 +165,35 @@ task selfCheck {
         commandLine 'java', '-jar', bixieJar, '-j', bixieDir, '-cp', bixieClassPath, '-o', bixieReportDir
     }
 
+  }
+}
+
+task coverityCheck {
+  group 'Verification'
+  description 'Send the build to coverity for analysis'
+
+  doLast {
+    println("REQUIRES cov-build TO BE IN YOUR PATH.")
+    println("Running coverity")
+    exec {
+      workingDir '.'
+      commandLine 'cov-build', '--dir', 'cov-int', 'gradle', 'clean', 'compileJava'
+    }
+    println("Packing the results")
+    exec {
+      workingDir '.'
+      commandLine 'tar', 'czvf', 'cov-report.tgz', 'cov-int'
+    }
+    println("Uploading to coverity")
+    exec {
+      workingDir '.'
+      commandLine 'curl', '--form', 'token=HjXY85BAQIZStbt3Lphk5g', '--form' , 'email=martinschaef@gmail.com', '--form', 'file=@cov-report.tgz', '--form', 'version="${version}"', 'https://scan.coverity.com/builds?project=martinschaef%2Fbixie'
+    }
+    exec {
+      workingDir '.'
+      commandLine 'rm', 'cov-report.tgz'
+    }    
+    println("Done")
   }
 }
 
