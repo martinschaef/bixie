@@ -440,7 +440,7 @@ public class PrincessProver implements Prover {
 			args.$plus$eq(indexes.toSet());
 		}
 
-		final Seq<IFormula> ints = api.getInterpolants(args.toSeq());
+		final Seq<IFormula> ints = api.getInterpolants(args.toSeq(),1000000);
 
 		final ProverExpr[] res = new ProverExpr[partitionSeq.length - 1];
 		for (int i = 0; i < partitionSeq.length - 1; ++i)
