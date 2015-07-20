@@ -629,6 +629,8 @@ public class AbstractTransitionRelation {
 			return this.prover.mkTMod(left, right);
 		} else if (exp.getOperator() == boogie.enums.BinaryOperator.ARITHMUL) {
 			// TODO: does that work or should we abstract it somewhere else?
+			// NO, IT DOESN'T WORK. AT LEAST INTERPOLATION CHOKES. ABSTRACT
+			// IN Jar2Bpl
 			return this.prover.mkMult(left, right);
 		} else if (exp.getOperator() == boogie.enums.BinaryOperator.ARITHPLUS) {
 			return this.prover.mkPlus(left, right);

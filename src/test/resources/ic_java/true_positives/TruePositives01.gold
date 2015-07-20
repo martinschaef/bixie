@@ -4,15 +4,16 @@ In File: TruePositives01.java
 	Lines: 30, 32
 	Lines: 37, 40
 	Lines: 45, 46
+	Lines: 51, 53, 55
 	Lines: 73
 	Lines: 82, 89
 	Lines: 108, 115
  * Strange * 
+	Lines: 51, 53, 54
 	Lines: 58, 59
  - Unreachable -
-	Lines: 51, 53
 	Lines: 66, 67
 	Lines: 93, 94
 	Lines: 93, 94, 98
-Summary: fwd=7	bwd=1	unr=4
+Summary: fwd=8	bwd=2	unr=3
 

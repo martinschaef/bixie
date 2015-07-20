@@ -63,6 +63,11 @@ public class Options {
 	public int getTimeout() {
 		return this.timeout;
 	}
+
+	public void setTimeout(int timeout) {
+		this.timeout = timeout;
+	}
+
 	
 	@Option(name = "-debug", usage = "Print Debug output and files")
 	private boolean debugMode = false;	

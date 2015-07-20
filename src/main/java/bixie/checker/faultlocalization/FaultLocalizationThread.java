@@ -119,6 +119,7 @@ public class FaultLocalizationThread implements Runnable {
 
 		// TODO: check if this contains a noverify tag and ignore it.
 		for (BasicBlock b : component) {
+			System.out.println(b.getLabel());
 			if (containsNamedAttribute(b, ProgramFactory.NoVerifyTag)) {
 				return new HashMap<CfgStatement, SourceLocation>();
 			}
@@ -180,7 +181,7 @@ public class FaultLocalizationThread implements Runnable {
 		ProverResult res = prover.checkSat(true);
 		if (res != ProverResult.Unsat) {
 			throw new RuntimeException("Fault Localization failed! "
-					+ res.toString());
+					+ res.toString() + " in proc "+tr.getProcedureName());
 		}
 		int[][] ordering = new int[partition][1];
 		for (int i = 0; i < partition; i++) {
@@ -189,15 +190,6 @@ public class FaultLocalizationThread implements Runnable {
 
 		// System.err.println("compute interpolants");
 		ProverExpr[] interpolants = prover.interpolate(ordering);
-
-		// debug code		
-		// System.err.println("#interpolants: "+ interpolants.length +
-		// " / #assertions: ======================");
-		// for (int i=0; i<interpolants.length; i++) {
-		// System.err.println("Assertion "+i+":"+sliceTr.pe2StmtMap.get(sliceTr.obligations.get(i)));
-		// System.err.println("Obligation "+i+":"+sliceTr.obligations.get(i));
-		// System.err.println("\tInterpolant "+i+":"+interpolants[i]+"\n");
-		// }
 		
 
 		boolean allInfeasibleCloned = true;

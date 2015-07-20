@@ -63,9 +63,9 @@ sourceSets {
 
 }
 
-//compileJava.deleteAllActions()
-//compileJava << {
-task compileAspectJ << {
+compileJava.deleteAllActions()
+compileJava << {
+//task compileAspectJ << {
   ant.taskdef(
     resource: 'org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties',
     classpath: configurations.ajc.asPath)
