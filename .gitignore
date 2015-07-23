@@ -6,4 +6,6 @@
 .metadata/
 bin/
 build/
+cov-int/
 **/*.log
+*.txt

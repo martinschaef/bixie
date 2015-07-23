@@ -33,7 +33,7 @@ public class FaultLocalization01 {
 		}
 		mNumLowerEps += lbound.mEps * coeff.signum();
 	}
-	/*
+	
 	public final void updateUpper(
 			BigInteger coeff, InfinitNumber oldBound, InfinitNumber newBound) {
 		if (oldBound.isInfinity()) {
@@ -65,13 +65,13 @@ public class FaultLocalization01 {
 					epsilons.signum() * mHeadEntry.mCoeff.signum());
 		}
 	}	
-	*/
+	
 	
 	/* Ignore the stuff below.
 	 * Only stub variables and method needed for the tested procedures above.
 	 */
 	
-	private int mNumUpperInf, mNumUpperEps, mNumLowerInf, mNumLowerEps;
+	public int mNumUpperInf, mNumUpperEps, mNumLowerInf, mNumLowerEps;
 	private boolean mBasic;
 	private MutableRational mLowerComposite, mUpperComposite;
 	private InfinitNumber mCurval;

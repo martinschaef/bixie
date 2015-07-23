@@ -21,13 +21,6 @@ public abstract class AbstractLoopUnwinding {
 
 	public static void unwindeLoops(CfgProcedure proc) {
 		AbstractLoopUnwinding unwinder = null;
-//		if (Options.v().getLoopMode() == 0 && Options.v().getUnwindings()==-1) {
-//			unwinder = new HavocOnlyUnwinding(proc);			
-//		} else if (Options.v().getLoopMode() == 1 && Options.v().getUnwindings()==-1) {
-//			unwinder = new FmsdUnwinding(proc);
-//		} else {
-//			unwinder = new SimpleUnwinding(proc, Options.v().getUnwindings());
-//		}
 		unwinder = new FmsdUnwinding(proc);
 		unwinder.unwind();
 	}
