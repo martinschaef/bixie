@@ -3,11 +3,6 @@
  */
 package bixie.checker.inconsistency_checker;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -178,6 +173,7 @@ public abstract class AbstractChecker implements Runnable {
 		return res;
 	}
 	
+	/*
 	protected void toDot(String filename, Collection<BasicBlock> allBlocks,
 			Collection<BasicBlock> blueBlocks, Collection<BasicBlock> redBlocks) {
 		try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(
@@ -232,5 +228,6 @@ public abstract class AbstractChecker implements Runnable {
 			e.printStackTrace();
 		}
 	}
+	*/
 
 }

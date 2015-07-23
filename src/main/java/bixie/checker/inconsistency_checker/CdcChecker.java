@@ -3,10 +3,6 @@
  */
 package bixie.checker.inconsistency_checker;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,7 +25,6 @@ import boogie.controlflow.AbstractControlFlowFactory;
 import boogie.controlflow.BasicBlock;
 import boogie.controlflow.CfgAxiom;
 import boogie.controlflow.CfgProcedure;
-import boogie.controlflow.util.HasseDiagram;
 import boogie.controlflow.util.PartialBlockOrderNode;
 
 /**
@@ -361,12 +356,12 @@ public class CdcChecker extends AbstractChecker {
 		}
 
 		// Screwed
-		toDot("path_error.dot", new HashSet<BasicBlock>(allBlocks),
-				new HashSet<BasicBlock>(enabledBlocks),
-				new HashSet<BasicBlock>(necessaryNodes));
+//		toDot("path_error.dot", new HashSet<BasicBlock>(allBlocks),
+//				new HashSet<BasicBlock>(enabledBlocks),
+//				new HashSet<BasicBlock>(necessaryNodes));
 		throw new RuntimeException("Could not find a path");
 	}
-
+/*
 	private void makeColors(PartialBlockOrderNode node, int startColor,
 			int endColor, HashMap<PartialBlockOrderNode, Integer> node2color) {
 
@@ -493,7 +488,7 @@ public class CdcChecker extends AbstractChecker {
 			e.printStackTrace();
 		}
 	}
-
+*/
 	/*
 	 * ---------------------------- Plan B --------------------------------
 	 */

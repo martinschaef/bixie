@@ -3,7 +3,7 @@
  */
 package bixie.ic_test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +11,6 @@ import java.io.IOException;
 import org.junit.Test;
 
 import bixie.Bixie;
-import bixie.checker.reportprinter.ReportPrinter;
 
 /**
  * @author schaef
@@ -21,11 +20,14 @@ public class MainClassTest extends AbstractIcTest {
 
 	@Test
 	public void test() {
-		final File source_file = new File(testRoot + "ic_java/false_positives/FalsePositives01.java");
+		final File source_file = new File(testRoot + "ic_java/true_positives/TruePositives02.java");
 		File classFileDir = null;
 		try {
 			classFileDir = compileJavaFile(source_file);
-			Bixie.main(new String[]{"-j", classFileDir.getAbsolutePath()});
+			Bixie.main(new String[]{
+					"-j", classFileDir.getAbsolutePath(),
+					"-logProver", "test"
+					});
 		} catch (IOException e) {		
 			e.printStackTrace();
 			fail("Not yet implemented");

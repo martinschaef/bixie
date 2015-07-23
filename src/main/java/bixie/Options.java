@@ -81,6 +81,9 @@ public class Options {
 	public String getProverLogPrefix() {
 		return this.proverLogPrefix;
 	}
+	public void setProverLogPrefix(String prefix) {
+		this.proverLogPrefix = prefix;
+	}
 
 	
 	@Option(name = "-checker", usage = "Checker to be used during analysis. Ask the waiter for daily menu.")
