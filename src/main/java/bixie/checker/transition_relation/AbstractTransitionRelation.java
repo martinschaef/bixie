@@ -35,8 +35,6 @@ import boogie.controlflow.CfgVariable;
 import boogie.controlflow.expression.CfgArrayAccessExpression;
 import boogie.controlflow.expression.CfgArrayStoreExpression;
 import boogie.controlflow.expression.CfgBinaryExpression;
-import boogie.controlflow.expression.CfgBitVectorAccessExpression;
-import boogie.controlflow.expression.CfgBitvecLiteral;
 import boogie.controlflow.expression.CfgBooleanLiteral;
 import boogie.controlflow.expression.CfgExpression;
 import boogie.controlflow.expression.CfgFunctionApplication;
@@ -44,14 +42,10 @@ import boogie.controlflow.expression.CfgIdentifierExpression;
 import boogie.controlflow.expression.CfgIfThenElseExpression;
 import boogie.controlflow.expression.CfgIntegerLiteral;
 import boogie.controlflow.expression.CfgQuantifierExpression;
-import boogie.controlflow.expression.CfgRealLiteral;
-import boogie.controlflow.expression.CfgStringLiteral;
 import boogie.controlflow.expression.CfgUnaryExpression;
-import boogie.controlflow.expression.CfgWildcardExpression;
 import boogie.controlflow.statement.CfgAssertStatement;
 import boogie.controlflow.statement.CfgAssignStatement;
 import boogie.controlflow.statement.CfgAssumeStatement;
-import boogie.controlflow.statement.CfgCallStatement;
 import boogie.controlflow.statement.CfgHavocStatement;
 import boogie.controlflow.statement.CfgStatement;
 import boogie.controlflow.util.HasseDiagram;
@@ -97,10 +91,6 @@ public class AbstractTransitionRelation {
 		this.procedure = cfg;
 		this.hasse = new HasseDiagram(cfg);
 		this.procedureName = cfg.getProcedureName();		
-	}
-
-	public Prover getProver() {
-		return this.prover;
 	}
 	
 	public AbstractControlFlowFactory getControlFlowFactory() {
@@ -199,27 +189,7 @@ public class AbstractTransitionRelation {
 	}
 
 
-	/**
-	 * returns the CfgVariable that is represented by v, or null if v is not a
-	 * variable
-	 * 
-	 * @param v
-	 * @return
-	 */
-	public CfgVariable lookupVariable(ProverExpr v) {
-		return this.invertProverVariables.get(v);
-	}
 
-	/**
-	 * returns the incarnation of the CfgVariable that is represented by v, or
-	 * null if v is not a variable
-	 * 
-	 * @param v
-	 * @return
-	 */
-	public Integer lookupVariableIncarnation(ProverExpr v) {
-		return this.invertIncarnationMap.get(v);
-	}
 
 	protected void makePrelude() {
 		ProverType[] argTypes = { this.prover.getIntType(),
@@ -445,17 +415,13 @@ public class AbstractTransitionRelation {
 		} else if (s instanceof CfgAssumeStatement) {
 			CfgAssumeStatement assme = (CfgAssumeStatement) s;
 			return expression2proverExpression(assme.getCondition());
-		} else if (s instanceof CfgCallStatement) {
-			// CfgCallStatement call = (CfgCallStatement)s;
-			throw new RuntimeException(
-					"Call statements must be removed before SSA: "
-							+ s.toString());
 		} else if (s instanceof CfgHavocStatement) {
 			// s Log.error("BUG: no havoc should be in the passive program!");
 			// Havoc is a no-op after SSA, so no need to keep it
 			// in the transition relation
 			return prover.mkLiteral(true);
 		} else {
+			//E.g. s instanceof CfgCallStatement
 			throw new RuntimeException("Unknown statement type: "
 					+ s.getClass().toString());
 		}
@@ -533,14 +499,6 @@ public class AbstractTransitionRelation {
 		} else if (e instanceof CfgBinaryExpression) {
 			CfgBinaryExpression exp = (CfgBinaryExpression) e;
 			return binopExpression2proverExpression(exp, boundVariables);
-		} else if (e instanceof CfgBitvecLiteral) {
-			CfgBitvecLiteral exp = (CfgBitvecLiteral) e;
-			throw new RuntimeException(
-					"Bitvectors are not supported right now " + exp.toString());
-		} else if (e instanceof CfgBitVectorAccessExpression) {
-			CfgBitVectorAccessExpression exp = (CfgBitVectorAccessExpression) e;
-			throw new RuntimeException(
-					"Bitvectors are not supported right now " + exp.toString());
 		} else if (e instanceof CfgBooleanLiteral) {
 			CfgBooleanLiteral exp = (CfgBooleanLiteral) e;
 			return this.prover.mkLiteral(exp.getValue());
@@ -575,15 +533,6 @@ public class AbstractTransitionRelation {
 			} else {
 				return this.prover.mkEx(body, type);
 			}
-		} else if (e instanceof CfgRealLiteral) {
-			CfgRealLiteral exp = (CfgRealLiteral) e;
-			throw new RuntimeException("Reals are not supported right now "
-					+ exp.toString());
-		} else if (e instanceof CfgStringLiteral) {
-			CfgStringLiteral exp = (CfgStringLiteral) e;
-			throw new RuntimeException(
-					"String Literals are not supported right now "
-							+ exp.toString());
 		} else if (e instanceof CfgUnaryExpression) {
 			CfgUnaryExpression exp = (CfgUnaryExpression) e;
 			if (exp.getOperator() == boogie.enums.UnaryOperator.ARITHNEGATIVE) {
@@ -593,19 +542,9 @@ public class AbstractTransitionRelation {
 			} else if (exp.getOperator() == boogie.enums.UnaryOperator.LOGICNEG) {
 				return this.prover.mkNot(expression2proverExpression(
 						exp.getExpression(), boundVariables));
-			} else if (exp.getOperator() == boogie.enums.UnaryOperator.OLD) {				
-				insideOldExpression = true;				
-				ProverExpr res =  expression2proverExpression(exp.getExpression(), boundVariables);
-				insideOldExpression = false;
-				return res;
 			} else {
-				throw new RuntimeException("Unknown Unary Operator");
+				throw new RuntimeException("Unknown Unary Operator "+e);
 			}
-		} else if (e instanceof CfgWildcardExpression) {
-			CfgWildcardExpression exp = (CfgWildcardExpression) e;
-			throw new RuntimeException(
-					"WildcardExpressions are not supported right now "
-							+ exp.toString());
 		} else {
 			throw new RuntimeException("Unknown CfgExpression type "
 					+ e.getClass().toString());
@@ -621,21 +560,18 @@ public class AbstractTransitionRelation {
 				boundVariables);
 		ProverExpr right = expression2proverExpression(exp.getRightOp(),
 				boundVariables);
-		if (exp.getOperator() == boogie.enums.BinaryOperator.ARITHDIV) {
-			return this.prover.mkTDiv(left, right);
-		} else if (exp.getOperator() == boogie.enums.BinaryOperator.ARITHMINUS) {
+//		if (exp.getOperator() == boogie.enums.BinaryOperator.ARITHDIV) {
+//			return this.prover.mkTDiv(left, right);
+		if (exp.getOperator() == boogie.enums.BinaryOperator.ARITHMINUS) {
 			return this.prover.mkMinus(left, right);
-		} else if (exp.getOperator() == boogie.enums.BinaryOperator.ARITHMOD) {
-			return this.prover.mkTMod(left, right);
+//		} else if (exp.getOperator() == boogie.enums.BinaryOperator.ARITHMOD) {
+//			return this.prover.mkTMod(left, right);
 		} else if (exp.getOperator() == boogie.enums.BinaryOperator.ARITHMUL) {
-			// TODO: does that work or should we abstract it somewhere else?
-			// NO, IT DOESN'T WORK. AT LEAST INTERPOLATION CHOKES. ABSTRACT
-			// IN Jar2Bpl
 			return this.prover.mkMult(left, right);
 		} else if (exp.getOperator() == boogie.enums.BinaryOperator.ARITHPLUS) {
 			return this.prover.mkPlus(left, right);
-		} else if (exp.getOperator() == boogie.enums.BinaryOperator.BITVECCONCAT) {
-			throw new RuntimeException("BITVECCONCAT not imeplemented");
+//		} else if (exp.getOperator() == boogie.enums.BinaryOperator.BITVECCONCAT) {
+//			throw new RuntimeException("BITVECCONCAT not imeplemented");
 		} else if (exp.getOperator() == boogie.enums.BinaryOperator.COMPEQ) {
 			return this.prover.mkEq(left, right);
 		} else if (exp.getOperator() == boogie.enums.BinaryOperator.COMPGEQ) {
@@ -650,8 +586,7 @@ public class AbstractTransitionRelation {
 			return this.prover.mkNot(this.prover.mkEq(left, right));
 		} else if (exp.getOperator() == boogie.enums.BinaryOperator.COMPPO) {
 			ProverExpr[] args = { left, right };
-			ProverExpr pe = this.partialOrderOperator.mkExpr(args);
-			
+			ProverExpr pe = this.partialOrderOperator.mkExpr(args);			
 			return pe;
 		} else if (exp.getOperator() == boogie.enums.BinaryOperator.LOGICAND) {
 			return this.prover.mkAnd(left, right);

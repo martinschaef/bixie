@@ -21,7 +21,6 @@ import boogie.controlflow.expression.CfgIdentifierExpression;
 import boogie.controlflow.statement.CfgAssertStatement;
 import boogie.controlflow.statement.CfgAssignStatement;
 import boogie.controlflow.statement.CfgAssumeStatement;
-import boogie.controlflow.statement.CfgCallStatement;
 import boogie.controlflow.statement.CfgHavocStatement;
 import boogie.controlflow.statement.CfgStatement;
 
@@ -280,17 +279,13 @@ public class TransitionRelation extends AbstractTransitionRelation {
 		} else if (s instanceof CfgAssumeStatement) {
 			CfgAssumeStatement assme = (CfgAssumeStatement) s;
 			return expression2proverExpression(assme.getCondition());
-		} else if (s instanceof CfgCallStatement) {
-			// CfgCallStatement call = (CfgCallStatement)s;
-			throw new RuntimeException(
-					"Call statements must be removed before SSA: "
-							+ s.toString());
 		} else if (s instanceof CfgHavocStatement) {
 			// s Log.error("BUG: no havoc should be in the passive program!");
 			// Havoc is a no-op after SSA, so no need to keep it
 			// in the transition relation
 			return prover.mkLiteral(true);
 		} else {
+			//eg CfgCallStatement
 			throw new RuntimeException("Unknown statement type: "
 					+ s.getClass().toString());
 		}
