@@ -14,6 +14,7 @@ apply plugin: 'jacoco'
 apply plugin: 'com.github.kt3k.coveralls'
 apply plugin: 'application'
 apply plugin: 'findbugs'
+apply plugin: 'jdepend'
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.3'
@@ -201,6 +202,11 @@ task runExperiments {
   description 'Run all experiments for Bixie.'
 
   doLast {
+    println("Rebuild Jar with Aspects.")
+    exec {
+      workingDir '.'
+      commandLine './gradlew', 'gradle', '-PdebugMode', 'clean', 'jar'
+    }  
     println("Running the experiments.")
     println("\tcopy the bixie jar into the experiments folder")  
     copy {

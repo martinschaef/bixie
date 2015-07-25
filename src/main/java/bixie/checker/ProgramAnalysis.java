@@ -14,6 +14,7 @@ import bixie.checker.inconsistency_checker.GreedyCfgChecker;
 import bixie.checker.report.Report;
 import bixie.checker.reportprinter.ReportPrinter;
 import bixie.util.Log;
+import bixie.util.aspects.Loggable;
 import boogie.ProgramFactory;
 import boogie.controlflow.AbstractControlFlowFactory;
 import boogie.controlflow.CfgProcedure;
@@ -90,11 +91,12 @@ public class ProgramAnalysis {
 		return checker;
 	}
 
+	@Loggable
 	private static Report analyzeProcedure(CfgProcedure p,
 			AbstractControlFlowFactory cff) {
 		if (bixie.Options.v().getDebugMode()) {
 			Log.info("Checking: " + p.getProcedureName());
-		}
+		}		
 		// create an executor to kill the verification with a timeout if
 		// necessary
 		ExecutorService executor = Executors.newSingleThreadExecutor();
