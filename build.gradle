@@ -28,13 +28,29 @@ repositories {
   mavenCentral()
 }
 
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://maven.eveoh.nl/content/repositories/releases"            
+        }        
+    }
+
+    dependencies {
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.1'
+        classpath "nl.eveoh:gradle-aspectj:1.5"
+    }
+}
+project.ext {
+    aspectjVersion = '1.8.4'
+}
+
+if (project.hasProperty('debugMode')) {
+  apply plugin: 'aspectj'
+}
 
 configurations{
   common
-  
-  ajc
-  aspects
-  ajInpath
 }
 
 dependencies {
@@ -46,46 +62,6 @@ dependencies {
 
     compile fileTree(dir: 'lib', include: '*.jar')    
     testCompile "junit:junit:4.11"  // Or whatever version
-
-    compile 'org.aspectj:aspectjrt:1.8.5'    
-    ajc 'org.aspectj:aspectjtools:1.8.5'
-}
-
-// compile with aspects ----------------
-// taken from https://github.com/ultraq/gradle-support/blob/master/aspectj.gradle
-
-sourceSets {
-  main {
-    java {
-      exclude '**/*.aj'
-    }
-  }
-
-}
-
-compileJava.deleteAllActions()
-compileJava << {
-//task compileAspectJ << {
-  ant.taskdef(
-    resource: 'org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties',
-    classpath: configurations.ajc.asPath)
-  ant.iajc(
-    source: sourceCompatibility,
-    target: targetCompatibility,
-    destDir: sourceSets.main.output.classesDir.absolutePath,
-    fork: 'true',
-    X: 'noInline',
-    aspectPath: configurations.aspects.asPath,
-    inpath: configurations.ajInpath.asPath,
-    sourceRootCopyFilter: '**/*.java,**/*.aj',
-    classpath: configurations.compile.asPath) {
-
-    sourceroots {
-      sourceSets.main.java.srcDirs.each { dir ->
-        pathelement(location: dir.absolutePath)
-      }
-    }
-  }
 }
 
 
@@ -117,15 +93,7 @@ tasks.withType(FindBugs) {
     }
  }
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
 
-    dependencies {
-        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.1'
-    }
-}
 
 jacocoTestReport {
     reports {

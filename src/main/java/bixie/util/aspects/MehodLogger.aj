@@ -12,10 +12,12 @@ import util.Log;
 public aspect MehodLogger {
 
 	Object around() : execution(* *(..)) && @annotation(Loggable) {
-		long startTime = System.currentTimeMillis();
+		long startTime = System.currentTimeMillis();		
 		Object result = proceed();
 		long elapsed = System.currentTimeMillis() - startTime;
-		Log.info("Total time: " + ((float) elapsed) / 1000f + "s");
+		String name = thisEnclosingJoinPointStaticPart.getSignature().getName();
+		Log.info(name+" took: " + ((float) elapsed) / 1000f + "s");
+		
 		return result;
 	}
 }
