@@ -10,6 +10,7 @@ import typechecker.TypeChecker;
 import bixie.Options;
 import bixie.checker.inconsistency_checker.AbstractChecker;
 import bixie.checker.inconsistency_checker.CdcChecker;
+import bixie.checker.inconsistency_checker.CombinedChecker;
 import bixie.checker.inconsistency_checker.GreedyCfgChecker;
 import bixie.checker.report.Report;
 import bixie.checker.reportprinter.ReportPrinter;
@@ -75,7 +76,6 @@ public class ProgramAnalysis {
 
 		switch (Options.v().getSelectedChecker()) {
 		case 1: {
-//			checker = new CdcChecker(cff, p);
 			checker = new GreedyCfgChecker(cff, p);
 			break;
 		}
@@ -84,7 +84,7 @@ public class ProgramAnalysis {
 			break;
 		}
 		default: {
-			checker = new GreedyCfgChecker(cff, p);
+			checker = new CombinedChecker(cff, p);
 			break;
 		}
 		}
@@ -102,7 +102,7 @@ public class ProgramAnalysis {
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 
 		AbstractChecker checkerThread = getChecker(cff, p);
-
+		
 		final Future<?> future = executor.submit(checkerThread);
 
 		boolean exception = false;

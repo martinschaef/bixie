@@ -73,16 +73,13 @@ public class BasicReportPrinter implements ReportPrinter {
 			//TODO: don't hard code the keys.
 			sb.append("In File: " + fname+"\n");
 			cirtical+= printReportForFileBySeverity(sb, fname, 0, "** Critical **");
-			errorhandling += printReportForFileBySeverity(sb, fname, 1, " * Strange * ");
-			unreachable += printReportForFileBySeverity(sb, fname, 2, " - Unreachable -");
+			unreachable += printReportForFileBySeverity(sb, fname, 1, " - Unreachable -");
 		}
 		
 		
 		sb.append("Summary: fwd=");
 		sb.append(cirtical);
 		sb.append("\tbwd=");
-		sb.append(errorhandling);
-		sb.append("\tunr=");
 		sb.append(unreachable);
 		sb.append("\n");
 		

@@ -4,12 +4,11 @@
 package bixie.checker.inconsistency_checker;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.LinkedHashSet;
 
 import org.joogie.cfgPlugin.Util.Dag;
 
@@ -28,36 +27,33 @@ import boogie.controlflow.CfgProcedure;
 import boogie.controlflow.util.PartialBlockOrderNode;
 
 /**
- * @author schaef
- * Inconsistent code detection algorithm that uses an abstract graph
- * to find paths with a sat solver, and then an smt solver to check 
- * if the transition relation of the path is feasible. If not, it learns
- * a conflict that can prune paths in the abstract graph.
+ * @author schaef Inconsistent code detection algorithm that uses an abstract
+ *         graph to find paths with a sat solver, and then an smt solver to
+ *         check if the transition relation of the path is feasible. If not, it
+ *         learns a conflict that can prune paths in the abstract graph.
  * 
- * While this approach is less efficient on small procedures compared to the 
- * GreedyCfgChecker, it is orders of magnitude more efficient on large 
- * procedures.
+ *         While this approach is less efficient on small procedures compared to
+ *         the GreedyCfgChecker, it is orders of magnitude more efficient on
+ *         large procedures.
  * 
- * This algorithm is described in the paper:
- * - Conflict-Directed Graph Coverage (NFM'15)
+ *         This algorithm is described in the paper: - Conflict-Directed Graph
+ *         Coverage (NFM'15)
  */
 public class CdcChecker extends AbstractChecker {
 
 	TransitionRelation transitionRelation;
-	HashSet<PartialBlockOrderNode> knownInfeasibleNodes = new HashSet<PartialBlockOrderNode>();
+	LinkedHashSet<PartialBlockOrderNode> knownInfeasibleNodes = new LinkedHashSet<PartialBlockOrderNode>();
 	// TODO: keep track of everything that has been proved infeasible
 	// to make sure that we don't do the same work twice.
-	Set<Set<BasicBlock>> infeasibleSubprograms = new HashSet<Set<BasicBlock>>();
-	Set<Set<BasicBlock>> learnedConflicts = new HashSet<Set<BasicBlock>>();
+	Set<Set<BasicBlock>> infeasibleSubprograms = new LinkedHashSet<Set<BasicBlock>>();
+	Set<Set<BasicBlock>> learnedConflicts = new LinkedHashSet<Set<BasicBlock>>();
 
-	
 	/**
 	 * @param cff
 	 * @param p
 	 */
 	public CdcChecker(AbstractControlFlowFactory cff, CfgProcedure p) {
 		super(cff, p);
-
 	}
 
 	/*
@@ -70,17 +66,23 @@ public class CdcChecker extends AbstractChecker {
 	 */
 	@Override
 	public Report runAnalysis(Prover prover) {
-		TransitionRelation tr = new TransitionRelation(this.procedure, cff, prover);
-		return runAnalysisFromIntermediateResult(prover, tr, new HashSet<BasicBlock>());
+		TransitionRelation tr = new TransitionRelation(this.procedure, cff,
+				prover);
+		return runAnalysisFromIntermediateResult(prover, tr,
+				new LinkedHashSet<BasicBlock>(), new LinkedHashSet<BasicBlock>());
 	}
-	
-	public Report runAnalysisFromIntermediateResult(Prover prover, TransitionRelation tr, Set<BasicBlock> alreadyCovered) {
-		
-		transitionRelation = tr;
-		/* before adding anything, push a frame on the prover stack so that we can clean up
-		 * easily. */
+
+	public Report runAnalysisFromIntermediateResult(Prover prover,
+			TransitionRelation tr, Set<BasicBlock> alreadyCovered,
+			Set<BasicBlock> firstRoundResult) {
+		this.prover = prover;
+		this.transitionRelation = tr;
+		/*
+		 * before adding anything, push a frame on the prover stack so that we
+		 * can clean up easily.
+		 */
 		prover.push();
-		/* add the verification condition to the prover stack */		
+		/* add the verification condition to the prover stack */
 		for (Entry<CfgAxiom, ProverExpr> entry : tr.getPreludeAxioms()
 				.entrySet()) {
 			prover.addAssertion(entry.getValue());
@@ -88,94 +90,82 @@ public class CdcChecker extends AbstractChecker {
 		prover.addAssertion(tr.getRequires());
 		prover.addAssertion(tr.getEnsures());
 
-		Log.debug("Round1 "+this.transitionRelation.getProcedureName());
-		
-		Set<BasicBlock> coveredBlocks = new HashSet<BasicBlock>();
-		
-		/* Cover all feasible path in the procedure while the assertion flag is set. */
-		prover.push();
-		prover.addAssertion(prover.mkNot(this.transitionRelation.assertionFlag));
+		Set<BasicBlock> coveredBlocks = new LinkedHashSet<BasicBlock>();
 
-		coveredBlocks.addAll(computeJodCover(prover, tr, alreadyCovered) );		
-		this.feasibleBlocks = new HashSet<BasicBlock>(coveredBlocks);
-		/* pop the assertion flag. */
-		prover.pop();
-		
-		Log.debug("Round2 "+this.transitionRelation.getProcedureName());
-		
-		
-		//TODO: reset the known infeasible node...?
+		if (firstRoundResult.isEmpty()) {
+			Log.debug("Round1 " + this.transitionRelation.getProcedureName());
+			/*
+			 * Cover all feasible path in the procedure while the assertion flag
+			 * is set.
+			 */
+			prover.push();
+			prover.addAssertion(prover
+					.mkNot(this.transitionRelation.assertionFlag));
+
+			coveredBlocks.addAll(computeJodCover(prover, tr, alreadyCovered));
+			this.feasibleBlocks = new LinkedHashSet<BasicBlock>(coveredBlocks);
+			/* pop the assertion flag. */
+			prover.pop();
+		} else {
+			//not that alreadyCovered may contain more blocks than 
+			//firstRoundResult
+			coveredBlocks = new LinkedHashSet<BasicBlock>(alreadyCovered);
+			this.feasibleBlocks = new LinkedHashSet<BasicBlock>(firstRoundResult);
+		}
+
+		Log.debug("Round2 " + this.transitionRelation.getProcedureName());
+
+		// TODO: reset the known infeasible node...?
 		knownInfeasibleNodes.clear();
 		learnedConflicts.clear();
 		infeasibleSubprograms.clear();
-		
-		/* Now cover all paths that are feasible if the assertion flag is not set. */
-		coveredBlocks.addAll(computeJodCover(prover, tr, coveredBlocks) );
-		
-		/* algorithm is done, pop the verification condition from the prover stack.*/
-		prover.pop();
-		
-		/* 'unreachable' is the set of all blocks minus the set coveredBlocks. */
-		HashSet<BasicBlock> unreachable = new HashSet<BasicBlock>(tr.getReachabilityVariables().keySet());
-		unreachable.removeAll(coveredBlocks);
-		
-		/* All blocks that are covered in the second round - that is, the blocks 
-		 * that are in coveredBlocks but not in feasibleBlocks - are potentially dangerous,
-		 * because their inconsistency contains an assertion.  
-		 */
-		HashSet<BasicBlock> dangerous = new HashSet<BasicBlock>(coveredBlocks);		
-		dangerous.removeAll(this.feasibleBlocks);
-		
-		/*
-		 * TODO: Shall we remove this? Experiments show that bwd_dangerous is
-		 * very rare. Further, its rather expensive to compute and doesn't add
-		 * much value.
-		 */
-		
-		LinkedHashMap<ProverExpr, ProverExpr> ineffFlags = new LinkedHashMap<ProverExpr, ProverExpr>();
 
-		for (BasicBlock block : tr.getEffectualSet()) {
-			ProverExpr v = tr.getReachabilityVariables().get(block);
-			ineffFlags.put(v, prover.mkVariable("" + v + "_flag",
-					prover.getBooleanType()));
-		}		
-		HashMap<BasicBlock, HashSet<BasicBlock>> subGraphs = groupBlocks(dangerous);
-		HashSet<BasicBlock> fwd_dangerous = new HashSet<BasicBlock>();
-		HashSet<BasicBlock> bwd_dangerous = new HashSet<BasicBlock>();		
-		for (Entry<BasicBlock, HashSet<BasicBlock>> entry : subGraphs.entrySet()) {
-			BasicBlock b = entry.getKey();
-			if (forwardReachable(b, tr, ineffFlags)) {				
-				fwd_dangerous.addAll(subGraphs.get(b));
-			} else {
-				bwd_dangerous.addAll(subGraphs.get(b));
-			}
-		}		
+		/*
+		 * Now cover all paths that are feasible if the assertion flag is not
+		 * set.
+		 */
+		coveredBlocks.addAll(computeJodCover(prover, tr, coveredBlocks));
+
+		/*
+		 * algorithm is done, pop the verification condition from the prover
+		 * stack.
+		 */
+		prover.pop();
+
+		/* 'unreachable' is the set of all blocks minus the set coveredBlocks. */
+		LinkedHashSet<BasicBlock> unreachable = new LinkedHashSet<BasicBlock>(tr
+				.getReachabilityVariables().keySet());
+		unreachable.removeAll(coveredBlocks);
+
+		/*
+		 * All blocks that are covered in the second round - that is, the blocks
+		 * that are in coveredBlocks but not in feasibleBlocks - are potentially
+		 * dangerous, because their inconsistency contains an assertion.
+		 */
+		LinkedHashSet<BasicBlock> dangerous = new LinkedHashSet<BasicBlock>(coveredBlocks);
+		dangerous.removeAll(this.feasibleBlocks);
+
+
 
 		Report report = new Report(tr);
-		report.reportInconsistentCode(0, fwd_dangerous);
-		report.reportInconsistentCode(1, bwd_dangerous);
-		report.reportInconsistentCode(2, unreachable);
+		report.reportInconsistentCode(0, dangerous);
+		report.reportInconsistentCode(1, unreachable);
 
 		return report;
 	}
 
-	
-
-	
 	public Collection<BasicBlock> computeJodCover(Prover prover,
 			TransitionRelation tr, Set<BasicBlock> alreadyCovered) {
-		HashSet<BasicBlock> coveredBlocks = new HashSet<BasicBlock>(
+		Set<BasicBlock> coveredBlocks = new LinkedHashSet<BasicBlock>(
 				alreadyCovered);
 
 		PartialBlockOrderNode poRoot = tr.getHasseDiagram().getRoot();
 		coveredBlocks.addAll(findFeasibleBlocks2(prover, tr, poRoot,
-				new HashSet<BasicBlock>(alreadyCovered)));
+				new LinkedHashSet<BasicBlock>(alreadyCovered)));
 
 		return coveredBlocks;
 	}
 
-
-	
 	/**
 	 * Check subprogram
 	 * 
@@ -184,13 +174,13 @@ public class CdcChecker extends AbstractChecker {
 	 * @param node
 	 * @return
 	 */
-	private HashSet<BasicBlock> findFeasibleBlocks2(Prover prover,
+	private Set<BasicBlock> findFeasibleBlocks2(Prover prover,
 			TransitionRelation tr, PartialBlockOrderNode node,
-			Set<BasicBlock> alreadyCovered) {		
+			Set<BasicBlock> alreadyCovered) {
 		if (node.getSuccessors().size() > 0) {
 			boolean allChildrenInfeasible = true;
-			HashSet<BasicBlock> result = new HashSet<BasicBlock>();
-			Log.debug("Step 3 B");
+			Set<BasicBlock> result = new LinkedHashSet<BasicBlock>();
+
 			for (PartialBlockOrderNode child : node.getSuccessors()) {
 				Set<BasicBlock> res = findFeasibleBlocks2(prover, tr, child,
 						alreadyCovered);
@@ -199,14 +189,14 @@ public class CdcChecker extends AbstractChecker {
 					allChildrenInfeasible = false;
 				// check if we have proved this node to be infeasible
 				if (knownInfeasibleNodes.contains(node))
-					return new HashSet<BasicBlock>();
+					return new LinkedHashSet<BasicBlock>();
 			}
 			if (allChildrenInfeasible)
 				knownInfeasibleNodes.add(node);
 			return result;
 		} else {
-			Log.debug("Step 3 A");
-			HashSet<BasicBlock> result = new HashSet<BasicBlock>(alreadyCovered);
+//			Log.debug("Step 3 A");
+			LinkedHashSet<BasicBlock> result = new LinkedHashSet<BasicBlock>(alreadyCovered);
 			if (alreadyCovered.containsAll(node.getElements()))
 				return result;
 			result.addAll(tryToFindConflictInPO(prover, tr, node, 0));
@@ -224,7 +214,7 @@ public class CdcChecker extends AbstractChecker {
 		Set<BasicBlock> knownInfeasibleBlocks = getKnownInfeasibleBlocks();
 
 		LinkedList<BasicBlock> todo = new LinkedList<BasicBlock>();
-		HashSet<BasicBlock> done = new HashSet<BasicBlock>();
+		LinkedHashSet<BasicBlock> done = new LinkedHashSet<BasicBlock>();
 
 		todo.add(b);
 		while (!todo.isEmpty()) {
@@ -255,7 +245,7 @@ public class CdcChecker extends AbstractChecker {
 	// private Set<BasicBlock> getSubgraphContainingAll(Set<BasicBlock> nodes,
 	// Set<BasicBlock> blocks) {
 	// LinkedList<BasicBlock> todo = new LinkedList<BasicBlock>(blocks);
-	// HashSet<BasicBlock> done = new HashSet<BasicBlock>();
+	// LinkedHashSet<BasicBlock> done = new LinkedHashSet<BasicBlock>();
 	// while (!todo.isEmpty()) {
 	// BasicBlock current = todo.pop();
 	// Set<BasicBlock> subprog = getSubgraphContaining(nodes, current);
@@ -265,7 +255,7 @@ public class CdcChecker extends AbstractChecker {
 	// }
 
 	private Set<BasicBlock> getKnownInfeasibleBlocks() {
-		Set<BasicBlock> infeasibleBlocks = new HashSet<BasicBlock>();
+		Set<BasicBlock> infeasibleBlocks = new LinkedHashSet<BasicBlock>();
 		// for (PartialBlockOrderNode po : this.knownInfeasibleNodes) {
 		// infeasibleBlocks.addAll(po.getElements());
 		// }
@@ -299,11 +289,11 @@ public class CdcChecker extends AbstractChecker {
 	 *            one of these nodes needs to be in the path
 	 * @return
 	 */
-	private HashSet<BasicBlock> getPathFromModel(Prover prover,
+	private LinkedHashSet<BasicBlock> getPathFromModel(Prover prover,
 			TransitionRelation tr, Set<BasicBlock> allBlocks,
 			Set<BasicBlock> necessaryNodes) {
 		// Blocks selected by the model
-		HashSet<BasicBlock> enabledBlocks = new HashSet<BasicBlock>();
+		LinkedHashSet<BasicBlock> enabledBlocks = new LinkedHashSet<BasicBlock>();
 		for (BasicBlock b : allBlocks) {
 			final ProverExpr pe = tr.getReachabilityVariables().get(b);
 			if (prover.evaluate(pe).getBooleanLiteralValue()) {
@@ -346,7 +336,7 @@ public class CdcChecker extends AbstractChecker {
 
 					if (rootToBlock != null) {
 						// We got a full path
-						HashSet<BasicBlock> result = new HashSet<BasicBlock>();
+						LinkedHashSet<BasicBlock> result = new LinkedHashSet<BasicBlock>();
 						result.addAll(rootToBlock);
 						result.addAll(blockToExit);
 						return result;
@@ -356,139 +346,92 @@ public class CdcChecker extends AbstractChecker {
 		}
 
 		// Screwed
-//		toDot("path_error.dot", new HashSet<BasicBlock>(allBlocks),
-//				new HashSet<BasicBlock>(enabledBlocks),
-//				new HashSet<BasicBlock>(necessaryNodes));
+		// toDot("path_error.dot", new LinkedHashSet<BasicBlock>(allBlocks),
+		// new LinkedHashSet<BasicBlock>(enabledBlocks),
+		// new LinkedHashSet<BasicBlock>(necessaryNodes));
 		throw new RuntimeException("Could not find a path");
 	}
-/*
-	private void makeColors(PartialBlockOrderNode node, int startColor,
-			int endColor, HashMap<PartialBlockOrderNode, Integer> node2color) {
 
-		int range = (endColor - startColor) / 2;
-		int midcolor = startColor + range;
-
-		node2color.put(node, midcolor);
-
-		int previous_color = startColor;
-		int colordelta = (int) ((1.0) / ((double) node.getSuccessors().size()) * range);
-
-		for (PartialBlockOrderNode child : node.getSuccessors()) {
-			makeColors(child, previous_color, previous_color + colordelta,
-					node2color);
-			previous_color += colordelta;
-		}
-
-	}
-
-	public void toDot(String filename, TransitionRelation tr) {
-		HasseDiagram hd = tr.getHasseDiagram();
-		// HashSet<PartialBlockOrderNode> poNodes = getPoNodes(hd.getRoot());
-		HashMap<PartialBlockOrderNode, Integer> node2color = new HashMap<PartialBlockOrderNode, Integer>();
-
-		makeColors(hd.getRoot(), 0x101010, 0xffffff, node2color);
-		// int i=1;
-		// for (PartialBlockOrderNode node : poNodes) {
-		// double color = ((double)(i++))/((double)poNodes.size()+1) *
-		// ((double)0xffffff);
-		// node2color.put(node, (int)color );
-		// }
-
-		try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(
-				new FileOutputStream(filename), "UTF-8"))) {
-			pw.println("digraph dot {");
-			LinkedList<BasicBlock> todo = new LinkedList<BasicBlock>();
-			HashSet<BasicBlock> done = new HashSet<BasicBlock>();
-			todo.add(tr.getProcedure().getRootNode());
-			StringBuffer sb = new StringBuffer();
-			while (!todo.isEmpty()) {
-				BasicBlock current = todo.pop();
-				done.add(current);
-				// for (BasicBlock prev : current.getPredecessors()) {
-				// pw.println(" \""+ current.getLabel()
-				// +"\" -> \""+prev.getLabel()+"\" [style=dotted]");
-				// if (!todo.contains(prev) && !done.contains(prev)) {
-				// todo.add(prev);
-				// }
-				//
-				// }
-				for (BasicBlock next : current.getSuccessors()) {
-					sb.append(" \"" + current.getLabel() + "\" -> \""
-							+ next.getLabel() + "\" \n");
-					if (!todo.contains(next) && !done.contains(next)) {
-						todo.add(next);
-					}
-				}
-			}
-
-			for (BasicBlock b : done) {
-				StringBuilder sb_ = new StringBuilder();
-				sb_.append(Integer.toHexString(node2color.get(hd.findNode(b))));
-				while (sb_.length() < 6) {
-					sb_.insert(0, '0'); // pad with leading zero if needed
-				}
-				String colorHex = sb_.toString();
-				pw.println("\"" + b.getLabel() + "\" " + "[label=\""
-						+ b.getLabel() + "\",style=filled, fillcolor=\"#"
-						+ colorHex + "\"];\n");
-			}
-			pw.println(sb.toString());
-
-			pw.println("}");
-			pw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void hasseToDot(String filename, TransitionRelation tr) {
-		HasseDiagram hd = tr.getHasseDiagram();
-
-		try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(
-				new FileOutputStream(filename), "UTF-8"))) {
-			pw.println("digraph dot {");
-			LinkedList<PartialBlockOrderNode> todo = new LinkedList<PartialBlockOrderNode>();
-			HashSet<PartialBlockOrderNode> done = new HashSet<PartialBlockOrderNode>();
-			todo.add(hd.getRoot());
-			StringBuffer sb = new StringBuffer();
-			while (!todo.isEmpty()) {
-				PartialBlockOrderNode current = todo.pop();
-				done.add(current);
-				// for (BasicBlock prev : current.getPredecessors()) {
-				// pw.println(" \""+ current.getLabel()
-				// +"\" -> \""+prev.getLabel()+"\" [style=dotted]");
-				// if (!todo.contains(prev) && !done.contains(prev)) {
-				// todo.add(prev);
-				// }
-				//
-				// }
-				for (PartialBlockOrderNode next : current.getSuccessors()) {
-					sb.append(" \"" + current.hashCode() + "\" -> \""
-							+ next.hashCode() + "\" \n");
-					if (!todo.contains(next) && !done.contains(next)) {
-						todo.add(next);
-					}
-				}
-			}
-
-			for (PartialBlockOrderNode node : done) {
-				StringBuilder _sb = new StringBuilder();
-				for (BasicBlock b : node.getElements()) {
-					_sb.append(b.getLabel() + "\n");
-				}
-
-				pw.println("\"" + node.hashCode() + "\" " + "[label=\""
-						+ _sb.toString() + "\"];\n");
-			}
-			pw.println(sb.toString());
-
-			pw.println("}");
-			pw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-*/
+	/*
+	 * private void makeColors(PartialBlockOrderNode node, int startColor, int
+	 * endColor, HashMap<PartialBlockOrderNode, Integer> node2color) {
+	 * 
+	 * int range = (endColor - startColor) / 2; int midcolor = startColor +
+	 * range;
+	 * 
+	 * node2color.put(node, midcolor);
+	 * 
+	 * int previous_color = startColor; int colordelta = (int) ((1.0) /
+	 * ((double) node.getSuccessors().size()) * range);
+	 * 
+	 * for (PartialBlockOrderNode child : node.getSuccessors()) {
+	 * makeColors(child, previous_color, previous_color + colordelta,
+	 * node2color); previous_color += colordelta; }
+	 * 
+	 * }
+	 * 
+	 * public void toDot(String filename, TransitionRelation tr) { HasseDiagram
+	 * hd = tr.getHasseDiagram(); // LinkedHashSet<PartialBlockOrderNode> poNodes =
+	 * getPoNodes(hd.getRoot()); HashMap<PartialBlockOrderNode, Integer>
+	 * node2color = new HashMap<PartialBlockOrderNode, Integer>();
+	 * 
+	 * makeColors(hd.getRoot(), 0x101010, 0xffffff, node2color); // int i=1; //
+	 * for (PartialBlockOrderNode node : poNodes) { // double color =
+	 * ((double)(i++))/((double)poNodes.size()+1) * // ((double)0xffffff); //
+	 * node2color.put(node, (int)color ); // }
+	 * 
+	 * try (PrintWriter pw = new PrintWriter(new OutputStreamWriter( new
+	 * FileOutputStream(filename), "UTF-8"))) { pw.println("digraph dot {");
+	 * LinkedList<BasicBlock> todo = new LinkedList<BasicBlock>();
+	 * LinkedHashSet<BasicBlock> done = new LinkedHashSet<BasicBlock>();
+	 * todo.add(tr.getProcedure().getRootNode()); StringBuffer sb = new
+	 * StringBuffer(); while (!todo.isEmpty()) { BasicBlock current =
+	 * todo.pop(); done.add(current); // for (BasicBlock prev :
+	 * current.getPredecessors()) { // pw.println(" \""+ current.getLabel() //
+	 * +"\" -> \""+prev.getLabel()+"\" [style=dotted]"); // if
+	 * (!todo.contains(prev) && !done.contains(prev)) { // todo.add(prev); // }
+	 * // // } for (BasicBlock next : current.getSuccessors()) { sb.append(" \""
+	 * + current.getLabel() + "\" -> \"" + next.getLabel() + "\" \n"); if
+	 * (!todo.contains(next) && !done.contains(next)) { todo.add(next); } } }
+	 * 
+	 * for (BasicBlock b : done) { StringBuilder sb_ = new StringBuilder();
+	 * sb_.append(Integer.toHexString(node2color.get(hd.findNode(b)))); while
+	 * (sb_.length() < 6) { sb_.insert(0, '0'); // pad with leading zero if
+	 * needed } String colorHex = sb_.toString(); pw.println("\"" + b.getLabel()
+	 * + "\" " + "[label=\"" + b.getLabel() + "\",style=filled, fillcolor=\"#" +
+	 * colorHex + "\"];\n"); } pw.println(sb.toString());
+	 * 
+	 * pw.println("}"); pw.close(); } catch (IOException e) {
+	 * e.printStackTrace(); } }
+	 * 
+	 * public void hasseToDot(String filename, TransitionRelation tr) {
+	 * HasseDiagram hd = tr.getHasseDiagram();
+	 * 
+	 * try (PrintWriter pw = new PrintWriter(new OutputStreamWriter( new
+	 * FileOutputStream(filename), "UTF-8"))) { pw.println("digraph dot {");
+	 * LinkedList<PartialBlockOrderNode> todo = new
+	 * LinkedList<PartialBlockOrderNode>(); LinkedHashSet<PartialBlockOrderNode> done
+	 * = new LinkedHashSet<PartialBlockOrderNode>(); todo.add(hd.getRoot());
+	 * StringBuffer sb = new StringBuffer(); while (!todo.isEmpty()) {
+	 * PartialBlockOrderNode current = todo.pop(); done.add(current); // for
+	 * (BasicBlock prev : current.getPredecessors()) { // pw.println(" \""+
+	 * current.getLabel() // +"\" -> \""+prev.getLabel()+"\" [style=dotted]");
+	 * // if (!todo.contains(prev) && !done.contains(prev)) { // todo.add(prev);
+	 * // } // // } for (PartialBlockOrderNode next : current.getSuccessors()) {
+	 * sb.append(" \"" + current.hashCode() + "\" -> \"" + next.hashCode() +
+	 * "\" \n"); if (!todo.contains(next) && !done.contains(next)) {
+	 * todo.add(next); } } }
+	 * 
+	 * for (PartialBlockOrderNode node : done) { StringBuilder _sb = new
+	 * StringBuilder(); for (BasicBlock b : node.getElements()) {
+	 * _sb.append(b.getLabel() + "\n"); }
+	 * 
+	 * pw.println("\"" + node.hashCode() + "\" " + "[label=\"" + _sb.toString()
+	 * + "\"];\n"); } pw.println(sb.toString());
+	 * 
+	 * pw.println("}"); pw.close(); } catch (IOException e) {
+	 * e.printStackTrace(); } }
+	 */
 	/*
 	 * ---------------------------- Plan B --------------------------------
 	 */
@@ -501,7 +444,7 @@ public class CdcChecker extends AbstractChecker {
 		try {
 			// find the first one cheap.
 			Set<BasicBlock> path = up(current, current,
-					new HashSet<BasicBlock>());
+					new LinkedHashSet<BasicBlock>());
 
 			while (path != null) {
 				Log.debug("Searching Path ... ");
@@ -512,17 +455,17 @@ public class CdcChecker extends AbstractChecker {
 			}
 
 			Log.debug("DONE Searching Path ... ");
-			
+
 		} catch (InfeasibleException e) {
 			this.knownInfeasibleNodes.add(node);
 			Log.debug("YEAH");
 		}
-		return new HashSet<BasicBlock>();
+		return new LinkedHashSet<BasicBlock>();
 	}
 
 	private Set<BasicBlock> up(BasicBlock b, BasicBlock source,
 			Set<BasicBlock> path) throws InfeasibleException {
-		Set<BasicBlock> path_ = new HashSet<BasicBlock>(path);
+		Set<BasicBlock> path_ = new LinkedHashSet<BasicBlock>(path);
 		path_.add(b);
 		if (isInLearnedConflicts(path_))
 			return null;
@@ -542,7 +485,7 @@ public class CdcChecker extends AbstractChecker {
 
 	private Set<BasicBlock> down(BasicBlock b, BasicBlock source,
 			Set<BasicBlock> path) throws InfeasibleException {
-		Set<BasicBlock> path_ = new HashSet<BasicBlock>(path);
+		Set<BasicBlock> path_ = new LinkedHashSet<BasicBlock>(path);
 		path_.add(b);
 		if (isInLearnedConflicts(path_))
 			return null;
@@ -557,9 +500,9 @@ public class CdcChecker extends AbstractChecker {
 			if (isInLearnedConflicts(path_))
 				return null;
 
-			// if (checkPath(source, path_)) {
+
 			return path_;
-			// }
+
 		}
 		return null;
 	}
@@ -568,11 +511,6 @@ public class CdcChecker extends AbstractChecker {
 		for (Set<BasicBlock> conflict : learnedConflicts) {
 			if (conflict.size() > 0 && path.size() > conflict.size()
 					&& path.containsAll(conflict)) {
-				// System.err.print("Skipping path with known conflict: ");
-				// for (BasicBlock b : conflict) {
-				// System.err.print(b.getLabel()+", ");
-				// }
-				// Log.debug();
 				return true;
 			}
 		}
@@ -584,34 +522,39 @@ public class CdcChecker extends AbstractChecker {
 
 	}
 
-
+	/**
+	 * Checks the feasibility of Path. If feasible, returns True. 
+	 * Otherwise Y
+	 * @param source
+	 * @param path
+	 * @return
+	 * @throws InfeasibleException
+	 */
 	private boolean checkPath(BasicBlock source, Set<BasicBlock> path)
 			throws InfeasibleException {
 		Log.debug("checking path");
 
 		prover.push();
 		for (BasicBlock b : path) {
-			prover.addAssertion(this.transitionRelation.blockTransitionReleations.get(b));
+			prover.addAssertion(this.transitionRelation.blockTransitionReleations
+					.get(b));
 		}
 		ProverResult res = prover.checkSat(true);
 		prover.pop();
 		if (res == ProverResult.Sat) {
-			Log.debug("\tSAT");
 			return true;
-		} else if (res == ProverResult.Unsat) {
-			Log.debug("\tUNST");
-			int oldsize = path.size();
-			computePseudoUnsatCore(path);
-			learnedConflicts.add(new HashSet<BasicBlock>(path));
-			if (oldsize == path.size()) {
+		} else if (res == ProverResult.Unsat) {			
+			Set<BasicBlock> core = computePseudoUnsatCore(path);
+			learnedConflicts.add(new LinkedHashSet<BasicBlock>(core));
+			if (path.size() == core.size()) {
 				Log.debug("nothing could be removed");
 				return false;
 			}
 			Set<BasicBlock> inevitableBlocks = findNodeThatMustBePassed(this.transitionRelation
 					.getHasseDiagram().findNode(source));
-			if (inevitableBlocks.containsAll(path)) {
+			if (inevitableBlocks.containsAll(core)) {
 				Log.debug("FOUND CONFLICT! DONE");
-				markSmallestSubtreeInfeasible(path);
+				markSmallestSubtreeInfeasible(core);
 				throw new InfeasibleException();
 			} else {
 				Log.debug("nothing learned. Looking for next path.");
@@ -622,28 +565,28 @@ public class CdcChecker extends AbstractChecker {
 		return false;
 	}
 
-	/** TODO: @Philipp, this gets stuck for some examples :(
+	/**
+	 * TODO: @Philipp, this gets stuck for some examples :(
 	 * 
 	 * @param path
 	 */
 	boolean allowHackedTimeouts = true;
-	private void computePseudoUnsatCore(Set<BasicBlock> path) {
-		
-		
+
+	private Set<BasicBlock> computePseudoUnsatCore(Set<BasicBlock> path) {
+
+		Set<BasicBlock> core = new LinkedHashSet<BasicBlock>(path);
 		
 		LinkedList<BasicBlock> todo = new LinkedList<BasicBlock>(path);
-		Log.debug("computing pseudo unsat core");
-		while (!todo.isEmpty()) {
-			Log.debug("\tSize of todo "+todo.size() + " path "+path.size());
+		while (!todo.isEmpty()) {			
 			BasicBlock current = todo.pop();
-			path.remove(current);
+			core.remove(current);
 			prover.push();
-			for (BasicBlock b : path) {
+			for (BasicBlock b : core) {
 				prover.addAssertion(this.transitionRelation.blockTransitionReleations
 						.get(b));
 			}
-			
-			ProverResult res = ProverResult.Unknown;			
+
+			ProverResult res = ProverResult.Unknown;
 			if (!allowHackedTimeouts) {
 				res = prover.checkSat(true);
 			} else {
@@ -655,31 +598,31 @@ public class CdcChecker extends AbstractChecker {
 					Log.debug("\tComputing Unsat Core took too long and got killed.");
 					prover.stop();
 					res = ProverResult.Unknown;
-				}			
+				}
 			}
 			prover.pop();
 
 			if (res != ProverResult.Unsat) {
-				path.add(current); // then we needed this one
+				core.add(current); // then we needed this one
 			}
 		}
-		Log.debug("found core");
+		return core;
 	}
 
 	private Set<BasicBlock> findNodeThatMustBePassed(PartialBlockOrderNode node) {
 		if (node == null)
-			return new HashSet<BasicBlock>();
+			return new LinkedHashSet<BasicBlock>();
 		Set<BasicBlock> result = findNodeThatMustBePassed(node.getParent());
 		result.addAll(node.getElements());
 		return result;
 	}
 
 	private void markSmallestSubtreeInfeasible(Set<BasicBlock> unsatCore) {
-		PartialBlockOrderNode lowest = this.transitionRelation.getHasseDiagram()
-				.getRoot();
+		PartialBlockOrderNode lowest = this.transitionRelation
+				.getHasseDiagram().getRoot();
 		for (BasicBlock b : unsatCore) {
-			PartialBlockOrderNode current = this.transitionRelation.getHasseDiagram()
-					.findNode(b);
+			PartialBlockOrderNode current = this.transitionRelation
+					.getHasseDiagram().findNode(b);
 			if (isAbove(current, lowest)) {
 				lowest = current;
 			}
@@ -710,9 +653,11 @@ public class CdcChecker extends AbstractChecker {
 	 */
 
 	/**
-	 * Use the solver to find a path through 'current' in 
-	 * the abstract model that has not yet been covered. 
-	 * @param current The block that must be contained on the path.
+	 * Use the solver to find a path through 'current' in the abstract model
+	 * that has not yet been covered.
+	 * 
+	 * @param current
+	 *            The block that must be contained on the path.
 	 * @return The set of all blocks on that path.
 	 */
 	private Set<BasicBlock> findNextPath(BasicBlock current) {
@@ -725,24 +670,26 @@ public class CdcChecker extends AbstractChecker {
 
 		assertAbstractaPathCfGTheory(blocks);
 
-		prover.addAssertion(transitionRelation.getReachabilityVariables().get(current));
+		prover.addAssertion(transitionRelation.getReachabilityVariables().get(
+				current));
 		// block all learned conflicts
 		Log.debug("Asserting " + this.learnedConflicts.size() + " conflicts");
 		for (Set<BasicBlock> conflict : this.learnedConflicts) {
 			ProverExpr[] conj = new ProverExpr[conflict.size()];
 			int i = 0;
 			for (BasicBlock b : conflict) {
-				conj[i++] = this.transitionRelation.getReachabilityVariables().get(b);
+				conj[i++] = this.transitionRelation.getReachabilityVariables()
+						.get(b);
 			}
 			prover.addAssertion(prover.mkNot(prover.mkAnd(conj)));
 		}
 		Log.debug("Checking for path.");
 		ProverResult res = prover.checkSat(true);
 		if (res == ProverResult.Sat) {
-			HashSet<BasicBlock> necessaryNodes = new HashSet<BasicBlock>();
+			LinkedHashSet<BasicBlock> necessaryNodes = new LinkedHashSet<BasicBlock>();
 			necessaryNodes.add(current);
-			Set<BasicBlock> path = this.getPathFromModel(prover, transitionRelation,
-					blocks, necessaryNodes);
+			Set<BasicBlock> path = this.getPathFromModel(prover,
+					transitionRelation, blocks, necessaryNodes);
 			prover.pop();
 			Log.debug("Found one.");
 			return path;
@@ -763,7 +710,8 @@ public class CdcChecker extends AbstractChecker {
 	private void assertAbstractaPathCfGTheory(Set<BasicBlock> blocks) {
 		LinkedHashMap<ProverExpr, ProverExpr> ineffFlags = new LinkedHashMap<ProverExpr, ProverExpr>();
 		for (BasicBlock block : blocks) {
-			ProverExpr v = transitionRelation.getReachabilityVariables().get(block);
+			ProverExpr v = transitionRelation.getReachabilityVariables().get(
+					block);
 			ineffFlags.put(v, prover.mkVariable("" + v + "_flag",
 					prover.getBooleanType()));
 		}
@@ -809,69 +757,4 @@ public class CdcChecker extends AbstractChecker {
 		// Log.debug("Entries "+count);
 	}
 
-	
-	
-	/** TODO: maybe, we want to move that to the superclass.
-	 * Checks if b is reachable in tr. 
-	 * @param b The block that should be reachable
-	 * @param tr The procedure in which b should be reachable
-	 * @param ineffFlags The flags for the solver.
-	 * @return True, if b is reachable in tr. Otherwise False.
-	 */
-	private boolean forwardReachable(BasicBlock b, TransitionRelation tr,
-			LinkedHashMap<ProverExpr, ProverExpr> ineffFlags) {
-		
-		if (tr.getProcedure().getRootNode()==b) return true;
-		
-		prover.push();
-		// assert the basic prelude
-		for (Entry<CfgAxiom, ProverExpr> entry : tr.getPreludeAxioms()
-				.entrySet()) {
-			prover.addAssertion(entry.getValue());
-		}
-		prover.addAssertion(tr.getRequires());
-		// enable the assertions
-		prover.addAssertion(prover.mkNot(tr.assertionFlag));
-		// collect all blocks between b and root (including b)
-		LinkedList<BasicBlock> todo = new LinkedList<BasicBlock>();
-		HashSet<BasicBlock> done = new HashSet<BasicBlock>();
-		todo.addAll(b.getPredecessors());
-		// todo.add(b.);
-		while (!todo.isEmpty()) {
-			BasicBlock current = todo.pop();
-			done.add(current);
-			for (BasicBlock pre : current.getPredecessors()) {
-				if (!todo.contains(pre) && !done.contains(pre)) {
-					todo.add(pre);
-				}
-			}
-		}
-		// check if these blocks have a feasible path.
-		for (Entry<BasicBlock, LinkedList<ProverExpr>> entry : tr
-				.getProofObligations().entrySet()) {
-			if (done.contains(entry.getKey())) {
-				for (ProverExpr assertion : entry.getValue()) {
-					prover.addAssertion(assertion);
-				}
-			} else {
-				if (entry.getKey() != b && !b.getSuccessors().contains(entry.getKey())) {
-					prover.addAssertion(prover.mkNot(tr
-							.getReachabilityVariables().get(entry.getKey())));
-				}
-			}
-		}
-		// finally, add the assertions for b.
-		for (ProverExpr assertion : tr.getProofObligations().get(b)) {
-			prover.addAssertion(assertion);
-		}
-
-		ProverResult res = this.prover.checkSat(true);
-		prover.pop();
-
-		if (res == ProverResult.Sat) {
-			return true;
-		}
-		return false;
-	}	
-	
 }

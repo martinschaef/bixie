@@ -3,13 +3,13 @@
  */
 package bixie.checker.inconsistency_checker;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import bixie.Options;
 import bixie.checker.report.Report;
@@ -36,7 +36,7 @@ public abstract class AbstractChecker implements Runnable {
 
 	private Report report = null;
 
-	protected HashSet<BasicBlock> feasibleBlocks = new HashSet<BasicBlock>();
+	protected Set<BasicBlock> feasibleBlocks = new LinkedHashSet<BasicBlock>();
 
 	protected Prover prover = null;
 
@@ -119,7 +119,7 @@ public abstract class AbstractChecker implements Runnable {
 	 * @return A map from each block in includedBlocks to its reachability variable.
 	 */
 	protected Map<ProverExpr, BasicBlock> createdInvertedReachabilityVariableMap(AbstractTransitionRelation tr, Set<BasicBlock> includedBlocks) {
-		LinkedHashMap<ProverExpr, BasicBlock> uncoveredBlocks = new LinkedHashMap<ProverExpr, BasicBlock>();
+		Map<ProverExpr, BasicBlock> uncoveredBlocks = new LinkedHashMap<ProverExpr, BasicBlock>();
 		for (Entry<BasicBlock, ProverExpr> entry : tr
 				.getReachabilityVariables().entrySet()) {
 			if (includedBlocks.contains(entry.getKey())) {
@@ -137,7 +137,7 @@ public abstract class AbstractChecker implements Runnable {
 	 * @param blocks the set of blocks that should be grouped.
 	 * @return map from a block A to the subgraph G where A is the entry. 
 	 */
-	protected HashMap<BasicBlock, HashSet<BasicBlock>> groupBlocks(Set<BasicBlock> blocks) {
+	protected Map<BasicBlock, Set<BasicBlock>> groupBlocks(Set<BasicBlock> blocks) {
 		//find all blocks in 'blocks' that do not have a predecessor
 		//in 'blocks'
 		LinkedList<BasicBlock> entries = new LinkedList<BasicBlock>();
@@ -151,11 +151,11 @@ public abstract class AbstractChecker implements Runnable {
 			}
 			if (!has_pre) entries.add(b); 			
 		}
-		HashMap<BasicBlock, HashSet<BasicBlock>> res = new HashMap<BasicBlock, HashSet<BasicBlock>>();
+		Map<BasicBlock, Set<BasicBlock>> res = new TreeMap<BasicBlock, Set<BasicBlock>>();
 		for (BasicBlock b : entries) {
 			LinkedList<BasicBlock> todo = new LinkedList<BasicBlock>();
-			HashSet<BasicBlock> done = new HashSet<BasicBlock>();
-			HashSet<BasicBlock> subgraph = new HashSet<BasicBlock>();
+			Set<BasicBlock> done = new LinkedHashSet<BasicBlock>();
+			Set<BasicBlock> subgraph = new LinkedHashSet<BasicBlock>();
 			todo.add(b);
 			while (!todo.isEmpty()) {
 				BasicBlock c = todo.pop();
