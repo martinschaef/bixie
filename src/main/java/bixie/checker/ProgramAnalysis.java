@@ -38,8 +38,8 @@ public class ProgramAnalysis {
 		DefaultControlFlowFactory cff = new DefaultControlFlowFactory(
 				pf.getASTRoot(), tc);
 
-		Long checkTime = 0L;
-		Long overheadTime = 0L;
+		Long checkTime = System.currentTimeMillis();
+		
 
 		for (CfgProcedure p : cff.getProcedureCFGs()) {
 			if (p.getRootNode() == null)
@@ -62,10 +62,12 @@ public class ProgramAnalysis {
 			}
 		}
 
+		checkTime = System.currentTimeMillis() - checkTime;
+		
 		Log.info("Total time: " + ((float) checkTime) / 1000f + "s");
-		Log.info("Overhead time: " + ((float) overheadTime) / 1000f + "s");
+		
 		Log.info("Total Timeouts after " + bixie.Options.v().getTimeout() + "sec: "
-				+ timeouts);
+				+ timeouts + " of "+ cff.getProcedureCFGs().size());
 
 		GlobalsCache.resetInstance();		
 	}

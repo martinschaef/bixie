@@ -93,7 +93,9 @@ public class CombinedChecker extends AbstractChecker {
 			prover.pop();
 			prover.pop();
 			CdcChecker alternativeChecker = new CdcChecker(cff, procedure);
-			return alternativeChecker.runAnalysisFromIntermediateResult(prover, tr, coveredBlocks, new HashSet<BasicBlock>());
+			Report r = alternativeChecker.runAnalysisFromIntermediateResult(prover, tr, coveredBlocks, new HashSet<BasicBlock>());
+			Log.info("backup solver finished successfully");
+			return r;
 		}
 
 
@@ -107,7 +109,9 @@ public class CombinedChecker extends AbstractChecker {
 			Log.info("Greedy approach timeout in round 2 after covering "+coveredBlocks.size()+" blocks. Switching to backup solver.");
 			prover.pop();
 			CdcChecker alternativeChecker = new CdcChecker(cff, procedure);
-			return alternativeChecker.runAnalysisFromIntermediateResult(prover, tr, coveredBlocks, this.feasibleBlocks);
+			Report r = alternativeChecker.runAnalysisFromIntermediateResult(prover, tr, coveredBlocks, this.feasibleBlocks);
+			Log.info("backup solver finished successfully");
+			return r;			
 		}
 
 		/* Pop the transition relation. */
