@@ -13,6 +13,6 @@ Dependencies
 Usage
 =====
 
-  cd /path/to/javadoc/api/java
-  python /path/to/javasoup.py > /path/to/results.txt
+    cd /path/to/javadoc/api/java
+    python /path/to/javasoup.py > /path/to/results.txt
 
