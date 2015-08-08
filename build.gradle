@@ -139,6 +139,21 @@ task selfCheck {
   }
 }
 
+task inferCheck {
+  group 'Verification'
+  description 'Run Facebook Infer on this project.'
+
+  doLast {
+    println("REQUIRES Infer TO BE IN YOUR PATH.")
+
+    exec {
+        workingDir '.'
+        commandLine 'infer', '--', 'gradle', 'clean', 'compileJava'
+    }
+
+  }
+}
+
 task coverityCheck {
   group 'Verification'
   description 'Send the build to coverity for analysis'
