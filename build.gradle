@@ -15,6 +15,7 @@ apply plugin: 'com.github.kt3k.coveralls'
 apply plugin: 'application'
 apply plugin: 'findbugs'
 apply plugin: 'jdepend'
+apply plugin: 'net.ltgt.errorprone'
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.3'
@@ -40,6 +41,7 @@ buildscript {
     dependencies {
         classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.1'
         classpath "nl.eveoh:gradle-aspectj:1.5"
+        classpath 'net.ltgt.gradle:gradle-errorprone-plugin:latest.release'
     }
 }
 project.ext {
