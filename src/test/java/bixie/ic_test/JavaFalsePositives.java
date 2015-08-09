@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import bixie.Bixie;
+import bixie.Main;
 import bixie.checker.reportprinter.ReportPrinter;
 
 @RunWith(Parameterized.class)
@@ -53,7 +53,7 @@ public class JavaFalsePositives extends AbstractIcTest{
 		File classFileDir = null;
 		try {
 			classFileDir = compileJavaFile(this.sourceFile);
-			Bixie bx = new Bixie();
+			Main bx = new Main();
 			ReportPrinter rp = bx.translateAndRun(classFileDir.getAbsolutePath(),
 					classFileDir.getAbsolutePath());
 			//assert that nothing is reported for the potential 

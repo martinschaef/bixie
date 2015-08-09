@@ -10,7 +10,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import bixie.Bixie;
+import bixie.Main;
 
 /**
  * @author schaef
@@ -24,7 +24,7 @@ public class ComplexFlowTest extends AbstractIcTest {
 		File classFileDir = null;
 		try {
 			classFileDir = compileJavaFile(source_file);
-			Bixie.main(new String[]{
+			Main.main(new String[]{
 					"-j", classFileDir.getAbsolutePath(),
 					"-checker", "0",
 					"-t", "30"

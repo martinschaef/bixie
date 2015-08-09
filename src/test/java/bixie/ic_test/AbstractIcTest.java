@@ -114,7 +114,7 @@ public class AbstractIcTest {
 
 	@AfterClass
 	public static void tearDown() {
-		org.joogie.GlobalsCache.resetInstance();
+		bixie.translation.GlobalsCache.resetInstance();
 	}
 
 }

@@ -29,7 +29,12 @@ apply plugin: 'com.github.kt3k.coveralls'
 apply plugin: 'application'
 apply plugin: 'findbugs'
 apply plugin: 'jdepend'
-apply plugin: 'net.ltgt.errorprone'
+if (!project.hasProperty('coverityMode')) {
+  //don't use error-prone when checking the code
+  //with coverity or infer, because it wraps around
+  //the compiler which confuses these tools.
+  apply plugin: 'net.ltgt.errorprone'
+}
 apply plugin: 'checkstyle'
 
 task wrapper(type: Wrapper) {
@@ -163,7 +168,7 @@ task inferCheck {
 
     exec {
         workingDir '.'
-        commandLine 'infer', '--', 'gradle', 'clean', 'compileJava'
+        commandLine 'infer', '--', 'gradle', '-PcoverityMode', 'clean', 'compileJava'
     }
 
   }
@@ -178,7 +183,7 @@ task coverityCheck {
     println("Running coverity")
     exec {
       workingDir '.'
-      commandLine 'cov-build', '--dir', 'cov-int', 'gradle', 'clean', 'compileJava'
+      commandLine 'cov-build', '--dir', 'cov-int', 'gradle', '-PcoverityMode', 'clean', 'compileJava'
     }
     println("Packing the results")
     exec {
@@ -237,7 +242,7 @@ task runExperiments {
     println("Rebuild Jar with Aspects.")
     exec {
       workingDir '.'
-      commandLine './gradlew', 'gradle', '-PdebugMode', 'clean', 'jar'
+      commandLine './gradlew', '-PdebugMode', 'clean', 'jar'
     }  
     println("Running the experiments.")
     println("\tcopy the bixie jar into the experiments folder")  

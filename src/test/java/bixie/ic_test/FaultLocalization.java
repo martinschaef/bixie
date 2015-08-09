@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import bixie.Bixie;
+import bixie.Main;
 
 @RunWith(Parameterized.class)
 public class FaultLocalization extends AbstractIcTest {
@@ -63,7 +63,7 @@ public class FaultLocalization extends AbstractIcTest {
 			if (classFileDir==null || !classFileDir.isDirectory()) {
 				assertTrue(false);
 			}
-			Bixie bx = new Bixie();
+			Main bx = new Main();
 			bixie.Options.v().setSelectedChecker(i);
 			bixie.Options.v().setTimeout(500);
 			

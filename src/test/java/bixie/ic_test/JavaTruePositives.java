@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import bixie.Bixie;
+import bixie.Main;
 
 @RunWith(Parameterized.class)
 public class JavaTruePositives extends AbstractIcTest {
@@ -68,7 +68,7 @@ public class JavaTruePositives extends AbstractIcTest {
 			if (classFileDir==null || !classFileDir.isDirectory()) {
 				assertTrue(false);
 			}
-			Bixie bx = new Bixie();
+			Main bx = new Main();
 			bixie.Options.v().setSelectedChecker(i);
 			String outFilePath = outFile.getAbsolutePath();			
 			// if no golden output has been generated for this test,
