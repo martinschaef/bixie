@@ -1,3 +1,17 @@
+//install the commit hook if possible.
+def hook = new File('pre-commit.sh')
+def hook_folder = new File('./.git/hooks')
+def installed_hook = new File('./.git/hooks/pre-commit')
+
+if (hook.exists() && hook_folder.exists() && !installed_hook.exists()) {
+  println("Installing pre-commit hook")
+  exec {
+      workingDir '.'
+      commandLine 'cp', hook, installed_hook
+  }  
+}
+
+
 if(JavaVersion.current() < JavaVersion.VERSION_1_7){
     println("\t************************")
     println("\t*** Hello from Bixie ***")
@@ -15,6 +29,8 @@ apply plugin: 'com.github.kt3k.coveralls'
 apply plugin: 'application'
 apply plugin: 'findbugs'
 apply plugin: 'jdepend'
+apply plugin: 'net.ltgt.errorprone'
+apply plugin: 'checkstyle'
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.3'
@@ -40,6 +56,7 @@ buildscript {
     dependencies {
         classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.1'
         classpath "nl.eveoh:gradle-aspectj:1.5"
+        classpath 'net.ltgt.gradle:gradle-errorprone-plugin:latest.release'
     }
 }
 project.ext {
@@ -132,6 +149,21 @@ task selfCheck {
     exec {
         workingDir '.'
         commandLine 'java', '-jar', bixieJar, '-j', bixieDir, '-cp', bixieClassPath, '-o', bixieReportDir
+    }
+
+  }
+}
+
+task inferCheck {
+  group 'Verification'
+  description 'Run Facebook Infer on this project.'
+
+  doLast {
+    println("REQUIRES Infer TO BE IN YOUR PATH.")
+
+    exec {
+        workingDir '.'
+        commandLine 'infer', '--', 'gradle', 'clean', 'compileJava'
     }
 
   }

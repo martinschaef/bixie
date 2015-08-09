@@ -111,7 +111,7 @@ public class SingleStaticAssignment {
 		//IMPORTANT: for some of the later analysis set we must be
 		//able to assume that the Exit node does not contain any
 		//statements. Thus, we create a fresh block here.
-		if (p.getExitNode().getLabel()!="$UnifiedExit") {
+		if (!p.getExitNode().getLabel().equals("$UnifiedExit")) {
 			BasicBlock finalUnifiedExit = new BasicBlock(p.getExitNode().getLocationTag(), "$UnifiedExit");
 			//connect each block that does not have a successor to the unified exit
 			for (BasicBlock b : done) {
