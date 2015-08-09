@@ -16,6 +16,7 @@ apply plugin: 'application'
 apply plugin: 'findbugs'
 apply plugin: 'jdepend'
 apply plugin: 'net.ltgt.errorprone'
+apply plugin: 'checkstyle'
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.3'
