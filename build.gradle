@@ -1,3 +1,17 @@
+//install the commit hook if possible.
+def hook = new File('pre-commit.sh')
+def hook_folder = new File('./.git/hooks')
+def installed_hook = new File('./.git/hooks/pre-commit')
+
+if (hook.exists() && hook_folder.exists() && !installed_hook.exists()) {
+  println("Installing pre-commit hook")
+  exec {
+      workingDir '.'
+      commandLine 'cp', hook, installed_hook
+  }  
+}
+
+
 if(JavaVersion.current() < JavaVersion.VERSION_1_7){
     println("\t************************")
     println("\t*** Hello from Bixie ***")
