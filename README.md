@@ -1,5 +1,5 @@
 ![Bixie](https://raw.githubusercontent.com/martinschaef/bixie/gh-pages/img/bixie_small.png) Inconsistent Code Detection for Java
-=====
+
 [![Build Status](https://travis-ci.org/martinschaef/bixie.png)](https://travis-ci.org/martinschaef/bixie)
 [![Coverity Scan](https://scan.coverity.com/projects/5463/badge.svg)](https://scan.coverity.com/projects/5463)
 [![Coverage Status](https://coveralls.io/repos/martinschaef/bixie/badge.svg?branch=master)](https://coveralls.io/r/martinschaef/bixie?branch=master) 
