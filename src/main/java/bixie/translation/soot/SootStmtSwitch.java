@@ -74,7 +74,7 @@ public class SootStmtSwitch implements StmtSwitch {
 											// expressions
 	private AbstractErrorModel errorModel;
 	private boolean inMonitor = false;
-
+	
 	public SootStmtSwitch(SootProcedureInfo pinfo) {
 		this.procInfo = pinfo;
 		this.pf = GlobalsCache.v().getPf();

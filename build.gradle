@@ -26,6 +26,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'jacoco'
 apply plugin: 'com.github.kt3k.coveralls'
+apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'application'
 apply plugin: 'findbugs'
 apply plugin: 'jdepend'
@@ -43,8 +44,9 @@ task wrapper(type: Wrapper) {
 
 sourceCompatibility = 1.7
 def version = '1.0'
-jar.archiveName = "bixie.jar"
-mainClassName = "bixie.Bixie"
+jar.archiveName = "bixie_dyn.jar"
+shadowJar.archiveName = "bixie.jar"
+mainClassName = "bixie.Main"
 
 repositories {
   mavenCentral()
@@ -55,13 +57,18 @@ buildscript {
         mavenCentral()
         maven {
             url "https://maven.eveoh.nl/content/repositories/releases"            
-        }        
+        }
+        maven {
+            name 'Shadow'
+            url "https://plugins.gradle.org/m2/"
+        }
     }
 
     dependencies {
         classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.1'
         classpath "nl.eveoh:gradle-aspectj:1.5"
         classpath 'net.ltgt.gradle:gradle-errorprone-plugin:latest.release'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
     }
 }
 project.ext {
@@ -90,6 +97,7 @@ dependencies {
 
 // building the jar ---------------------
 jar {
+  println("WARNING: jar does not create an executable jar. Use shadowJar instead.")
   baseName = 'bixie'
 
     manifest {
@@ -104,6 +112,7 @@ jar {
     from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
 }
 
+jar.dependsOn shadowJar
 
 // testing related activities -----------------
 tasks.withType(FindBugs) {
