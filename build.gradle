@@ -144,7 +144,7 @@ task selfCheck {
   description 'Run Bixie on itself.'
 
   doLast {
-    def bixieJar = jar.archivePath
+    def bixieJar = shadowJar.archivePath
     def bixieDir = compileJava.destinationDir
     def bixieClassPath = compileJava.classpath.asPath
     //TODO generate this.
@@ -152,7 +152,7 @@ task selfCheck {
 
     exec {
         workingDir '.'
-        commandLine 'java', '-jar', bixieJar, '-j', bixieDir, '-cp', bixieClassPath, '-o', bixieReportDir
+        commandLine 'java', '-jar', bixieJar, '-j', bixieDir, '-cp', bixieClassPath, '-o', bixieReportDir, '-checker', '3'
     }
 
   }

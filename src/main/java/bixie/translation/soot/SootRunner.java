@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import soot.Pack;
 import soot.PackManager;
@@ -307,8 +308,15 @@ public class SootRunner {
 			JarFile jarFile = new JarFile(file);
 
 			// get manifest and their main attributes
-			Attributes mainAttributes = jarFile.getManifest()
-					.getMainAttributes();
+			Manifest manifest = jarFile.getManifest();
+			// empty class path?
+			if (null == manifest) {
+				Log.error("No manifest found in jar "+jarFile.getName());
+				jarFile.close();
+				return;
+			}
+
+			Attributes mainAttributes = manifest.getMainAttributes();
 			String classPath = mainAttributes
 					.getValue(Attributes.Name.CLASS_PATH);
 

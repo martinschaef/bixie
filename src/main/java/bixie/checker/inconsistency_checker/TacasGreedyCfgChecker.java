@@ -350,7 +350,7 @@ public class TacasGreedyCfgChecker extends AbstractChecker {
 					}
 					sb.append(call.toString());
 					sb.append(" breaks stuff when it returns Null.\n");
-					Log.error(sb.toString());
+					Log.info(sb.toString());
 //					TacasReport rep = new TacasReport();
 //					rep.call = call;
 //					rep.loc = loc;

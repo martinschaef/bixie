@@ -245,9 +245,6 @@ public class TacasCallUnwinding {
 							callcontract.add(asgn);
 							returnVariables.put(call, specialReturnVar);
 							returnAssignments.put(call, asgn);
-							Log.info("added special return flag "
-									+ specialReturnVarName + " for "
-									+ call.toString());
 						}
 					}
 
