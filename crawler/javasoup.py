@@ -1,5 +1,7 @@
 from bs4 import BeautifulSoup
-import os
+import os, sys
+import json
+from pprint import pprint
 
 def exists(it):
   return (it is not None)
@@ -18,11 +20,11 @@ def parent_block(tag):
   if not parent_dl:
     return None
 
-  return_label = parent_dl.find('span', class_='returnLabel', string='Returns:')
-
-  if not return_label:
+  return_label = parent_dl.find(u'span')
+  
+  if not return_label or return_label.string!=u'Returns:':
     return None
-
+  
   return parent_dl.parent
 
 def find_method_name(tag):
@@ -33,7 +35,7 @@ def find_method_name(tag):
     return None
 
 def find_relevant_methods(soup):
-  candidates = soup.find_all(null_if)
+  candidates = soup.find_all(null_if)  
   blocks = clean_list(map(parent_block, candidates))
   return clean_list(map(find_method_name, blocks))
 
@@ -66,19 +68,24 @@ def dirpath_filter(dirpath):
 def walk_javadoc():
   results = {}
 
-  for dirpath, dirs, files in os.walk('.'):
+  for dirpath, dirs, files in os.walk(sys.argv[1]):
     if not dirpath_filter(dirpath):
       continue
     for filename in files:
       if not filename_filter(filename):
         continue
-      fname = os.path.join(dirpath, filename)
+      fname = os.path.join(dirpath, filename)      
       package, name, methods = process_file(fname)
       if methods:
-        results[(package, name)] = methods
+        results[".".join([package,name])] = {"package":package, "class":name, "methods":methods}        
+        #results[(package, name)] = methods
         print "%s.%s: %s" % (package, name, str(methods))
 
   return results
 
 if __name__ == '__main__':
-  walk_javadoc()
+  data = walk_javadoc()
+  pprint(data)
+  with open('null_methods.json', 'w') as outfile:
+    json.dump(data, outfile)
+

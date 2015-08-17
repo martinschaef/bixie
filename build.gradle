@@ -56,9 +56,6 @@ buildscript {
     repositories {
         mavenCentral()
         maven {
-            url "https://maven.eveoh.nl/content/repositories/releases"            
-        }
-        maven {
             name 'Shadow'
             url "https://plugins.gradle.org/m2/"
         }
@@ -66,17 +63,9 @@ buildscript {
 
     dependencies {
         classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.1'
-        classpath "nl.eveoh:gradle-aspectj:1.5"
         classpath 'net.ltgt.gradle:gradle-errorprone-plugin:latest.release'
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
     }
-}
-project.ext {
-    aspectjVersion = '1.8.4'
-}
-
-if (project.hasProperty('debugMode')) {
-  apply plugin: 'aspectj'
 }
 
 configurations{
@@ -89,6 +78,7 @@ dependencies {
     compile 'com.google.code.findbugs:annotations:3.0.0'
     compile 'org.scala-lang:scala-actors:2.11.7'
     compile 'org.scala-lang:scala-library:2.11.7'
+    compile 'com.googlecode.json-simple:json-simple:1.1.1'
 
     compile fileTree(dir: 'lib', include: '*.jar')    
     testCompile "junit:junit:4.11"  // Or whatever version
@@ -211,36 +201,6 @@ task coverityCheck {
     println("Done")
   }
 }
-
-// eclipse related activities ---------------------
-//add aspectj support for eclipse plugin
-eclipse.classpath.file.withXml { xmlProvider ->
-  def classpath = xmlProvider.asNode()
-  def xmlparser = new XmlParser()
-
-  configurations.common.files.each{ aspectsLib ->
-    classpath.children().findAll{ it['@path'] == aspectsLib.absolutePath }.each {
-      def attrs = xmlparser.createNode(it, 'attributes', [:])
-      xmlparser.createNode(attrs, 'attribute', [name: 'org.eclipse.ajdt.aspectpath', value: 'true']);
-    }
-  }
-}
-
-eclipse.project.file.withXml { xmlProvider->
-  def projectDescription = xmlProvider.asNode()
-  def xmlparser = new XmlParser()
-
-  def builders = projectDescription.buildSpec[0]
-  def ajbuilder = xmlparser.createNode(builders, 'buildCommand', [:])
-  xmlparser.createNode(ajbuilder, 'name', [:]).setValue('org.eclipse.ajdt.core.ajbuilder')
-  xmlparser.createNode(ajbuilder, 'arguments', [:]);
-
-  def natures = projectDescription.natures[0]
-  def ajnature = xmlparser.createNode(null, 'nature', [:])
-  ajnature.setValue('org.eclipse.ajdt.ui.ajnature');
-  natures.children().add(0, ajnature)
-}
-
 
 
 task runExperiments {

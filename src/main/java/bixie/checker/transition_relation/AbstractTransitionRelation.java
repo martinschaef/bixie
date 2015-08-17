@@ -137,17 +137,17 @@ public class AbstractTransitionRelation {
 		return this.hasse;
 	}
 	
-//	public ProverExpr getProverExpr(CfgVariable v, Integer i) {
-//		if (i == null)
-//			return null;
-//		// TODO DSN fix this to not crash if non existant.
-//		SortedMap<Integer, ProverExpr> m = proverVariables.get(v);
-//		if (m == null) {
-//			return null;
-//		} else {
-//			return m.get(i);
-//		}
-//	}
+	public ProverExpr getProverExpr(CfgVariable v, Integer i) {
+		if (i == null)
+			return null;
+		// TODO DSN fix this to not crash if non existant.
+		SortedMap<Integer, ProverExpr> m = proverVariables.get(v);
+		if (m == null) {
+			return null;
+		} else {
+			return m.get(i);
+		}
+	}
 
 //	public HashMap<ProverExpr, CfgVariable> getInvertProverVariables() {
 //		return invertProverVariables;

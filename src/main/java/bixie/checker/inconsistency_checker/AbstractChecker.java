@@ -34,7 +34,7 @@ public abstract class AbstractChecker implements Runnable {
 	protected AbstractControlFlowFactory cff;
 	protected CfgProcedure procedure;
 
-	private Report report = null;
+	protected Report report = null;
 
 	protected Set<BasicBlock> feasibleBlocks = new LinkedHashSet<BasicBlock>();
 

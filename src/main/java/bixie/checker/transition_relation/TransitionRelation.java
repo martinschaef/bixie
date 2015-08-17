@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.SortedMap;
 
 import org.joogie.cfgPlugin.Util.Dag;
 
@@ -292,4 +294,12 @@ public class TransitionRelation extends AbstractTransitionRelation {
 	}	
 	
 	
+	public CfgVariable findVariableByName(String name) {
+		for (Entry<CfgVariable, SortedMap<Integer, ProverExpr>> entry : this.proverVariables.entrySet()) {
+			if (entry.getKey().getVarname().equals(name)) {
+				return entry.getKey();
+			}
+		}
+		return null;
+	}
 }

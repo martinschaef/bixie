@@ -20,7 +20,6 @@ import bixie.prover.ProverExpr;
 import bixie.prover.ProverFactory;
 import bixie.prover.ProverResult;
 import bixie.transformation.SingleStaticAssignment;
-import bixie.util.aspects.Loggable;
 import boogie.ProgramFactory;
 import boogie.ast.Attribute;
 import boogie.ast.NamedAttribute;
@@ -81,8 +80,7 @@ public class FaultLocalizationThread implements Runnable {
 	 * 
 	 * @param tr
 	 * @param infeasibleBlocks
-	 */
-	@Loggable
+	 */	
 	private List<Map<CfgStatement, SourceLocation>> localizeFaults(
 			AbstractTransitionRelation tr, Set<BasicBlock> infeasibleBlocks) {
 
