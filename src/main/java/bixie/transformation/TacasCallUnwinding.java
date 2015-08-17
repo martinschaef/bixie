@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.json.simple.JSONArray;
@@ -48,6 +49,15 @@ public class TacasCallUnwinding {
 
 	public List<CfgAssignStatement> getCallAssigns() {
 		return new LinkedList<CfgAssignStatement>(this.returnAssignments.values());
+	}
+	
+	public CfgCallStatement findCallStatement(CfgVariable v) {
+		for (Entry<CfgCallStatement, CfgVariable> entry : this.returnVariables.entrySet()) {
+			if (v==entry.getValue()) {
+				return entry.getKey();
+			}
+		}
+		throw new RuntimeException("NOT FOUND!");
 	}
 	
 	//TODO don't iterate over the keyset

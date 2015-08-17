@@ -23,8 +23,6 @@ import bixie.checker.transition_relation.AbstractTransitionRelation;
 import boogie.ProgramFactory;
 import boogie.ast.Attribute;
 import boogie.ast.NamedAttribute;
-import boogie.ast.statement.Statement;
-import boogie.controlflow.AbstractControlFlowFactory;
 import boogie.controlflow.BasicBlock;
 import boogie.controlflow.statement.CfgStatement;
 
@@ -132,18 +130,18 @@ public class Report {
 	
 
 			
-	protected LinkedList<Statement> collectStatements(AbstractControlFlowFactory cff, Set<BasicBlock> blocks) {
-		LinkedList<Statement> astStatements = new LinkedList<Statement>();
-		for (BasicBlock b : blocks) {
-			for (CfgStatement s : b.getStatements()) {
-				Statement ast_stmt = cff.findAstStatement(s);
-				if (ast_stmt!=null && ast_stmt.getLocation()!=null) {
-					astStatements.add(ast_stmt);
-				}
-			}
-		}
-		return astStatements;
-	}
+//	protected LinkedList<Statement> collectStatements(AbstractControlFlowFactory cff, Set<BasicBlock> blocks) {
+//		LinkedList<Statement> astStatements = new LinkedList<Statement>();
+//		for (BasicBlock b : blocks) {
+//			for (CfgStatement s : b.getStatements()) {
+//				Statement ast_stmt = cff.findAstStatement(s);
+//				if (ast_stmt!=null && ast_stmt.getLocation()!=null) {
+//					astStatements.add(ast_stmt);
+//				}
+//			}
+//		}
+//		return astStatements;
+//	}
 	
 	/**
 	 * Returns the set of connected components for a given

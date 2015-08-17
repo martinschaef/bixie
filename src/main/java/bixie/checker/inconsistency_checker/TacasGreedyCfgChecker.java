@@ -4,7 +4,6 @@
 package bixie.checker.inconsistency_checker;
 
 import java.math.BigInteger;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -13,8 +12,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import util.Log;
 import bixie.Options;
 import bixie.checker.report.Report;
+import bixie.checker.reportprinter.SourceLocation;
 import bixie.checker.transition_relation.TransitionRelation;
 import bixie.prover.Prover;
 import bixie.prover.ProverExpr;
@@ -24,12 +25,14 @@ import bixie.prover.princess.PrincessProver;
 import bixie.transformation.SingleStaticAssignment;
 import bixie.transformation.TacasCallUnwinding;
 import bixie.transformation.loopunwinding.AbstractLoopUnwinding;
+import boogie.ast.Attribute;
 import boogie.controlflow.AbstractControlFlowFactory;
 import boogie.controlflow.BasicBlock;
 import boogie.controlflow.CfgProcedure;
 import boogie.controlflow.CfgVariable;
 import boogie.controlflow.expression.CfgIdentifierExpression;
 import boogie.controlflow.statement.CfgAssignStatement;
+import boogie.controlflow.statement.CfgCallStatement;
 import boogie.controlflow.statement.CfgStatement;
 
 /**
@@ -99,12 +102,9 @@ public class TacasGreedyCfgChecker extends AbstractChecker {
 	@Override
 	public Report runAnalysis(Prover prover) {
 
-		backlog = new LinkedList<TacasData>();
-
 		TransitionRelation tr = new TransitionRelation(this.procedure,
 				this.cff, prover);
 
-		// Statistics.HACK_effectualSetSize = tr.getEffectualSet().size();
 
 		LinkedHashMap<ProverExpr, ProverExpr> ineffFlags = new LinkedHashMap<ProverExpr, ProverExpr>();
 
@@ -147,34 +147,6 @@ public class TacasGreedyCfgChecker extends AbstractChecker {
 
 		// coverBlocks returns the set of all feasible blocks.
 		this.feasibleBlocks = new HashSet<BasicBlock>(coveredBlocks);
-
-
-		if (!this.backlog.isEmpty()) {
-			/*
-			 * TODO now check if the data in the backlog is feasible. That is, the
-			 * any of these procedure calls has a feasible execution under the
-			 * condition that its return value was null. If it has a feasible
-			 * execution with return value null remove it from the backlog.
-			 */			
-			System.err.println("Backlog size before " + this.backlog.size());
-			for (TacasData t : new LinkedList<TacasData>(this.backlog)) {
-				prover.push();
-				//assert that the return value must be null this time.
-				prover.addAssertion(prover.mkEq(t.returnVariable, t.nullVar));
-				Map<ProverExpr, BasicBlock> callToCover = new HashMap<ProverExpr, BasicBlock>();
-				callToCover.put(t.blockVar, t.blockWithCall);
-				//TODO: use a different ineffFlags.
-				
-				if (!coverBlocks(callToCover, tr, ineffFlags).isEmpty()) {
-					this.backlog.remove(t);
-					System.err.println("works");
-				} else {
-					System.err.println("BAAAAM");
-				}
-				prover.pop();
-			}
-			System.err.println("Backlog size after " + this.backlog.size());
-		}
 
 		/*
 		 * Step 2: Pop the tr.assertionFlag. An re-run coverBlocks to cover
@@ -298,16 +270,13 @@ public class TacasGreedyCfgChecker extends AbstractChecker {
 
 			LinkedList<ProverExpr> trueInModel = new LinkedList<ProverExpr>();
 			LinkedList<ProverExpr> flagsToAssert = new LinkedList<ProverExpr>();
-
+			
+			List<TacasData> backlog = new LinkedList<TacasData>();
+			
 			for (Entry<ProverExpr, BasicBlock> entry : blocks.entrySet()) {
 				final ProverExpr pe = entry.getKey();
 				if (prover.evaluate(pe).getBooleanLiteralValue()) {
 					trueInModel.add(pe);
-					ProverExpr flag = ineffFlags.get(pe);
-					if (flag != null) {
-						flagsToAssert.add(flag);
-					}
-					ineffFlags.remove(pe);
 
 					/*
 					 * TODO: this is where we check if there was a procedure
@@ -329,17 +298,18 @@ public class TacasGreedyCfgChecker extends AbstractChecker {
 								BigInteger null_value = prover
 										.evaluate(nullvar).getIntLiteralValue();
 								if (!i.equals(null_value)) {
-									System.err.println("NOT NULL");
-									System.err.println("Return value for "
-											+ v.getVariable().getVarname()
-											+ " == " + i);
-
 									TacasData td = new TacasData();
 									td.blockWithCall = entry.getValue();
 									td.blockVar = pe;
 									td.returnVariable = retvar;
+									td.cfgVariable = v.getVariable();
 									td.nullVar = nullvar;
+									td.retAssingStmt = st;
 									backlog.add(td);
+									
+									/* Now check if there is a feasible path through this 
+									 * if the procedure returned null.
+									 */
 								}
 							}
 						}
@@ -347,6 +317,64 @@ public class TacasGreedyCfgChecker extends AbstractChecker {
 				}
 			}
 
+			for (TacasData td : backlog) {
+				prover.push();
+				//temporarily set the threshold to 1 to find the path
+				((PrincessProver) prover).setupCFGPlugin(tr.getProverDAG(),
+						remainingBlockVars, remainingIneffFlags, 1);
+				//assert that the return value is null.
+				prover.addAssertion(prover.mkEq(td.returnVariable, td.nullVar));
+				//assert that we go through the same block.
+				prover.addAssertion(td.blockVar);				
+				if (prover.checkSat(true)!=ProverResult.Sat) {
+					CfgCallStatement call = this.cunwind.findCallStatement(td.cfgVariable);
+					StringBuilder sb = new StringBuilder();
+					sb.append("TACAS: ");
+					SourceLocation loc = null;
+					SourceLocation lastloc = null;
+					for (CfgStatement st : td.blockWithCall.getStatements()) {
+						lastloc = praseLocationTags(st.getAttributes());	
+						if (lastloc!=null) {
+							loc = lastloc;
+						}
+						if (st==td.retAssingStmt) {
+							break;
+						}
+					}					
+					if (loc!=null) {
+						sb.append(" in ");
+						sb.append(loc.FileName);
+						sb.append(" line ");
+						sb.append(loc.StartLine);
+						sb.append(": ");
+					}
+					sb.append(call.toString());
+					sb.append(" breaks stuff when it returns Null.\n");
+					Log.error(sb.toString());
+//					TacasReport rep = new TacasReport();
+//					rep.call = call;
+//					rep.loc = loc;
+//					rep.name = tr.getProcedure().getProcedureName();
+//					callReports.add(rep);
+				} else {
+					System.err.println("boring");
+				}
+				prover.pop();
+				//reset the threshold
+				((PrincessProver) prover).setupCFGPlugin(tr.getProverDAG(),
+						remainingBlockVars, remainingIneffFlags, threshold);				
+			}
+			backlog.clear();
+			
+			for (ProverExpr pe : trueInModel) {
+				//Now continue with business as usual.
+				ProverExpr flag = ineffFlags.get(pe);
+				if (flag != null) {
+					flagsToAssert.add(flag);
+				}
+				ineffFlags.remove(pe);									
+			}
+			
 			for (ProverExpr e : trueInModel) {
 				coveredBlocks.add(blocks.get(e));
 				blocks.remove(e);
@@ -365,13 +393,22 @@ public class TacasGreedyCfgChecker extends AbstractChecker {
 	 * What follows is stuff that is specific to the tacas paper.
 	 */
 	public static class TacasData {
+		public CfgStatement retAssingStmt;
+		public CfgVariable cfgVariable;
 		public BasicBlock blockWithCall;
 		public ProverExpr returnVariable;
 		public ProverExpr blockVar;
 		public ProverExpr nullVar;
 	}
-
-	private List<TacasData> backlog = new LinkedList<TacasData>();
+	
+//	public static class TacasReport {
+//		public String name;
+//		public SourceLocation loc;
+//		public CfgCallStatement call;
+//	}
+//	
+//	private List<TacasReport> callReports = new LinkedList<TacasReport>(); 
+	
 	private boolean tacas_enabled = false;
 
 	private ProverExpr getNullVariable(TransitionRelation tr) {
@@ -379,4 +416,10 @@ public class TacasGreedyCfgChecker extends AbstractChecker {
 		return tr.getProverExpr(v, 0);
 	}
 
+	private SourceLocation praseLocationTags(Attribute[] attributes) {
+		if (attributes == null)
+			return null;
+		return SourceLocation.readSourceLocationFromAttributes(attributes);
+	}
+	
 }
