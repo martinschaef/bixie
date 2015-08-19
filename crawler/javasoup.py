@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import os, sys
 import json
+import re
 from pprint import pprint
 
 def exists(it):
@@ -20,11 +21,11 @@ def parent_block(tag):
   if not parent_dl:
     return None
 
-  return_label = parent_dl.find(u'span')
-  
-  if not return_label or return_label.string!=u'Returns:':
+  return_label = parent_dl.find(u'span', string="Returns:")
+
+  if not return_label:
     return None
-  
+
   return parent_dl.parent
 
 def find_method_name(tag):
@@ -35,26 +36,29 @@ def find_method_name(tag):
     return None
 
 def find_relevant_methods(soup):
-  candidates = soup.find_all(null_if)  
+  candidates = soup.find_all(null_if)
   blocks = clean_list(map(parent_block, candidates))
   return clean_list(map(find_method_name, blocks))
-
-def find_class_name(soup):
-  return soup.find_all('ul', class_='inheritance')[-1].find('li').string
 
 def find_package(soup):
   return soup.find_all('div', class_='subTitle')[-1].string
 
 def find_name(soup):
-  return soup.find('div', class_='header').find('h2', class_='title').string.split(' ')[-1]
+   header_div = soup.find('div', class_='header')
+   h2_title = header_div.find('h2', class_='title')
+   h2_string = h2_title.strings.next()
+   h2_string_clean = re.sub(r'<.*', '', h2_string)
+   words = h2_string_clean.split(' ')
+   return words[-1]
 
 def process_file(filename):
   with open(filename, 'r') as f:
     soup = BeautifulSoup(f.read(), 'html.parser')
     try:
       return (find_package(soup), find_name(soup), find_relevant_methods(soup))
-    except (IndexError, AttributeError):
-      print "Error in file %s" % filename
+    except (IndexError, AttributeError) as e:
+      print "Error in file %s: %s" % (filename, e)
+      traceback.print_exc()
       return (None, None, None)
 
 def filename_filter(fname):
@@ -68,17 +72,22 @@ def dirpath_filter(dirpath):
 def walk_javadoc():
   results = {}
 
+  if os.path.isfile(sys.argv[1]):
+    package, name, methods = process_file(sys.argv[1])
+    if methods:
+      results[".".join([package,name])] = {"package":package, "class":name, "methods":methods}
+    return results
+
   for dirpath, dirs, files in os.walk(sys.argv[1]):
     if not dirpath_filter(dirpath):
       continue
     for filename in files:
       if not filename_filter(filename):
         continue
-      fname = os.path.join(dirpath, filename)      
+      fname = os.path.join(dirpath, filename)
       package, name, methods = process_file(fname)
       if methods:
-        results[".".join([package,name])] = {"package":package, "class":name, "methods":methods}        
-        #results[(package, name)] = methods
+        results[".".join([package,name])] = {"package":package, "class":name, "methods":methods}
         print "%s.%s: %s" % (package, name, str(methods))
 
   return results
