@@ -273,6 +273,7 @@ public class TacasGreedyCfgChecker extends AbstractChecker {
 			
 			List<TacasData> backlog = new LinkedList<TacasData>();
 			
+			System.err.println("One");
 			for (Entry<ProverExpr, BasicBlock> entry : blocks.entrySet()) {
 				final ProverExpr pe = entry.getKey();
 				if (prover.evaluate(pe).getBooleanLiteralValue()) {
@@ -284,7 +285,7 @@ public class TacasGreedyCfgChecker extends AbstractChecker {
 					 * call does not return null in this model, we add it to the
 					 * backlog of things that we want to check later.
 					 */
-					if (tacas_enabled) {
+					if (tacas_enabled ) { //check if we haven't covered that block
 						for (CfgStatement st : entry.getValue().getStatements()) {
 							if (tacasCallAssignments.contains(st)) {
 								CfgAssignStatement asgn = (CfgAssignStatement) st;
@@ -307,9 +308,16 @@ public class TacasGreedyCfgChecker extends AbstractChecker {
 									td.retAssingStmt = st;
 									backlog.add(td);
 									
+									System.err.println(td.blockWithCall.getLabel() + " " + st);
+									
 									/* Now check if there is a feasible path through this 
 									 * if the procedure returned null.
 									 */
+								} else {
+									//TODO: make sure that we never add this to the backlog.
+									//because we already found and blocked a path where null
+									//return is feasible.
+									System.err.println("Null works for " + entry.getValue().getLabel() + " " + st);
 								}
 							}
 						}
@@ -317,11 +325,12 @@ public class TacasGreedyCfgChecker extends AbstractChecker {
 				}
 			}
 
-			for (TacasData td : backlog) {
+			for (TacasData td : backlog) {				
 				prover.push();
 				//temporarily set the threshold to 1 to find the path
+				//and clone remainingBlockVars and remainingIneffFlags
 				((PrincessProver) prover).setupCFGPlugin(tr.getProverDAG(),
-						remainingBlockVars, remainingIneffFlags, 1);
+						new LinkedList<ProverExpr>(remainingBlockVars), new LinkedList<ProverExpr>(remainingIneffFlags), 1);
 				//assert that the return value is null.
 				prover.addAssertion(prover.mkEq(td.returnVariable, td.nullVar));
 				//assert that we go through the same block.

@@ -39,11 +39,12 @@ import boogie.type.BoogieType;
  *
  */
 public class TacasCallUnwinding {
-
+//
 	private static final String method_names = "/null_methods.json";
 	private static final Set<String> nullMethods = new HashSet<String>();
 
 	private long callCounter = 0L;
+	private Map<String, CfgVariable> specialReturnVars = new HashMap<String, CfgVariable>(); 
 	private Map<CfgCallStatement, CfgVariable> returnVariables = new HashMap<CfgCallStatement, CfgVariable>();
 	private Map<CfgCallStatement, CfgAssignStatement> returnAssignments = new HashMap<CfgCallStatement, CfgAssignStatement>();
 
@@ -225,15 +226,28 @@ public class TacasCallUnwinding {
 							for (CfgVariable v : p.getLocalVars()) {
 								localVars.add(v);
 							}
+							String procName = call.getCallee().getProcedureName();
 
-							String specialReturnVarName = call.getCallee()
-									.getProcedureName()
+							/*
+							 * Do not increase while getters are being called.
+							 * TODO: this is a hack. 
+							 */
+							if (!looksLikeGetter(procName)) {
+								callCounter++;
+							}
+
+							String specialReturnVarName = procName
 									+ "__"
-									+ (callCounter++); 
-							CfgVariable specialReturnVar = new CfgVariable(
-									specialReturnVarName, BoogieType.intType,
-									false, false, true, true);
-							localVars.add(specialReturnVar);
+									+ callCounter; 
+							
+							if (!specialReturnVars.containsKey(specialReturnVarName)) {
+								CfgVariable tmp = new CfgVariable(
+										specialReturnVarName, BoogieType.intType,
+										false, false, true, true);
+								localVars.add(tmp);					
+								specialReturnVars.put(specialReturnVarName, tmp);
+							}
+							CfgVariable specialReturnVar = specialReturnVars.get(specialReturnVarName);
 							p.setLocalVars(localVars
 									.toArray(new CfgVariable[localVars.size()]));
 
@@ -265,5 +279,14 @@ public class TacasCallUnwinding {
 				}
 			}
 		}
+	}
+	
+	private boolean looksLikeGetter(String procName) {
+		String tmp = procName.substring(0,procName.lastIndexOf('$'));
+		String methodName = tmp.substring(tmp.lastIndexOf('$')+1);
+		if (methodName.startsWith("get")) {
+			return true;
+		}
+		return false;
 	}
 }
