@@ -258,7 +258,10 @@ public class TacasGreedyCfgChecker extends AbstractChecker {
 			remainingBlockVars.add(entry.getKey());
 			remainingIneffFlags.add(entry.getValue());
 		}
+                
+                List<TacasData> backlog = new LinkedList<TacasData>();
 
+                prover.push();
 		((PrincessProver) prover).setupCFGPlugin(tr.getProverDAG(),
 				remainingBlockVars, remainingIneffFlags, threshold);
 
@@ -270,8 +273,6 @@ public class TacasGreedyCfgChecker extends AbstractChecker {
 
 			LinkedList<ProverExpr> trueInModel = new LinkedList<ProverExpr>();
 			LinkedList<ProverExpr> flagsToAssert = new LinkedList<ProverExpr>();
-			
-			List<TacasData> backlog = new LinkedList<TacasData>();
 			
 			System.err.println("One");
 			for (Entry<ProverExpr, BasicBlock> entry : blocks.entrySet()) {
@@ -325,12 +326,38 @@ public class TacasGreedyCfgChecker extends AbstractChecker {
 				}
 			}
 
+			for (ProverExpr pe : trueInModel) {
+				//Now continue with business as usual.
+				ProverExpr flag = ineffFlags.get(pe);
+				if (flag != null) {
+					flagsToAssert.add(flag);
+				}
+				ineffFlags.remove(pe);									
+			}
+			
+			for (ProverExpr e : trueInModel) {
+				coveredBlocks.add(blocks.get(e));
+				blocks.remove(e);
+			}
+
+			prover.addAssertion(prover.mkAnd(flagsToAssert
+					.toArray(new ProverExpr[flagsToAssert.size()])));
+
+			res = prover.checkSat(true);
+
+		}
+
+                prover.pop();
+
+                prover.push();
+                //temporarily set the threshold to 1 to find the path
+                //and clone remainingBlockVars and remainingIneffFlags
+                ((PrincessProver) prover).setupCFGPlugin(tr.getProverDAG(),
+                                                         new LinkedList<ProverExpr>(remainingBlockVars),
+                                                         new LinkedList<ProverExpr>(remainingIneffFlags), 1);
+
 			for (TacasData td : backlog) {				
 				prover.push();
-				//temporarily set the threshold to 1 to find the path
-				//and clone remainingBlockVars and remainingIneffFlags
-				((PrincessProver) prover).setupCFGPlugin(tr.getProverDAG(),
-						new LinkedList<ProverExpr>(remainingBlockVars), new LinkedList<ProverExpr>(remainingIneffFlags), 1);
 				//assert that the return value is null.
 				prover.addAssertion(prover.mkEq(td.returnVariable, td.nullVar));
 				//assert that we go through the same block.
@@ -369,32 +396,11 @@ public class TacasGreedyCfgChecker extends AbstractChecker {
 					System.err.println("boring");
 				}
 				prover.pop();
-				//reset the threshold
-				((PrincessProver) prover).setupCFGPlugin(tr.getProverDAG(),
-						remainingBlockVars, remainingIneffFlags, threshold);				
 			}
 			backlog.clear();
+
+                prover.pop();
 			
-			for (ProverExpr pe : trueInModel) {
-				//Now continue with business as usual.
-				ProverExpr flag = ineffFlags.get(pe);
-				if (flag != null) {
-					flagsToAssert.add(flag);
-				}
-				ineffFlags.remove(pe);									
-			}
-			
-			for (ProverExpr e : trueInModel) {
-				coveredBlocks.add(blocks.get(e));
-				blocks.remove(e);
-			}
-
-			prover.addAssertion(prover.mkAnd(flagsToAssert
-					.toArray(new ProverExpr[flagsToAssert.size()])));
-
-			res = prover.checkSat(true);
-
-		}
 		return coveredBlocks;
 	}
 
