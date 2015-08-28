@@ -9,19 +9,19 @@ import java.util.jar.Manifest;
 
 public class TacasTest01 {
 
-//	public void bad01(File f) {		
-//		File parent = f.getParentFile();
-//		if (!parent.isDirectory()) {
-//			System.err.print("Hallo");
-//		}
-//	}
-//	
-//	public void good01(File f, boolean b) {		
-//		File parent = f.getParentFile();
-//		System.out.println(parent);
-//		System.out.println(f.getParent());
-//		f.listFiles();
-//	}
+	public void bad01(File f) {		
+		File parent = f.getParentFile();
+		if (!parent.isDirectory()) {
+			System.err.print("Hallo");
+		}
+	}
+	
+	public void good01(File f, boolean b) {		
+		File parent = f.getParentFile();
+		System.out.println(parent);
+		System.out.println(f.getParent());
+		f.listFiles();
+	}
 
 	protected void fp02(File file, List<File> jarFiles) {
 		try {

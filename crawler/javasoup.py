@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import os, sys
 import json
 import re
+import traceback
 from pprint import pprint
 
 def exists(it):
@@ -11,20 +12,30 @@ def clean_list(lst):
   return filter(exists, set(lst))
 
 def null_if(tag):
-  return (tag.name == u'code' and
-          tag.string == 'null' and
+  return (tag.string == 'null' and
           exists(tag.next_sibling) and
           tag.next_sibling.startswith(u' if'))
 
-def parent_block(tag):
-  parent_dl = tag.find_parent('dl')
-  if not parent_dl:
+def parent_block(tag):  
+
+  parent_dl = tag.find_parent('dl')  
+  if not parent_dl:    
+    return None  
+
+  return_labels = parent_dl.find_all(u'span')
+  found = False
+  for return_label in return_labels:
+    if return_label.string=="Returns:":
+      found = True
+      #pprint (vars(return_label))
+      break 
+
+  if found==True:
+    pass
+  else:
     return None
 
-  return_label = parent_dl.find(u'span', string="Returns:")
-
-  if not return_label:
-    return None
+  #pprint(vars(parent_dl.parent))
 
   return parent_dl.parent
 
@@ -37,7 +48,8 @@ def find_method_name(tag):
 
 def find_relevant_methods(soup):
   candidates = soup.find_all(null_if)
-  blocks = clean_list(map(parent_block, candidates))
+  #print candidates
+  blocks = clean_list(map(parent_block, candidates))  
   return clean_list(map(find_method_name, blocks))
 
 def find_package(soup):
@@ -55,10 +67,12 @@ def process_file(filename):
   with open(filename, 'r') as f:
     soup = BeautifulSoup(f.read(), 'html.parser')
     try:
-      return (find_package(soup), find_name(soup), find_relevant_methods(soup))
+      result = (find_package(soup), find_name(soup), find_relevant_methods(soup))
+      #print result
+      return result
     except (IndexError, AttributeError) as e:
-      print "Error in file %s: %s" % (filename, e)
-      traceback.print_exc()
+      #print "Error in file %s: %s" % (filename, e)
+      #traceback.print_exc()
       return (None, None, None)
 
 def filename_filter(fname):
