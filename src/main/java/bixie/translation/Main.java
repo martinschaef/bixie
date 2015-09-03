@@ -110,28 +110,7 @@ public class Main {
 	 */
 	protected static void runSoot(String input, String output) {
 		SootRunner sootRunner = new SootRunner();
-		
-		if (null == input || input.isEmpty()) {
-			return;
-		}
-
-		if (input.endsWith(".jar")) {
-			// run with JAR file
-			sootRunner.runWithJar(input, output);
-		} else if (input.endsWith(".apk")) {
-			// run with Android file
-			sootRunner.runWithApk(input, output);
-		} else if (input.endsWith(".xml")) {
-			
-		} else {
-			File file = new File(input);
-			if (file.isDirectory()) {
-				// run with path
-				sootRunner.runWithPath(input, output);
-			} else {
-				throw new RuntimeException("Don't know what to run on.");
-			}
-		}
+		sootRunner.run(input);
 	}
 
 }
