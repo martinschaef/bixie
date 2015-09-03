@@ -331,6 +331,11 @@ public class SootProcedureInfo {
 		return exceptionalUnitGraph;
 	}
 
+	public void setExceptionalUnitGraph(ExceptionalUnitGraph tug) {
+		exceptionalUnitGraph = tug;
+	}
+
+	
 	public CustomNullnessAnalysis getNullnessAnalysis() {
 		return this.nullnessAnalysis;
 	}

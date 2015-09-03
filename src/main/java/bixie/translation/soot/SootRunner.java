@@ -33,6 +33,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import soot.Body;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
@@ -228,16 +229,6 @@ public class SootRunner {
 			//Now load the soot classes.
 			Scene.v().loadNecessaryClasses();
 			Scene.v().loadBasicClasses();
-
-			
-			// We explicitly select the packs we want to run for performance
-	        // reasons. Do not re-run the callgraph algorithm if the host
-	        // application already provides us with a CG.
-//			if (cga != CallgraphAlgorithm.None
-//					&& !Scene.v().hasCallGraph()) {
-//		        PackManager.v().getPack("wjpp").apply();
-//		        PackManager.v().getPack("cg").apply();
-//			}			
 			
 			for (SootClass sc : Scene.v().getClasses()) {
 				if (classes.contains(sc.getName())) {
@@ -248,16 +239,20 @@ public class SootRunner {
 				if (sc.resolvingLevel()<SootClass.SIGNATURES) {			
 					continue;
 				}
-				
 				if (sc.isApplicationClass()) {					
 					for (SootMethod sm : sc.getMethods()) {
 						if (sm.isConcrete()) {
 							Log.info("Analyzing "+ sm.getBytecodeSignature());
 							try {
-								SootBodyTransformer sbt = new SootBodyTransformer();
-								sbt.transform(sm.retrieveActiveBody());
+								Body body = sm.retrieveActiveBody();
+								sm.setActiveBody(body);
+								if (body!=null) {
+									SootBodyTransformer sbt = new SootBodyTransformer();
+									sbt.transform(body);
+								}
 							} catch (Throwable t) {
-								Log.error("Failed to process "+sm.getName());
+								Log.error("Failed to process "+sm.getSignature());
+								t.printStackTrace();
 							}
 						}
 

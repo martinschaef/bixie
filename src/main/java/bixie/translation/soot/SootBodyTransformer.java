@@ -45,6 +45,7 @@ import soot.jimple.internal.JEqExpr;
 import soot.tagkit.LineNumberTag;
 import soot.tagkit.SourceLnNamePosTag;
 import soot.tagkit.Tag;
+import soot.toolkits.exceptions.UnitThrowAnalysis;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import bixie.translation.GlobalsCache;
 import bixie.util.Log;
@@ -108,14 +109,18 @@ public class SootBodyTransformer extends BodyTransformer {
 		//now add all assumptions about the types of the in and out parameters
 		boogieStatements.addAll(procInfo.typeAssumptions);
 		
-		ExceptionalUnitGraph tug = procInfo.getExceptionalUnitGraph();
-		
+		ExceptionalUnitGraph tug = new ExceptionalUnitGraph(
+				body, UnitThrowAnalysis.v());
+		procInfo.setExceptionalUnitGraph(tug);
 		
 		//in a first pass, check if statements have been duplicated
 		//in the bytecode, e.g. for finally-blocks, which is used
 		//later to generate attributes that suppress false alarms
 		//during infeasible code detection.
 		TranslationHelpers.clonedFinallyBlocks.clear();
+		
+		
+		
 		TranslationHelpers.clonedFinallyBlocks.addAll(detectDuplicatedFinallyBlocks(tug.iterator(), procInfo));
 //		TranslationHelpers.clonedFinallyBlocks = detectDuplicatedFinallyBlocks_new(tug.iterator(), procInfo);
 		//reset the iterator
