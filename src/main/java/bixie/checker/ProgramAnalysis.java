@@ -12,7 +12,6 @@ import bixie.checker.inconsistency_checker.AbstractChecker;
 import bixie.checker.inconsistency_checker.CdcChecker;
 import bixie.checker.inconsistency_checker.CombinedChecker;
 import bixie.checker.inconsistency_checker.GreedyCfgChecker;
-import bixie.checker.inconsistency_checker.TacasGreedyCfgChecker;
 import bixie.checker.report.Report;
 import bixie.checker.reportprinter.ReportPrinter;
 import bixie.util.Log;
@@ -85,10 +84,6 @@ public class ProgramAnalysis {
 			checker = new CdcChecker(cff, p);
 			break;
 		}
-		case 3: {
-			checker = new TacasGreedyCfgChecker(cff, p);
-			break;
-		}		
 		default: {
 			checker = new CombinedChecker(cff, p);
 			break;

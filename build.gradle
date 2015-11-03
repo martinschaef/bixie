@@ -30,12 +30,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'application'
 apply plugin: 'findbugs'
 apply plugin: 'jdepend'
-if (!project.hasProperty('coverityMode')) {
-  //don't use error-prone when checking the code
-  //with coverity or infer, because it wraps around
-  //the compiler which confuses these tools.
-  apply plugin: 'net.ltgt.errorprone'
-}
+
 apply plugin: 'checkstyle'
 
 task wrapper(type: Wrapper) {
@@ -63,7 +58,6 @@ buildscript {
 
     dependencies {
         classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.1'
-        classpath 'net.ltgt.gradle:gradle-errorprone-plugin:latest.release'
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
     }
 }
@@ -167,7 +161,7 @@ task inferCheck {
 
     exec {
         workingDir '.'
-        commandLine 'infer', '--', 'gradle', '-PcoverityMode', 'clean', 'compileJava'
+        commandLine 'infer', '--', 'gradle', 'clean', 'compileJava'
     }
 
   }
@@ -182,7 +176,7 @@ task coverityCheck {
     println("Running coverity")
     exec {
       workingDir '.'
-      commandLine 'cov-build', '--dir', 'cov-int', 'gradle', '-PcoverityMode', 'clean', 'compileJava'
+      commandLine 'cov-build', '--dir', 'cov-int', 'gradle', 'clean', 'compileJava'
     }
     println("Packing the results")
     exec {
@@ -211,7 +205,7 @@ task runExperiments {
     println("Rebuild Jar with Aspects.")
     exec {
       workingDir '.'
-      commandLine './gradlew', '-PdebugMode', 'clean', 'jar'
+      commandLine './gradlew', 'clean', 'jar'
     }  
     println("Running the experiments.")
     println("\tcopy the bixie jar into the experiments folder")  

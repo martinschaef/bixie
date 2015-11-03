@@ -1,6 +1,6 @@
 /*
  * jimple2boogie - Translates Jimple (or Java) Programs to Boogie
- * Copyright (C) 2013 Martin Schaeaeaef and Stephan Arlt
+ * Copyright (C) 2013 Martin Schaef and Stephan Arlt
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,13 +18,6 @@
  */
 
 package bixie.translation;
-
-
-
-
-
-
-import java.io.File;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
